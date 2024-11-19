@@ -4,19 +4,13 @@
 [v-cloak] {
      display: none;
 }
-
-#map {
-  height: 500px;
-  width: 100%;
-}
 </style>
 
 <div class="section" id="app" v-cloak>
   <!-- Put here your Vue.js template -->
   <h1 class="title"><i class="fa-solid fa-cube"></i> Bird Watching</h1>
   <p>Content: my_value: {{my_value}} </p>
-
-  <div id="map"></div>
+  <map-component></map-component> 
 </div>
 
 [[block page_scripts]]
@@ -24,6 +18,5 @@
 <script>
   let my_callback_url = "[[=XML(my_callback_url)]]";
 </script>
-<script src="https://unpkg.com/vue3-google-map"></script>
 <script src="js/index.js"></script>
 [[end]]

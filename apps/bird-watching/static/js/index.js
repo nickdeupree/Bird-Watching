@@ -3,6 +3,44 @@
 
 // This will be the object that will contain the Vue attributes
 // and be used to initialize it.
+
+const MapComponent = {
+    template: `
+        <div id="map" style="height: 500px; width: 100%;"></div>
+    `,
+    data() {
+        return {
+            map: null, // The Leaflet map instance
+        };
+    },
+    methods: {
+        click_listener(e) {
+            console.log("Map clicked at", e.latlng);
+        },
+        dbclick_listener(e) {
+            console.log("Map double-clicked at", e.latlng);
+        },
+    },
+    mounted() {
+        this.map = L.map("map").setView([51.505, -0.09], 13);
+
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(this.map);
+
+        this.map.on("click", this.click_listener);
+        this.map.on("dblclick", this.dbclick_listener);
+    },
+    beforeUnmount() {
+        if (this.map) {
+            this.map.off("click", this.click_listener);
+            this.map.off("dblclick", this.dbclick_listener);
+            this.map.remove();
+        }
+    },
+};
+
 let app = {};
 
 app.data = {
@@ -10,7 +48,6 @@ app.data = {
         return {
             // Complete as you see fit.
             my_value: 1, // This is an example.
-            map: undefined,
         };
     },
     methods: {
@@ -18,21 +55,16 @@ app.data = {
         my_function: function () {
             // This is an example.
             this.my_value += 1;
-        },
-
-        initMap: function() {
-            this.map = L.map('map').setView(this.center, this.zoom);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }).addTo(this.map);
-        },
-        mounted: function() {
-            this.initMap();
         }
 
     },
+
+    components: {
+        MapComponent
+    }
 };
+
+
 
 app.vue = Vue.createApp(app.data).mount("#app");
 
