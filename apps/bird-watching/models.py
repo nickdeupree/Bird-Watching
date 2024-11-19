@@ -19,5 +19,8 @@ def get_time():
 # db.define_table('thing', Field('name'))
 #
 ## always commit your models to avoid problems later
+db.define_table('species',
+    Field('name', 'string', unique=True, requires=IS_NOT_EMPTY())
+)
 
 db.commit()
