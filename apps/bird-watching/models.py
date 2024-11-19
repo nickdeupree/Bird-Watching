@@ -3,10 +3,10 @@ This file defines the database models
 """
 
 import datetime
+import os
 from .common import db, Field, auth
 from pydal.validators import *
 import csv
-
 
 def get_user_email():
     return auth.current_user.get('email') if auth.current_user else None
@@ -42,13 +42,13 @@ db.define_table('checklist',
 
 def populate_tables():
     if db(db.species).isempty():
-        with open('species.csv', 'r') as f:
+        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/species.csv'), 'r') as f:
             reader = csv.reader(f)
             for row in reader:
                 db.species.insert(name=row[0])
 
     if db(db.checklist).isempty():
-        with open('checklist.csv', 'r') as f:
+        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/checklist.csv'), 'r') as f:
             reader = csv.reader(f)
             for row in reader:
                 db.checklist.insert(
@@ -62,7 +62,7 @@ def populate_tables():
                 )
     
     if db(db.sightings).isempty():
-        with open('sightings.csv', 'r') as f:
+        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/sightings.csv'), 'r') as f:
             reader = csv.reader(f)
             for row in reader:
                 species = db(db.species.name == row[1]).select().first()
