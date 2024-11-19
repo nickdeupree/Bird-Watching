@@ -4,27 +4,19 @@
 [v-cloak] {
      display: none;
 }
+
+#map {
+  height: 500px;
+  width: 100%;
+}
 </style>
-<script setup>
-  import { GoogleMap, Marker } from 'vue3-google-map'
-  const center = { lat: 40.689247, lng: -74.044502 }
-</script>
 
 <div class="section" id="app" v-cloak>
   <!-- Put here your Vue.js template -->
   <h1 class="title"><i class="fa-solid fa-cube"></i> Bird Watching</h1>
   <p>Content: my_value: {{my_value}} </p>
 
-  <template>
-    <GoogleMap
-    api-key="AIzaSyD_Bx3DhbAlcRVVTH-EOycq_f-p4dpPfXY"
-    style="width: 100%; height: 500px"
-    :center="center"
-    :zoom="15"
-    >
-      <Marker :options="{ position: center }" />
-    </GoogleMap>
-  </template>
+  <div id="map"></div>
 </div>
 
 [[block page_scripts]]

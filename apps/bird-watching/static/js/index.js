@@ -10,7 +10,7 @@ app.data = {
         return {
             // Complete as you see fit.
             my_value: 1, // This is an example.
-            center: {  lat: -34.397, lng: 150.644 }
+            map: undefined,
         };
     },
     methods: {
@@ -20,13 +20,15 @@ app.data = {
             this.my_value += 1;
         },
 
-        initMap: async function () {
-            const { Map } = await google.maps.importLibrary("maps");
-
-            this.map = new Map(document.getElementById("map"), {
-                center: { lat: -34.397, lng: 150.644 },
-                zoom: 8,
-            });
+        initMap: function() {
+            this.map = L.map('map').setView(this.center, this.zoom);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(this.map);
+        },
+        mounted: function() {
+            this.initMap();
         }
 
     },
