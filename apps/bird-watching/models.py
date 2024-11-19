@@ -31,4 +31,9 @@ db.define_table('sighting',
     Field('sighting_time', 'datetime', default=get_time),                
 )
 
+db.define_table('location',
+    Field('longitude', 'float'),
+    Field('latitude', 'float'),
+)
+
 db.commit()
