@@ -31,4 +31,14 @@ db.define_table('sighting',
     Field('sighting_time', 'datetime', default=get_time),                
 )
 
+db.define_table('checklist',
+   Field('event_id', requires=IS_NOT_EMPTY()),
+   Field('lat', requires=IS_NOT_EMPTY()),
+   Field('long', requires=IS_NOT_EMPTY()),
+   Field('date', default=get_time()),
+   Field('time', default=get_time()),
+   Field('obs_id', requires=IS_NOT_EMPTY()),
+   Field('duration', requires=IS_NOT_EMPTY()),
+)
+
 db.commit()
