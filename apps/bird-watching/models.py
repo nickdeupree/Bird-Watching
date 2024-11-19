@@ -23,4 +23,12 @@ db.define_table('species',
     Field('name', 'string', unique=True, requires=IS_NOT_EMPTY())
 )
 
+db.define_table('sighting',
+    Field('user_email', default=get_user_email),
+    Field('species_id', 'string', requires=IS_NOT_EMPTY()),
+    Field('location_id', 'string'),
+    Field('count', 'integer', default=1),
+    Field('sighting_time', 'datetime', default=get_time),                
+)
+
 db.commit()
