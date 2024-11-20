@@ -1,16 +1,34 @@
 [[extend 'layout.html']]
 
-<style>
-[v-cloak] {
-     display: none;
-}
-</style>
+[[block page_head]]
 
-<div class="section" id="app" v-cloak>
-  <!-- Put here your Vue.js template -->
-  <h1 class="title"><i class="fa-solid fa-cube"></i> Bird Watching</h1>
-  <p>Content: my_value: {{my_value}} </p>
-  <map-component></map-component> 
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+<style>
+  [v-cloak] {
+    display: none;
+  }
+
+  #map {
+    height: 500px;
+    width: 100%;
+  }
+</style>
+[[end]]
+
+<div v-if="user_email">
+  <client-only>
+    <div class="section" id="vue-target" v-cloak>
+      <div id="map"></div>
+      <button class="button is-success mt-2" @click="toggle_drawing">
+        <span v-if="is_drawing">Stop drawing</span>
+        <span v-else>Start drawing</span>
+      </button>
+      <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish with a double-click.</p>
+    </div>
+  </client-only>
 </div>
 
 [[block page_scripts]]
@@ -18,5 +36,8 @@
 <script>
   let my_callback_url = "[[=XML(my_callback_url)]]";
 </script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/index.js"></script>
+
 [[end]]
