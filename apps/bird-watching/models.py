@@ -25,8 +25,8 @@ db.define_table('species',
 )
 
 db.define_table('sightings',
-    #Field('species_id', 'reference species', requires=IS_NOT_EMPTY()),
-    #Field('event_id', 'reference checklist', requires=IS_NOT_EMPTY()),
+    Field('species_id', 'reference species', requires=IS_NOT_EMPTY()),
+    Field('event_id', requires=IS_NOT_EMPTY()),
     Field('observation_count', 'integer', default=1)
 )
 
@@ -41,41 +41,40 @@ db.define_table('checklist',
 )
 
 
-def populate_tables():
-    if db(db.species).isempty():
-        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/species.csv'), 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                db.species.insert(name=row[0])
-
-    if db(db.checklist).isempty():
-        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/checklist.csv'), 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                db.checklist.insert(
-                    event_id=row[0],
-                    lat=row[1],
-                    long=row[2],
-                    date=row[3],
-                    time=row[4],
-                    obs_id=row[5],
-                    duration=row[6]
-                )
+# def populate_tables():
+#     if db(db.species).isempty():
+#         with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/species.csv'), 'r') as f:
+#             reader = csv.reader(f)
+#             for row in reader:
+#                 db.species.insert(name=row[0])
+#     if db(db.checklist).isempty():
+#         with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/checklist.csv'), 'r') as f:
+#             reader = csv.reader(f)
+#             for row in reader:
+#                 db.checklist.insert(
+#                     event_id=row[0],
+#                     lat=row[1],
+#                     long=row[2],
+#                     date=row[3],
+#                     time=row[4],
+#                     obs_id=row[5],
+#                     duration=row[6]
+#                 )
     
-    if db(db.sightings).isempty():
-        with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/sightings.csv'), 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                species = db(db.species.name == row[1]).select().first()
-                checklist = db(db.checklist.event_id == row[0]).select().first()
-                if species and checklist:
-                    db.sightings.insert(
-                        species_id=species.id,
-                        event_id=checklist.id,
-                        observation_count=row[2]
-                    )
+#     if db(db.sightings).isempty():
+#         with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/sightings.csv'), 'r') as f:
+#             reader = csv.reader(f)
+#             for row in reader:
+#                 species = db(db.species.name == row[1]).select().first()
+#                 checklist = db(db.checklist.event_id == row[0]).select().first()
+#                 if species and checklist:
+#                     db.sightings.insert(
+#                         species_id=species.id,
+#                         event_id=checklist.id,
+#                         observation_count=row[2]
+#                     )
 
 
-# run this function to populate the tables
-#populate_tables()
+# # run this function to populate the tables
+# populate_tables()
 db.commit()

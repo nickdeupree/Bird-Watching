@@ -11,6 +11,8 @@ let init = (app) => {
         user_email: null,
         is_drawing: false,
         map: null,
+        drawing_polygon: null,
+        drawing_coords: [],
     };
 
     app.enumerate = (a) => {
@@ -22,6 +24,23 @@ let init = (app) => {
     app.methods = {
         toggle_drawing() {
             this.is_drawing = !this.is_drawing;
+            if(this.is_drawing) {
+                this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
+                this.drawing_coords = [];
+
+                this.map.on('click', (e) => {
+                    const { lat, lng } = e.latlng;
+                    this.drawing_coords.push([lat, lng]);
+                    this.drawing_polygon.setLatLngs(this.drawing_coords);
+                });
+            } else {
+                if (this.drawing_polygon) {
+                    this.polygons.push(this.drawing_polygon);
+                    this.drawing_polygon = null;
+                }
+
+                this.map.off('click');
+            }
         },
     };
 
