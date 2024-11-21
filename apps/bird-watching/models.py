@@ -31,7 +31,7 @@ db.define_table('sightings',
 )
 
 db.define_table('checklist',
-   Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
+   #Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
    Field('lat', requires=IS_NOT_EMPTY()),
    Field('long', requires=IS_NOT_EMPTY()),
    Field('date', default=get_time()),
@@ -40,13 +40,13 @@ db.define_table('checklist',
    Field('duration', requires=IS_NOT_EMPTY()),
 )
 
+
 # def populate_tables():
 #     if db(db.species).isempty():
 #         with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/species.csv'), 'r') as f:
 #             reader = csv.reader(f)
 #             for row in reader:
 #                 db.species.insert(name=row[0])
-
 #     if db(db.checklist).isempty():
 #         with open(os.path.join(os.getcwd(), r'apps/bird-watching/uploads/checklist.csv'), 'r') as f:
 #             reader = csv.reader(f)
