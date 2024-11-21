@@ -13,6 +13,7 @@ let init = (app) => {
         map: null,
         drawing_polygon: null,
         drawing_coords: [],
+        polygon: null
     };
 
     app.enumerate = (a) => {
@@ -35,7 +36,7 @@ let init = (app) => {
                 });
             } else {
                 if (this.drawing_polygon) {
-                    this.polygons.push(this.drawing_polygon);
+                    this.polygon = this.drawing_polygon;
                     this.drawing_polygon = null;
                 }
 
