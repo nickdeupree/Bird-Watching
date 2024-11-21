@@ -39,7 +39,25 @@ def index():
     return dict(
         # COMPLETE: return here any signed URLs you need.
         my_callback_url = URL('my_callback', signer=url_signer),
-    )
+        location_url = URL('location'),
+        stats_url = URL('stats'),
+        checklist_url = URL('checklist'),
+    )   
+
+@action('location')
+@action.uses('location.html', db, auth)
+def location():
+    return dict()
+
+@action('stats')
+@action.uses('stats.html', db, auth)
+def stats():
+    return dict()
+
+@action('checklist')
+@action.uses('checklist.html', db, auth)
+def checklist():
+    return dict()
 
 # @action('checklist')
 # @action.uses('checklist.html', db, auth, url_signer)
