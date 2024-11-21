@@ -38,8 +38,6 @@ let init = (app) => {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 }).addTo(this.map);
-
-                this.map.invalidateSize();
             }, 100); // adding slight delay to help with rendering
         },
     });
