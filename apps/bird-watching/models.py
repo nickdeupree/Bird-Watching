@@ -25,13 +25,13 @@ db.define_table('species',
 )
 
 db.define_table('sightings',
-    Field('species_id', 'reference species', requires=IS_NOT_EMPTY()),
-    Field('event_id', 'reference checklist', requires=IS_NOT_EMPTY()),
+    #Field('species_id', 'reference species', requires=IS_NOT_EMPTY()),
+    #Field('event_id', 'reference checklist', requires=IS_NOT_EMPTY()),
     Field('observation_count', 'integer', default=1)
 )
 
 db.define_table('checklist',
-   Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
+   #Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
    Field('lat', requires=IS_NOT_EMPTY()),
    Field('long', requires=IS_NOT_EMPTY()),
    Field('date', default=get_time()),
@@ -39,6 +39,7 @@ db.define_table('checklist',
    Field('obs_id', requires=IS_NOT_EMPTY()),
    Field('duration', requires=IS_NOT_EMPTY()),
 )
+
 
 def populate_tables():
     if db(db.species).isempty():
@@ -76,5 +77,5 @@ def populate_tables():
 
 
 # run this function to populate the tables
-populate_tables()
+#populate_tables()
 db.commit()
