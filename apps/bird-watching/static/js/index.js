@@ -13,13 +13,24 @@ let init = (app) => {
         map: null,
         drawing_polygon: null,
         drawing_coords: [],
-        polygon: null
+        polygon: null,
+        searched: '',
+        selected_species: null,
+        all_species: [],
     };
 
     app.enumerate = (a) => {
         let k = 0;
         a.map((e) => { e._idx = k++; });
         return a;
+    };
+
+    app.computed = {
+        filteredSpecies() {
+            return this.all_species.filter(species => 
+                species.toLowerCase().includes(this.searched.toLowerCase())
+            );
+        }
     };
 
     app.methods = {
@@ -43,6 +54,10 @@ let init = (app) => {
                 this.map.off('click');
             }
         },
+
+        updateSpecies() {
+            console.log('Species name entered:', this.searched);
+          },
     };
 
     app.vue = Vue.createApp({
@@ -58,8 +73,6 @@ let init = (app) => {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 }).addTo(this.map);
-
-                this.map.invalidateSize();
             }, 100); // adding slight delay to help with rendering
         },
     });
@@ -68,5 +81,13 @@ let init = (app) => {
     app.vue.mount("#vue-target");
 };
 
-// This takes the (empty) app object, and initializes it.
 init(app);
+
+app.load_data = function () {
+    axios.get(load_species_url).then((r) => {
+        app.data.all_species = r.data.species;
+       
+    });
+}
+
+app.load_data();

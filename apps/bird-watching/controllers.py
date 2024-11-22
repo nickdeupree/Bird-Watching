@@ -38,7 +38,7 @@ url_signer = URLSigner(session)
 def index():
     return dict(
         # COMPLETE: return here any signed URLs you need.
-        my_callback_url = URL('my_callback', signer=url_signer),
+        load_species_url = URL('load_species_url', signer=url_signer),
         location_url = URL('location'),
         stats_url = URL('stats'),
         checklist_url = URL('checklist'),
@@ -67,8 +67,8 @@ def checklist():
 #         my_callback_url = URL('my_callback', signer=url_signer),
 #     )
 
-@action('my_callback')
-@action.uses() # Add here things like db, auth, etc.
-def my_callback():
-    # The return value should be a dictionary that will be sent as JSON.
-    return dict(my_value=3)
+@action('load_species_url')
+@action.uses(db, auth.user) # Add here things like db, auth, etc.
+def load_species():
+    species = db(db.species).select()
+    return dict(species=species)
