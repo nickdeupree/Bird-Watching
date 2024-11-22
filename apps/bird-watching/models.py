@@ -31,7 +31,7 @@ db.define_table('sightings',
 )
 
 db.define_table('checklist',
-   #Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
+   Field('event_id', 'reference sightings', requires=IS_NOT_EMPTY()),
    Field('lat', requires=IS_NOT_EMPTY()),
    Field('long', requires=IS_NOT_EMPTY()),
    Field('date', default=get_time()),
