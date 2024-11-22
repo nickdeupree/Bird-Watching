@@ -37,7 +37,7 @@
 
     <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to Location</button>
     <button class="button is-primary mt-2" onclick="window.location.href='[[=stats_url]]'">Go to Stats</button>
-    <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'">Go to Checklist</button>
+    <button class="button is-primary mt-2"  @click="handleClickChecklist">Go to Checklist</button>
   </client-only>
 </div>
 
@@ -45,6 +45,7 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
   let load_species_url = "[[=XML(load_species_url)]]";
+  let find_locations_in_range_url = "[[=XML(find_locations_in_range_url)]]";
 </script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

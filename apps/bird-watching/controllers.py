@@ -39,6 +39,7 @@ def index():
     return dict(
         # COMPLETE: return here any signed URLs you need.
         load_species_url = URL('load_species_url', signer=url_signer),
+        find_locations_in_range_url = URL('find_locations_in_range', signer=url_signer),
         location_url = URL('location'),
         stats_url = URL('stats'),
         checklist_url = URL('checklist'),
@@ -72,3 +73,25 @@ def checklist():
 def load_species():
     species = db(db.species).select()
     return dict(species=species)
+
+@action('find_locations_in_range_url', method=["POST"])
+@action.uses(db, auth.user)
+def find_locations_in_rectangle():
+    points = request.data.get("points")  # For now, hardcoded to be 4 points
+
+    if not points or len(points) != 4:
+        return dict(error="Need 4 points to define a rectangle")
+
+    lats = [p[0] for p in points]
+    lngs = [p[1] for p in points]
+    min_lat, max_lat = min(lats), max(lats)
+    min_lng, max_lng = min(lngs), max(lngs)
+
+    checklists = db(
+        (db.checklist.lat >= min_lat) & 
+        (db.checklist.lat <= max_lat) & 
+        (db.checklist.long >= min_lng) & 
+        (db.checklist.long <= max_lng)
+    ).select()
+
+    return dict(checklists=checklists.as_list())

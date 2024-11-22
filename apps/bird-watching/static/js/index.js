@@ -34,7 +34,7 @@ let init = (app) => {
     };
 
     app.methods = {
-        toggle_drawing() {
+        toggleDrawing: function() {
             this.is_drawing = !this.is_drawing;
             if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
@@ -62,12 +62,27 @@ let init = (app) => {
             }
         },
 
-        updateSpecies() {
+        updateSpecies: function() {
             console.log('Species name entered:', this.searched);
         },
 
-        clickChecklist() {
+        clickChecklist: function() {
             console.log('Checklist button clicked');
+            if(findLocationsInRange(this.drawing_coords)) {
+                console.log('Checklists found in range');
+            }
+        },
+
+        handleChecklistClick: function() {
+            this.clickChecklist(); 
+            window.location.href = checklist_url; 
+        },
+
+        findLocationsInRange: function(points) {
+            axios.post(find_locations_in_range_url, { points: points })
+                .then((r) => {
+                    return r.data.checklists;
+                })
         }
     };
 
@@ -97,7 +112,6 @@ init(app);
 app.load_data = function () {
     axios.get(load_species_url).then((r) => {
         app.data.all_species = r.data.species;
-
     });
 }
 
