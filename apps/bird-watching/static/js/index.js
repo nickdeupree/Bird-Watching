@@ -27,7 +27,7 @@ let init = (app) => {
 
     app.computed = {
         filteredSpecies() {
-            return this.all_species.filter(species => 
+            return this.all_species.filter(species =>
                 species.toLowerCase().includes(this.searched.toLowerCase())
             );
         }
@@ -36,14 +36,21 @@ let init = (app) => {
     app.methods = {
         toggle_drawing() {
             this.is_drawing = !this.is_drawing;
-            if(this.is_drawing) {
+            if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
                 this.drawing_coords = [];
 
                 this.map.on('click', (e) => {
-                    const { lat, lng } = e.latlng;
-                    this.drawing_coords.push([lat, lng]);
-                    this.drawing_polygon.setLatLngs(this.drawing_coords);
+                    if (this.drawing_coords.length < 4) {
+                        const { lat, lng } = e.latlng;
+                        this.drawing_coords.push([lat, lng]);
+                        this.drawing_polygon.setLatLngs(this.drawing_coords);
+                    } else {
+                        L.popup()
+                        .setLatLng(e.latlng)
+                        .setContent("Max 4 points are allowed; stop drawing.")
+                        .openOn(this.map);
+                    }
                 });
             } else {
                 if (this.drawing_polygon) {
@@ -57,7 +64,11 @@ let init = (app) => {
 
         updateSpecies() {
             console.log('Species name entered:', this.searched);
-          },
+        },
+
+        clickChecklist() {
+            console.log('Checklist button clicked');
+        }
     };
 
     app.vue = Vue.createApp({
@@ -86,7 +97,7 @@ init(app);
 app.load_data = function () {
     axios.get(load_species_url).then((r) => {
         app.data.all_species = r.data.species;
-       
+
     });
 }
 
