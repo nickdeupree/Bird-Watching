@@ -72,3 +72,15 @@ def checklist():
 def load_species():
     species = db(db.species).select()
     return dict(species=species)
+
+@action('load_checklist_url')
+@action.uses(db, auth.user)
+def load_checklist():
+    checklist = db(db.checklist).select()
+    return dict(checklist=checklist)
+
+@action('load_sightings_url')
+@action.uses(db, auth.user)
+def load_sightings():
+    sightings = db(db.sightings).select()
+    return dict(sightings=sightings)
