@@ -17,6 +17,7 @@ let init = (app) => {
         searched: '',
         selected_species: null,
         all_species: [],
+        checklists: [],
     };
 
     app.enumerate = (a) => {
@@ -66,24 +67,28 @@ let init = (app) => {
             console.log('Species name entered:', this.searched);
         },
 
+        findLocationsInRange: function(points) {
+            let self = this;
+            axios.post(find_locations_in_range_url, { points: points })
+                .then((r) => {
+                    self.checklists = r.data.checklists;
+                })
+        },
+
         clickChecklist: function() {
             console.log('Checklist button clicked');
-            if(findLocationsInRange(this.drawing_coords)) {
+            if(this.checklists.length > 0) {
                 console.log('Checklists found in range');
+            } else {
+                console.log('No checklists found in range');
             }
         },
 
         handleChecklistClick: function() {
             this.clickChecklist(); 
-            window.location.href = checklist_url; 
+            // window.location.href = checklist_url; 
         },
 
-        findLocationsInRange: function(points) {
-            axios.post(find_locations_in_range_url, { points: points })
-                .then((r) => {
-                    return r.data.checklists;
-                })
-        }
     };
 
     app.vue = Vue.createApp({

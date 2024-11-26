@@ -92,6 +92,6 @@ def find_locations_in_rectangle():
         (db.checklist.lat <= max_lat) & 
         (db.checklist.long >= min_lng) & 
         (db.checklist.long <= max_lng)
-    ).select()
+    ).select().as_list()
 
-    return dict(checklists=checklists.as_list())
+    return dict(checklists=checklists)
