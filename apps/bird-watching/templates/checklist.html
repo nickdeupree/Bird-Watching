@@ -25,11 +25,10 @@
         <td><input class="input add-item" type="text" name="new_item" v-model="new_item"></td>
         <td class="is-narrow"></td>
       </tr>
-      <tr class="item-row" v-for="(species, idx) in checklist[checklist_id]"> <!-- table of species -->
-        <!-- assignment 3 code -->
+      <tr class="item-row" v-for="(item, idx) in shoppinglist"> <!-- table of species -->
         <td class="check is-narrow"><input type="checkbox" :checked="item.checked" @click="update_quantity(idx)"></td>
-        <td class="item"> {{ species.species_name}} </td>
-        <td class="trash is-narrow" @click="remove_species(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
+        <td class="item"> {{ item.product_name}} </td>
+        <td class="trash is-narrow" @click="remove_item(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
       </tr> 
     </table>
   </div>
