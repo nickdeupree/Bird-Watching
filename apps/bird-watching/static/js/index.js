@@ -17,6 +17,7 @@ let init = (app) => {
         searched: '',
         selected_species: null,
         all_species: [],
+        checklists: [],
     };
 
     app.enumerate = (a) => {
@@ -34,7 +35,7 @@ let init = (app) => {
     };
 
     app.methods = {
-        toggle_drawing() {
+        toggleDrawing: function () {
             this.is_drawing = !this.is_drawing;
             if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
@@ -47,28 +48,35 @@ let init = (app) => {
                         this.drawing_polygon.setLatLngs(this.drawing_coords);
                     } else {
                         L.popup()
-                        .setLatLng(e.latlng)
-                        .setContent("Max 4 points are allowed; stop drawing.")
-                        .openOn(this.map);
+                            .setLatLng(e.latlng)
+                            .setContent("Max 4 points are allowed; stop drawing.")
+                            .openOn(this.map);
                     }
                 });
             } else {
                 if (this.drawing_polygon) {
-                    this.polygon = this.drawing_polygon;
                     this.drawing_polygon = null;
+
+                    axios.post(save_user_polygon_url,
+                        {
+                            polygon_coords: this.drawing_coords
+                        }
+                    ).then(() => {
+                        console.log("Polygon saved successfully!");
+                    }).catch((error) => {
+                        console.error("Error saving polygon:", error);
+                    });
                 }
 
                 this.map.off('click');
             }
         },
 
-        updateSpecies() {
+        updateSpecies: function () {
             console.log('Species name entered:', this.searched);
         },
 
-        clickChecklist() {
-            console.log('Checklist button clicked');
-        }
+
     };
 
     app.vue = Vue.createApp({
@@ -77,7 +85,6 @@ let init = (app) => {
         },
         methods: app.methods,
         mounted() {
-            // Add a timeout to initialize the map after 2 seconds
             setTimeout(() => {
                 this.map = L.map("map").setView([51.505, -0.09], 13);
                 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -97,7 +104,6 @@ init(app);
 app.load_data = function () {
     axios.get(load_species_url).then((r) => {
         app.data.all_species = r.data.species;
-
     });
 }
 

@@ -28,23 +28,29 @@
         </div>
       </div>
       <div id="map"></div>
-      <button class="button is-success mt-2" @click="toggle_drawing">
+      <button class="button is-success mt-2" @click="toggleDrawing">
         <span v-if="is_drawing">Stop drawing</span>
         <span v-else>Start drawing</span>
       </button>
       <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish with a double-click.</p>
+      <div class="buttons mt-2">
+        <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to Location</button>
+        <button class="button is-primary mt-2" onclick="window.location.href='[[=stats_url]]'">Go to Stats</button>
+        <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'">Go to Checklist</button>
+      </div>
     </div>
 
-    <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to Location</button>
-    <button class="button is-primary mt-2" onclick="window.location.href='[[=stats_url]]'">Go to Stats</button>
-    <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'">Go to Checklist</button>
+    
   </client-only>
 </div>
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
+  let checklist_url = "[[=XML(checklist_url)]]";
   let load_species_url = "[[=XML(load_species_url)]]";
+  let find_locations_in_range_url = "[[=XML(find_locations_in_range_url)]]";
+  let save_user_polygon_url = "[[=XML(save_user_polygon_url)]]";
 </script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
