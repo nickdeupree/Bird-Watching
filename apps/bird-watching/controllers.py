@@ -25,11 +25,12 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+import json
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email
+from .models import get_user_email, get_time
 
 url_signer = URLSigner(session)
 
@@ -43,6 +44,7 @@ def index():
         location_url = URL('location'),
         stats_url = URL('stats'),
         checklist_url = URL('checklist'),
+        save_user_polygon_url = URL('save_user_polygon', signer=url_signer)
     )   
 
 @action('location')
@@ -95,3 +97,26 @@ def find_locations_in_rectangle():
     ).select().as_list()
 
     return dict(checklists=checklists)
+
+@action('save_user_polygon', method=["POST"])
+@action.uses(db, auth.user)
+def save_user_polygon():
+    coords = request.json.get("polygon_coords")
+    user_email = get_user_email() 
+    if user_email:
+        preexisting_polygon = db(db.user_polygon.user_email == user_email).select().first()
+        
+        coords_json = json.dumps(coords)
+
+        if preexisting_polygon:
+            db(db.user_polygon.id == preexisting_polygon.id).update(
+                polygon_coords=coords_json,
+                last_updated=get_time()
+            )
+        else:
+            db.user_polygon.insert(
+                user_email=user_email,
+                polygon_coords=coords_json,
+                last_updated=get_time()
+            )
+        

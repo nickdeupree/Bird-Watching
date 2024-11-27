@@ -40,6 +40,12 @@ db.define_table('checklist',
    Field('duration', requires=IS_NOT_EMPTY()),
 )
 
+db.define_table('user_polygon',
+    Field('user_email', 'string', unique=True, requires=IS_NOT_EMPTY()), 
+    Field('polygon_coords', 'json', requires=IS_NOT_EMPTY()),
+    Field('last_updated', 'datetime', default=get_time()),  
+)
+
 
 # def populate_tables():
 #     if db(db.species).isempty():
