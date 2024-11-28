@@ -74,7 +74,7 @@ let init = (app) => {
                 let { lat, lng } = e.latlng;
                 L.marker([lat, lng]).addTo(this.map)
                 axios.post(save_user_point_url, {
-                    coord: { lat: lat, lng: lng },
+                    coord: [lat,lng],
                 })
                     .then(() => {
                         console.log("Point saved successfully!");

@@ -127,19 +127,19 @@ def save_user_point():
     coords = request.json.get("coord")
     user_email = get_user_email() 
     if user_email:
-        preexisting_polygon = db(db.user_polygon.user_email == user_email).select().first()
+        preexisting_polygon = db(db.user_point.user_email == user_email).select().first()
         
         coords_json = json.dumps(coords)
 
         if preexisting_polygon:
-            db(db.user_polygon.id == preexisting_polygon.id).update(
-                polygon_coords=coords_json,
+            db(db.user_point.id == preexisting_polygon.id).update(
+                coord=coords_json,
                 last_updated=get_time()
             )
         else:
-            db.user_polygon.insert(
+            db.user_point.insert(
                 user_email=user_email,
-                polygon_coords=coords_json,
+                coord=coords_json,
                 last_updated=get_time()
             )            
         
