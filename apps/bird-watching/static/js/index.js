@@ -63,13 +63,26 @@ let init = (app) => {
                         }
                     ).then(() => {
                         console.log("Polygon saved successfully!");
-                    }).catch((error) => {
-                        console.error("Error saving polygon:", error);
                     });
                 }
 
                 this.map.off('click');
             }
+        },
+        selectLocation: function () {
+            let selectPointHandler = (e) => {
+                let { lat, lng } = e.latlng;
+                L.marker([lat, lng]).addTo(this.map)
+                axios.post(save_user_point_url, {
+                    coord: { lat: lat, lng: lng },
+                })
+                    .then(() => {
+                        console.log("Point saved successfully!");
+                    })
+                this.map.off('click', selectPointHandler); // Remove the click event listener after selection
+            };
+            alert("Click on the map to select a location.");
+            this.map.on('click', selectPointHandler);
         },
 
         updateSpecies: function () {

@@ -44,7 +44,8 @@ def index():
         location_url = URL('location'),
         stats_url = URL('stats'),
         checklist_url = URL('checklist'),
-        save_user_polygon_url = URL('save_user_polygon', signer=url_signer)
+        save_user_polygon_url = URL('save_user_polygon', signer=url_signer),
+        save_user_point_url = URL('save_user_point')
     )   
 
 @action('location')
@@ -76,7 +77,7 @@ def load_species():
     species = db(db.species).select()
     return dict(species=species)
 
-@action('find_locations_in_range_url', method=["POST"])
+@action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)
 def find_locations_in_rectangle():
     points = request.data.get("points")  # For now, hardcoded to be 4 points
@@ -119,6 +120,28 @@ def save_user_polygon():
                 polygon_coords=coords_json,
                 last_updated=get_time()
             )
+
+@action('save_user_point', method=["POST"])
+@action.uses(db, auth.user)
+def save_user_point():
+    coords = request.json.get("coord")
+    user_email = get_user_email() 
+    if user_email:
+        preexisting_polygon = db(db.user_polygon.user_email == user_email).select().first()
+        
+        coords_json = json.dumps(coords)
+
+        if preexisting_polygon:
+            db(db.user_polygon.id == preexisting_polygon.id).update(
+                polygon_coords=coords_json,
+                last_updated=get_time()
+            )
+        else:
+            db.user_polygon.insert(
+                user_email=user_email,
+                polygon_coords=coords_json,
+                last_updated=get_time()
+            )            
         
 @action('load_checklist_url')
 @action.uses(db, auth.user)

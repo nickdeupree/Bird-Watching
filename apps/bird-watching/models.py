@@ -49,6 +49,12 @@ db.define_table('user_polygon',
     Field('last_updated', 'datetime', default=get_time()),  
 )
 
+db.define_table('user_point',
+    Field('user_email', 'string', unique=True, requires=IS_NOT_EMPTY()), 
+    Field('coord', 'json', requires=IS_NOT_EMPTY()),
+    Field('last_updated', 'datetime', default=get_time()),  
+)
+
 
 def populate_tables():
     uploads_dir = os.path.join(os.getcwd(), 'apps', 'bird-watching', 'uploads')
