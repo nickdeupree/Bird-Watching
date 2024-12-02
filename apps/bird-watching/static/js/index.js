@@ -118,8 +118,12 @@ let init = (app) => {
 init(app);
 
 app.load_data = function () {
+    console.log("in here")
+    let self = this;
     axios.get(load_species_url).then((r) => {
-        app.data.heatmapData = r.data.sightings;
+        console.log("response", r.data.species)
+        self.heatmapData = r.data.species;
+        console.log("heatmap", self.heatmapData)
     });
 }
 
