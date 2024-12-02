@@ -100,7 +100,7 @@ let init = (app) => {
         methods: app.methods,
         mounted() {
             setTimeout(() => {
-                this.map = L.map("map").setView([51.505, -0.09], 13);
+                this.map = L.map("map").setView([34, -118], 13);
                 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -121,9 +121,22 @@ app.load_data = function () {
     console.log("in here")
     let self = this;
     axios.get(load_species_url).then((r) => {
-        console.log("response", r.data.species)
-        self.heatmapData = r.data.species;
+        // self.heatmapData = r.data.species;
+        self.heatmapData = r.data.species.map((sighting) => {
+            return [
+                sighting.latitude,  
+                sighting.longitude, 
+                sighting.observation_count
+            ];
+        });
         console.log("heatmap", self.heatmapData)
+
+        if (self.heatmapData && self.heatmapData.length > 0) {
+            L.heatLayer(self.heatmapData, { radius: 25 }).addTo(self.map);
+        } else {
+            console.error("No valid heatmap data found.");
+        }
+       
     });
 }
 
