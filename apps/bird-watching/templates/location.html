@@ -21,12 +21,16 @@
           <p class="has-text-centered"><strong></strong>Total lists, total sightings</p>
           <p class="has-text-centered"> <strong>{{ totalLists }}, {{ totalSightings }}</strong> </p>
         </div>
-        <div class="box">
+
+        <div class="box species-list">
           <p><strong>Species Seen Vertical List</strong></p>
           <ul>
-            <li v-for="species in speciesList" :key="species.id">{{ species.name }}</li>
+            <li v-for="(species, index) in speciesList" :key="index" @click="debouncedLoadSpeciesChart(species)">
+              {{ species }}
+            </li>
           </ul>
         </div>
+
       </div>
 
       <!-- Main Content -->
@@ -39,13 +43,19 @@
 
         <!-- Top Contributors -->
         <div class="box">
-          <p><strong>Top Contributors:</strong></p>
-          <ul>
-            <li v-for="contributor in topContributors" :key="contributor.id">
-              {{ contributor.name }} ({{ contributor.count }} species)
-            </li>
-          </ul>
-        </div>
+          <p><strong>Top Contributors</strong></p>
+          <div class="content">
+              <ol>
+                  <li v-for="contributor in topContributors" :key="contributor.observer_id">
+                      Observer {{ contributor.observer_id }} 
+                      <span class="tag is-info is-light">
+                          {{ contributor.count }} checklists
+                      </span>
+                  </li>
+              </ol>
+          </div>
+      </div>
+
       </div>
     </div>
   </div>
@@ -54,7 +64,11 @@
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
-  
+  let load_user_polygon_url = "[[=XML(load_user_polygon_url)]]";
+  let find_locations_in_range_url = "[[=XML(find_locations_in_range_url)]]";
+  let get_sightings_for_checklist_url = "[[=XML(get_sightings_for_checklist_url)]]";
+  let get_species_sightings_over_time_url = "[[=XML(get_species_sightings_over_time_url)]]";
+  let get_top_contributors_url = "[[=XML(get_top_contributors_url)]]";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/location.js"></script>
