@@ -74,8 +74,25 @@ def checklist():
 @action('load_species_url')
 @action.uses(db, auth.user) # Add here things like db, auth, etc.
 def load_species():
-    species = db(db.species).select()
-    return dict(species=species)
+    sightings_data = db(db.sightings).select(
+        db.checklist.lat,
+        db.checklist.long,
+        db.sightings.species_id,
+        sum(db.sightings.observation_count).with_alias('total_obs'),
+        left=db.checklist.on(db.sightings.event_id == db.checklist.event_id),
+        groupby=[db.checklist.lat, db.checklist.long, db.sightings.species_id]
+    )
+
+    heatmap_data = []
+    for sighting in sightings_data:
+        lat = sighting.checklist.lat
+        long = sighting.checklist.long
+        species_id = sighting.sightings.species_id
+        total_obs = sighting.total_obs  # Aggregated observation count per species
+
+        heatmap_data.append([lat, long, total_obs, species_id])
+
+    return dict(sightings=heatmap_data)
 
 @action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)

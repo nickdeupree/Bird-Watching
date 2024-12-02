@@ -18,28 +18,7 @@ let init = (app) => {
         selected_species: null,
         all_species: [],
         checklists: [],
-        heatmapData: [
-            [51.505, -0.09, 0.5],  // [latitude, longitude, intensity]
-            [51.515, -0.1, 0.8],
-            [51.525, -0.11, 0.3],
-            [51.535, -0.12, 0.9],
-            [51.545, -0.13, 0.7],
-            [51.555, -0.14, 0.6],
-            [51.565, -0.15, 0.4],
-            [51.575, -0.16, 1.0],  // Higher intensity
-            [51.585, -0.17, 0.2],
-            [51.595, -0.18, 0.3],
-            [51.605, -0.19, 0.5],
-            [51.615, -0.2, 0.7],
-            [51.625, -0.21, 0.6],
-            [51.635, -0.22, 0.8],
-            [51.645, -0.23, 0.5],
-            [51.655, -0.24, 0.9],  // High intensity
-            [51.665, -0.25, 0.3],
-            [51.675, -0.26, 0.4],
-            [51.685, -0.27, 0.2],
-            [51.695, -0.28, 0.6]
-        ]
+        heatmapData: [],
     };
 
     app.enumerate = (a) => {
@@ -140,7 +119,7 @@ init(app);
 
 app.load_data = function () {
     axios.get(load_species_url).then((r) => {
-        app.data.all_species = r.data.species;
+        app.data.heatmapData = r.data.sightings;
     });
 }
 
