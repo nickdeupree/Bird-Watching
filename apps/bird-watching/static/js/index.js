@@ -99,9 +99,9 @@ let init = (app) => {
         methods: app.methods,
         mounted() {
             setTimeout(() => {
-                this.map = L.map("map").setView([51.505, -0.09], 13);
+                this.map = L.map("map").setView([37.002, -76.1818], 13);
                 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 19,
+                    maxZoom: 10,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 }).addTo(this.map);
             }, 100); // adding slight delay to help with rendering
