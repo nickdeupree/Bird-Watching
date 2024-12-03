@@ -75,7 +75,7 @@ let init = (app) => {
                 let { lat, lng } = e.latlng;
                 L.marker([lat, lng]).addTo(this.map)
                 axios.post(save_user_point_url, {
-                    coord: [lat,lng],
+                    coord: [lat, lng],
                 })
                     .then(() => {
                         console.log("Point saved successfully!");
@@ -89,6 +89,41 @@ let init = (app) => {
         updateSpecies: function () {
             console.log('Species name entered:', this.searched);
         },
+        load_data: function () {
+            console.log("in here");
+            let self = this;
+
+            axios.get(load_species_url).then((r) => {
+                let maxCount = Math.max(...r.data.species.map(d => d.observation_count));
+                self.heatmapData = r.data.species
+                    .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
+                    .map((sighting) => {
+                        return [
+                            sighting.latitude,
+                            sighting.longitude,
+                            sighting.observation_count / maxCount
+                        ];
+                    });
+
+                console.log("heatmapData", self.heatmapData);
+
+                setTimeout(() => {
+                    this.map = L.map("map").setView([34, -118], 13);
+                    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    }).addTo(this.map);
+
+                    if (self.heatmapData.length > 0) {
+                        L.heatLayer(self.heatmapData, { radius: 25 }).addTo(this.map);
+                    } else {
+                        console.error("No valid heatmap data found.");
+                    }
+                }, 1); // Adding slight delay to help with rendering
+            }).catch((error) => {
+                console.error("Error loading data:", error);
+            });
+        },
 
 
     };
@@ -99,16 +134,9 @@ let init = (app) => {
         },
         methods: app.methods,
         mounted() {
-            setTimeout(() => {
-                this.map = L.map("map").setView([34, -118], 13);
-                L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                }).addTo(this.map);
-
-                L.heatLayer(this.heatmapData, { radius: 25 }).addTo(this.map);
-            }, 100); // adding slight delay to help with rendering
+            this.load_data();
         },
+        
     });
 
     // Mount the Vue app to the target element.
@@ -118,26 +146,53 @@ let init = (app) => {
 init(app);
 
 app.load_data = function () {
-    console.log("in here")
     let self = this;
     axios.get(load_species_url).then((r) => {
-        // self.heatmapData = r.data.species;
-        self.heatmapData = r.data.species.map((sighting) => {
-            return [
-                sighting.latitude,  
-                sighting.longitude, 
-                sighting.observation_count
-            ];
-        });
-        console.log("heatmap", self.heatmapData)
+        self.heatmapData = r.data.species
+            .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
+            .map((sighting) => {
+                return [
+                    sighting.latitude,
+                    sighting.longitude,
+                    sighting.observation_count
+                ];
+            });
+        console.log("heatmapData", self.heatmapData)
+        setTimeout(() => {
+            self.map = L.map("map").setView([37.002, -76.1818], 13);
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            }).addTo(self.map);
+        }, 1); // adding slight delay to help with rendering
 
-        if (self.heatmapData && self.heatmapData.length > 0) {
-            L.heatLayer(self.heatmapData, { radius: 25 }).addTo(self.map);
+        if (self.heatmapData.length > 0) {
+            let heatLayer = L.heatLayer(self.heatmapData, { radius: 25 })
+            // heatLayer.addTo(self.map);
         } else {
             console.error("No valid heatmap data found.");
         }
-       
+        const highIntensityData = [
+            [37.002, -76.1818, 1.0],  // Central high-intensity point
+            [37.003, -76.1810, 0.9],  // Slightly north-east
+            [37.001, -76.1825, 0.8],  // Slightly south-west
+            [37.0025, -76.1815, 0.7], // Slightly north
+            [37.0015, -76.182, 0.6],  // Slightly south-east
+            [37.003, -76.183, 0.5],   // Further north-west
+            [37.002, -76.180, 0.9],   // East of the center
+            [37.004, -76.182, 0.8],   // North of the center
+            [37.0005, -76.184, 0.7],  // South-west
+            [37.001, -76.1805, 0.6],  // South-east
+        ];
+        
+        // Example of using it in a heat layer
+        L.heatLayer(highIntensityData, {
+            radius: 25,  // Adjust radius of influence
+            blur: 15,    // Adjust blur level
+            maxZoom: 17, // Maximum zoom level to show heatmap
+        }).addTo(self.map);
+
     });
 }
 
-app.load_data();
+// app.load_data();
