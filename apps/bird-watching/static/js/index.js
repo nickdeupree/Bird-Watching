@@ -92,37 +92,32 @@ let init = (app) => {
         load_data: function () {
             console.log("in here");
             let self = this;
-
             axios.get(load_species_url).then((r) => {
-                let maxCount = Math.max(...r.data.species.map(d => d.observation_count));
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
                         return [
                             sighting.latitude,
                             sighting.longitude,
-                            sighting.observation_count / maxCount
+                            sighting.observation_count
                         ];
                     });
 
                 console.log("heatmapData", self.heatmapData);
-
                 setTimeout(() => {
-                    this.map = L.map("map").setView([34, -118], 13);
+                    self.map = L.map("map").setView([36.95, -122.066], 13);
                     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                    }).addTo(this.map);
+                    }).addTo(self.map);
 
                     if (self.heatmapData.length > 0) {
-                        L.heatLayer(self.heatmapData, { radius: 25 }).addTo(this.map);
+                        L.heatLayer(self.heatmapData, { radius: 25 }).addTo(self.map);
                     } else {
                         console.error("No valid heatmap data found.");
                     }
                 }, 1); // Adding slight delay to help with rendering
-            }).catch((error) => {
-                console.error("Error loading data:", error);
-            });
+            })
         },
 
 
@@ -136,7 +131,7 @@ let init = (app) => {
         mounted() {
             this.load_data();
         },
-        
+
     });
 
     // Mount the Vue app to the target element.
@@ -184,7 +179,7 @@ app.load_data = function () {
             [37.0005, -76.184, 0.7],  // South-west
             [37.001, -76.1805, 0.6],  // South-east
         ];
-        
+
         // Example of using it in a heat layer
         L.heatLayer(highIntensityData, {
             radius: 25,  // Adjust radius of influence
