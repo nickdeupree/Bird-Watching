@@ -7,6 +7,23 @@ html,body {
 }
 
 .species-list{
-    height: 300px;
+    height: 715px;
     overflow-y: auto;
 }
+
+.chartBox {
+    height: 600px;
+}
+.topContBox {
+    height: 200px;
+    overflow-y: auto;
+}
+
+.buttons-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .buttons-list button:hover {
+    background-color: #f0f0f0;
+  }
