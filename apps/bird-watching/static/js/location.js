@@ -40,6 +40,7 @@ app.vue = Vue.createApp({
         loadSpeciesChart(speciesName) {
             if (this.isLoading) return; // Prevent rapid clicks
             this.isLoading = true;
+            this.selectedSpecies = speciesName;
 
             axios.post(get_species_sightings_over_time_url, { species_name: speciesName })
                 .then(response => {
@@ -92,7 +93,9 @@ app.vue = Vue.createApp({
                 });
         },
         debouncedLoadSpeciesChart: debounce(function(speciesName) {
-            this.loadSpeciesChart(speciesName);
+            if (!this.isLoading){
+                this.loadSpeciesChart(speciesName);
+            }
         }, 1000), // Adjust debounce delay as needed
         fetchTopContributors() {
             const lats = this.polygonCoords.map(coord => coord[0]);
@@ -166,8 +169,11 @@ app.vue = Vue.createApp({
                 this.totalSightings = sightings.length;
                 const speciesSet = new Set(sightings.map(s => s.COMMON_NAME));
                 this.speciesList = Array.from(speciesSet);
-                // Optionally, update chart or other data here
-                console.log("species list", this.speciesList);
+                
+                if (this.speciesList.length > 0){
+                    this.selectedSpecies = this.speciesList[0];
+                    this.debouncedLoadSpeciesChart(this.selectedSpecies);
+                }
             })
             .catch(error => {
                 console.error('Error fetching sightings:', error);
