@@ -5,3 +5,8 @@ html,body {
 .columns{
     min-height: 64vh;
 }
+
+.species-list{
+    height: 300px;
+    overflow-y: auto;
+}
