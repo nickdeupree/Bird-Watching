@@ -73,13 +73,11 @@ let init = (app) => {
         selectLocation: function () {
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
+                console.log(lat, lng)
                 L.marker([lat, lng]).addTo(this.map)
                 axios.post(save_user_point_url, {
                     coord: [lat, lng],
                 })
-                    .then(() => {
-                        console.log("Point saved successfully!");
-                    })
                 this.map.off('click', selectPointHandler); // Remove the click event listener after selection
             };
             alert("Click on the map to select a location.");
@@ -105,7 +103,7 @@ let init = (app) => {
 
                 console.log("heatmapData", self.heatmapData);
                 setTimeout(() => {
-                    self.map = L.map("map").setView([36.95, -122.066], 13);
+                    self.map = L.map("map").setView([36.98, -121.98], 13);
                     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
