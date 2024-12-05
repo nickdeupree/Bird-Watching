@@ -35,7 +35,7 @@ db.define_table(
 db.define_table(
     'sightings',
     Field('SAMPLING_EVENT_IDENTIFIER', 'string', requires=IS_NOT_EMPTY()),
-    Field('COMMON_NAME', 'string', requires=IS_NOT_EMPTY()),
+    Field('species_id', 'references species', requires=IS_NOT_EMPTY()),
     Field('OBSERVATION_COUNT', 'integer')
 )
 
@@ -119,5 +119,5 @@ def populate_tables():
     else:
         print("Sightings table already populated.")
 
-populate_tables()
-db.commit()
+# populate_tables()
+# db.commit()

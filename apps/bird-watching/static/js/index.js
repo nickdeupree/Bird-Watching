@@ -18,6 +18,7 @@ let init = (app) => {
         selected_species: null,
         all_species: [],
         checklists: [],
+        heatmapData: [],
     };
 
     app.enumerate = (a) => {
@@ -27,15 +28,25 @@ let init = (app) => {
     };
 
     app.computed = {
-        filteredSpecies() {
-            return this.all_species.filter(species =>
-                species.toLowerCase().includes(this.searched.toLowerCase())
-            );
-        }
+        // filteredSpecies() {
+        //     if (this.searched.trim() === "") {
+        //         return [];
+        //     }
+        //     return this.all_species.filter(species =>
+        //         species.toLowerCase().includes(this.searched.toLowerCase())
+        //     );
+        // }
     };
 
     app.methods = {
         toggleDrawing: function () {
+            if(this.is_drawing === false){
+                if (this.drawing_polygon){
+                    this.drawing_polygon.remove();
+                    this.drawing_polygon = null;
+                }
+            }
+
             this.is_drawing = !this.is_drawing;
             if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
@@ -55,8 +66,6 @@ let init = (app) => {
                 });
             } else {
                 if (this.drawing_polygon) {
-                    this.drawing_polygon = null;
-
                     axios.post(save_user_polygon_url,
                         {
                             polygon_coords: this.drawing_coords
@@ -72,24 +81,52 @@ let init = (app) => {
         selectLocation: function () {
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
+                console.log(lat, lng)
                 L.marker([lat, lng]).addTo(this.map)
                 axios.post(save_user_point_url, {
-                    coord: [lat,lng],
+                    coord: [lat, lng],
                 })
-                    .then(() => {
-                        console.log("Point saved successfully!");
-                    })
-                this.map.off('click', selectPointHandler); // Remove the click event listener after selection
+                this.map.off('click', selectPointHandler);
             };
             alert("Click on the map to select a location.");
             this.map.on('click', selectPointHandler);
         },
 
-        updateSpecies: function () {
-            console.log('Species name entered:', this.searched);
+        selectSpecies: function (species) {
+            this.selected_species = species;
+            this.searched = species;
         },
 
 
+        load_data: function () {
+            let self = this;
+            axios.get(load_species_url).then((r) => {
+                self.heatmapData = r.data.species
+                    .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
+                    .map((sighting) => {
+                        return [
+                            sighting.latitude,
+                            sighting.longitude,
+                            sighting.observation_count
+                        ];
+                    });
+
+                console.log("heatmapData", self.heatmapData);
+                setTimeout(() => {
+                    self.map = L.map("map").setView([36.98, -121.98], 13);
+                    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    }).addTo(self.map);
+
+                    if (self.heatmapData.length > 0) {
+                        L.heatLayer(self.heatmapData, { radius: 25 }).addTo(self.map);
+                    } else {
+                        console.error("No valid heatmap data found.");
+                    }
+                }, 1); // Adding slight delay to help with rendering
+            })
+        },
     };
 
     app.vue = Vue.createApp({
@@ -98,13 +135,7 @@ let init = (app) => {
         },
         methods: app.methods,
         mounted() {
-            setTimeout(() => {
-                this.map = L.map("map").setView([37.002, -76.1818], 13);
-                L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 10,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                }).addTo(this.map);
-            }, 100); // adding slight delay to help with rendering
+            this.load_data();
         },
     });
 
@@ -113,11 +144,3 @@ let init = (app) => {
 };
 
 init(app);
-
-app.load_data = function () {
-    axios.get(load_species_url).then((r) => {
-        app.data.all_species = r.data.species;
-    });
-}
-
-app.load_data();

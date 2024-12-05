@@ -78,10 +78,27 @@ def checklist():
 #     )
 
 @action('load_species_url')
-@action.uses(db, auth.user) # Add here things like db, auth, etc.
+@action.uses(db, auth.user)
 def load_species():
-    species = db(db.species).select()
-    return dict(species=species)
+    sightings_data = db(db.sightings).select(
+        db.checklist.LATITUDE,                
+        db.checklist.LONGITUDE,               
+        db.sightings.species_id,
+        db.sightings.OBSERVATION_COUNT,             
+        left=[db.checklist.on(db.sightings.SAMPLING_EVENT_IDENTIFIER == db.checklist.SAMPLING_EVENT_IDENTIFIER)],
+        groupby=[db.checklist.LATITUDE, db.checklist.LONGITUDE, db.sightings.species_id],
+    )
+
+    species_info = []
+    for sighting in sightings_data:
+        species_info.append({
+            'latitude': sighting.checklist.LATITUDE, 
+            'longitude': sighting.checklist.LONGITUDE,
+            'common_name': sighting.sightings.species_id, 
+            'observation_count': sighting.sightings.OBSERVATION_COUNT, 
+        })
+
+    return dict(species=species_info)
 
 @action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)
