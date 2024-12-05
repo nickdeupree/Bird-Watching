@@ -19,23 +19,13 @@ let init = (app) => {
         all_species: [],
         checklists: [],
         heatmapData: [],
+        filteredSpecies: [],
     };
 
     app.enumerate = (a) => {
         let k = 0;
         a.map((e) => { e._idx = k++; });
         return a;
-    };
-
-    app.computed = {
-        // filteredSpecies() {
-        //     if (this.searched.trim() === "") {
-        //         return [];
-        //     }
-        //     return this.all_species.filter(species =>
-        //         species.toLowerCase().includes(this.searched.toLowerCase())
-        //     );
-        // }
     };
 
     app.methods = {
@@ -92,15 +82,35 @@ let init = (app) => {
             this.map.on('click', selectPointHandler);
         },
 
-        selectSpecies: function (species) {
+        updateSelectedSpecies: function () {
+            if (this.searched.trim()) {
+                this.selected_species = this.searched.trim();
+                console.log(`Selected species updated to: ${this.selected_species}`);
+            }
+        },
+
+        selectSpecies: function(species) {
             this.selected_species = species;
-            this.searched = species;
+            console.log(`Selected species updated to: ${this.selected_species}`);
+        },
+
+        updateFilteredSpecies: function () {
+            // Update filteredSpecies dynamically based on the search query
+            if (this.searched.trim() === "") {
+                this.filteredSpecies = [];
+            } else {
+                this.filteredSpecies = this.all_species.filter((species) =>
+                    species.COMMON_NAME.toLowerCase().includes(this.searched.toLowerCase())
+                );
+            }
         },
 
 
         load_data: function () {
             let self = this;
             axios.get(load_species_url).then((r) => {
+                self.all_species = r.data.all_species
+                console.log(self.all_species)
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
@@ -126,6 +136,7 @@ let init = (app) => {
                     }
                 }, 1); // Adding slight delay to help with rendering
             })
+
         },
     };
 
@@ -134,6 +145,7 @@ let init = (app) => {
             return app.data;
         },
         methods: app.methods,
+       
         mounted() {
             this.load_data();
         },

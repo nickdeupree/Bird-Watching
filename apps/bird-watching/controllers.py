@@ -80,6 +80,7 @@ def checklist():
 @action('load_species_url')
 @action.uses(db, auth.user)
 def load_species():
+    all_species = db(db.species).select().as_list()
     sightings_data = db(db.sightings).select(
         db.checklist.LATITUDE,                
         db.checklist.LONGITUDE,               
@@ -98,7 +99,7 @@ def load_species():
             'observation_count': sighting.sightings.OBSERVATION_COUNT, 
         })
 
-    return dict(species=species_info)
+    return dict(all_species=all_species, species=species_info)
 
 @action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)
