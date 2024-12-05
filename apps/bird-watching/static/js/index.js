@@ -91,6 +91,7 @@ let init = (app) => {
 
         selectSpecies: function(species) {
             this.selected_species = species;
+            this.searched = species.COMMON_NAME;
             console.log(`Selected species updated to: ${this.selected_species}`);
         },
 

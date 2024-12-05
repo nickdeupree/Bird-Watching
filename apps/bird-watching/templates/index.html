@@ -29,13 +29,13 @@
           placeholder="Enter species name" />
 
         <!-- Dropdown for filtered species -->
-        <div class="dropdown is-active" v-if="filteredSpecies.length">
+        <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
           <div class="dropdown-menu">
             <div class="dropdown-content">
               <!-- List of filtered species -->
-              <a class="dropdown-item" v-for="species in filteredSpecies" :key="species.COMMON_NAME"
-                @click="selectSpecies(species.COMMON_NAME)">
-                {{ species.COMMON_NAME }}
+              <a class="dropdown-item" v-for="species in filteredSpecies"
+                @click="selectSpecies(species)">
+                {{ species }}
               </a>
             </div>
           </div>
