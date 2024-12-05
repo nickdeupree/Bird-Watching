@@ -172,7 +172,17 @@ def get_sightings_for_checklist():
         return dict(error="Missing required parameters")
 
     try:
-        sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER.belongs(identifiers)).select().as_list()
+        sightings = db(
+            db.sightings.SAMPLING_EVENT_IDENTIFIER.belongs(identifiers) &
+            (db.sightings.species_id == db.species.id)
+            ).select(
+                db.sightings.ALL,
+                db.species.COMMON_NAME
+            ).as_list()
+        
+        for sighting in sightings:
+            sighting['COMMON_NAME'] = sighting['species']['COMMON_NAME']
+            del sighting['species']
         return dict(sightings=sightings)
     except Exception as e:
         return dict(error=str(e))
@@ -187,8 +197,13 @@ def get_species_sightings_over_time():
         return dict(error="Missing required parameters")
 
     try:
+        # First get species_id
+        species = db(db.species.COMMON_NAME == species_name).select().first()
+        if not species:
+            return dict(error="Species not found")
+
         rows = db(
-            (db.sightings.COMMON_NAME == species_name) &
+            (db.sightings.species_id == species.id) &
             (db.sightings.SAMPLING_EVENT_IDENTIFIER == db.checklist.SAMPLING_EVENT_IDENTIFIER)
         ).select(
             db.checklist.OBSERVATION_DATE,
@@ -200,6 +215,7 @@ def get_species_sightings_over_time():
         data = [{'date': row.checklist.OBSERVATION_DATE, 'count': row.total_count} for row in rows]
         return dict(data=data)
     except Exception as e:
+        print(f"Error querying database: {e}")
         return dict(error=str(e))
     
 @action('get_top_contributors', method=["POST"])
