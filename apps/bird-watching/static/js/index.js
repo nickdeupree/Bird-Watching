@@ -28,11 +28,14 @@ let init = (app) => {
     };
 
     app.computed = {
-        filteredSpecies() {
-            return this.all_species.filter(species =>
-                species.toLowerCase().includes(this.searched.toLowerCase())
-            );
-        }
+        // filteredSpecies() {
+        //     if (this.searched.trim() === "") {
+        //         return [];
+        //     }
+        //     return this.all_species.filter(species =>
+        //         species.toLowerCase().includes(this.searched.toLowerCase())
+        //     );
+        // }
     };
 
     app.methods = {
@@ -89,11 +92,13 @@ let init = (app) => {
             this.map.on('click', selectPointHandler);
         },
 
-        updateSpecies: function () {
-            console.log('Species name entered:', this.searched);
+        selectSpecies: function (species) {
+            this.selected_species = species;
+            this.searched = species;
         },
+
+
         load_data: function () {
-            console.log("in here");
             let self = this;
             axios.get(load_species_url).then((r) => {
                 self.heatmapData = r.data.species
@@ -122,8 +127,6 @@ let init = (app) => {
                 }, 1); // Adding slight delay to help with rendering
             })
         },
-
-
     };
 
     app.vue = Vue.createApp({
@@ -134,7 +137,6 @@ let init = (app) => {
         mounted() {
             this.load_data();
         },
-
     });
 
     // Mount the Vue app to the target element.
