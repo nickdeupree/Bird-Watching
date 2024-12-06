@@ -67,15 +67,9 @@ def stats():
 @action('checklist')
 @action.uses('checklist.html', db, auth)
 def checklist():
-    return dict()
-
-# @action('checklist')
-# @action.uses('checklist.html', db, auth, url_signer)
-# def checklist():
-#     return dict(
-#         # COMPLETE: return here any signed URLs you need.
-#         my_callback_url = URL('my_callback', signer=url_signer),
-#     )
+    return dict(
+        add_to_checklist_url = URL('add_to_checklist')
+    )
 
 @action('load_species_url')
 @action.uses(db, auth.user)
@@ -278,11 +272,16 @@ def save_user_point():
 @action('load_checklist_url')
 @action.uses(db, auth.user)
 def load_checklist():
-    checklist = db(db.checklist).select()
+    checklist = db(db.checklist).select().as_list()
     return dict(checklist=checklist)
 
 @action('load_sightings_url')
 @action.uses(db, auth.user)
-def load_sightings():
-    sightings = db(db.sightings).select()
-    return dict(sightings=sightings)
+def load_sightings(idx):
+    sightings = db(db.sightings.event_id == idx).select().as_list()
+    return dict(event_id=idx, sightings=sightings)
+
+@action('add_to_checklist')
+@action.uses(db, auth.user)
+def add_to_checklist():
+    return
