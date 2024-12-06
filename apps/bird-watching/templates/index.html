@@ -19,42 +19,47 @@
 [[end]]
 
 <div v-if="user_email">
-  <client-only>
-    <div class="section" id="vue-target" v-cloak>
-      <div class="field">
-        <label class="label">Select a Species</label>
-        <div class="control">
-          <input class="input" type="text" v-model="searched" @input="updateSpecies" placeholder="Enter species name">
-          <!-- <div class="dropdown" v-if="filteredSpecies.length">
-            <ul class="dropdown-menu">
-              <li v-for="species in filteredSpecies" :key="species" @click="selectSpecies(species)"
-                class="dropdown-item">
-                {{ species }}
-              </li>
-            </ul>
-          </div> -->
-        </div>
-      </div>
-      <div id="map"></div>
-      <button class="button is-success mt-2" @click="toggleDrawing">
-        <span v-if="is_drawing">Stop drawing</span>
-        <span v-else>Start drawing</span>
-      </button>
-      <button class="button is-info mt-2" @click="selectLocation">
-        Select a Single Location
-      </button>
-      <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish with a double-click.</p>
-      <div class="buttons mt-2">
-        <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to
-          Location</button>
-        <button class="button is-primary mt-2" onclick="window.location.href='[[=stats_url]]'">Go to Stats</button>
-        <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'">Go to
-          Checklist</button>
+  <div class="section" id="vue-target" v-cloak>
+    <div class="field">
+      <label class="label">Select a Species</label>
+      <div class="control">
+        <!-- Input field for searching species -->
+        <input class="input" type="text" v-model="searched" @keydown.enter="updateSelectedSpecies"
+          placeholder="Enter species name" />
+
+        <!-- Dropdown for filtered species -->
+        <!-- <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
+          <div class="dropdown-menu">
+            <div class="dropdown-content">
+              <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
+                {{ species.COMMON_NAME }}
+              </a>
+            </div>
+          </div>-->
       </div>
     </div>
 
 
-  </client-only>
+    <div id="map"></div>
+    <button class="button is-success mt-2" @click="toggleDrawing">
+      <span v-if="is_drawing">Stop drawing</span>
+      <span v-else>Start drawing</span>
+    </button>
+    <button class="button is-info mt-2" @click="selectLocation">
+      Select a Single Location
+    </button>
+    <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish with a double-click.</p>
+    <div class="buttons mt-2">
+      <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to
+        Location</button>
+      <button class="button is-primary mt-2" onclick="window.location.href='[[=stats_url]]'">Go to Stats</button>
+      <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'">Go to
+        Checklist</button>
+    </div>
+  </div>
+</div>
+</div>
+
 </div>
 
 [[block page_scripts]]
