@@ -57,13 +57,14 @@ db.define_table(
 def populate_tables():
     uploads_dir = os.path.join(os.getcwd(), 'apps', 'bird-watching', 'uploads')
     
-    ## Populate Species Table
+    # Populate Species Table
     if db(db.species).isempty():
         species_csv_path = os.path.join(uploads_dir, 'species.csv')
         with open(species_csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 common_name = row.get('COMMON_NAME', '').strip()
+                common_name = ' '.join([word.capitalize() for word in common_name.split()])
                 if common_name:
                     db.species.insert(COMMON_NAME=common_name)
         db.commit()
@@ -88,7 +89,6 @@ def populate_tables():
                         DURATION_MINUTES=float(row['DURATION MINUTES'])
                     )
                 except Exception as e:
-                    # print(f"Error inserting checklist row: {e}")
                     pass
         db.commit()
         print("Checklist table populated successfully.")
@@ -105,9 +105,9 @@ def populate_tables():
                     observation_count_str = row['OBSERVATION COUNT'].strip()
                     observation_count = int(observation_count_str)
                 except KeyError:
-                    break  # Exit the loop or handle as needed (Error: 'OBSERVATION COUNT' column not found.)
+                    break
                 except ValueError:
-                    observation_count = None  # Set a default value or handle the error
+                    observation_count = 1
 
                 db.sightings.insert(
                     SAMPLING_EVENT_IDENTIFIER=row['SAMPLING EVENT IDENTIFIER'].strip(),
@@ -119,5 +119,9 @@ def populate_tables():
     else:
         print("Sightings table already populated.")
 
-# populate_tables()
-# db.commit()
+populate_tables()
+db.commit()
+
+#print(db(db.species).select().first())
+#print(db(db.checklist).select().first())
+#print(db(db.sightings).select().first())
