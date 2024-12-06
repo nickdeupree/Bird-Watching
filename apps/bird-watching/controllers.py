@@ -241,22 +241,24 @@ def get_top_contributors():
 @action('save_user_point', method=["POST"])
 @action.uses(db, auth.user)
 def save_user_point():
-    coords = request.json.get("coord")
+    lat = request.json.get("lat")
+    lng = request.json.get("lng")
     user_email = get_user_email() 
     if user_email:
         preexisting_polygon = db(db.user_point.user_email == user_email).select().first()
         
-        coords_json = json.dumps(coords)
 
         if preexisting_polygon:
             db(db.user_point.id == preexisting_polygon.id).update(
-                coord=coords_json,
+                lat = lat,
+                lng = lng,
                 last_updated=get_time()
             )
         else:
             db.user_point.insert(
                 user_email=user_email,
-                coord=coords_json,
+                lat=lat,
+                lng=lng,
                 last_updated=get_time()
             )            
         

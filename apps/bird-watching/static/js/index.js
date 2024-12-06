@@ -67,12 +67,18 @@ let init = (app) => {
             }
         },
         selectLocation: function () {
+            console.log("method clicked")
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
-                console.log(lat, lng);
+                console.log(lat, lng);  // Ensure lat and lng are correct
                 L.marker([lat, lng]).addTo(this.map);
                 axios.post(save_user_point_url, {
-                    coord: [lat, lng],
+                    lat: lat,
+                    lng: lng,
+                }).then(response => {
+                    console.log('Point saved:', response);
+                }).catch(error => {
+                    console.error('Error saving point:', error);
                 });
                 this.map.off('click', selectPointHandler);
             };
