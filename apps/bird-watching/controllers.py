@@ -67,15 +67,10 @@ def stats():
 @action('checklist')
 @action.uses('checklist.html', db, auth)
 def checklist():
-    return dict()
-
-# @action('checklist')
-# @action.uses('checklist.html', db, auth, url_signer)
-# def checklist():
-#     return dict(
-#         # COMPLETE: return here any signed URLs you need.
-#         my_callback_url = URL('my_callback', signer=url_signer),
-#     )
+    return dict(
+        add_to_checklist_url = URL('add_to_checklist'),
+        load_sightings_url = URL('load_sightings_url')
+    )
 
 @action('load_species_url')
 @action.uses(db, auth.user)
@@ -173,7 +168,17 @@ def get_sightings_for_checklist():
         return dict(error="Missing required parameters")
 
     try:
-        sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER.belongs(identifiers)).select().as_list()
+        sightings = db(
+            db.sightings.SAMPLING_EVENT_IDENTIFIER.belongs(identifiers) &
+            (db.sightings.species_id == db.species.id)
+            ).select(
+                db.sightings.ALL,
+                db.species.COMMON_NAME
+            ).as_list()
+        
+        for sighting in sightings:
+            sighting['COMMON_NAME'] = sighting['species']['COMMON_NAME']
+            del sighting['species']
         return dict(sightings=sightings)
     except Exception as e:
         return dict(error=str(e))
@@ -188,8 +193,13 @@ def get_species_sightings_over_time():
         return dict(error="Missing required parameters")
 
     try:
+        # First get species_id
+        species = db(db.species.COMMON_NAME == species_name).select().first()
+        if not species:
+            return dict(error="Species not found")
+
         rows = db(
-            (db.sightings.COMMON_NAME == species_name) &
+            (db.sightings.species_id == species.id) &
             (db.sightings.SAMPLING_EVENT_IDENTIFIER == db.checklist.SAMPLING_EVENT_IDENTIFIER)
         ).select(
             db.checklist.OBSERVATION_DATE,
@@ -201,6 +211,7 @@ def get_species_sightings_over_time():
         data = [{'date': row.checklist.OBSERVATION_DATE, 'count': row.total_count} for row in rows]
         return dict(data=data)
     except Exception as e:
+        print(f"Error querying database: {e}")
         return dict(error=str(e))
     
 @action('get_top_contributors', method=["POST"])
@@ -265,11 +276,31 @@ def save_user_point():
 @action('load_checklist_url')
 @action.uses(db, auth.user)
 def load_checklist():
-    checklist = db(db.checklist).select()
+    # add user email check
+    checklist = db(db.checklist).select().as_list()
     return dict(checklist=checklist)
 
 @action('load_sightings_url')
 @action.uses(db, auth.user)
 def load_sightings():
-    sightings = db(db.sightings).select()
-    return dict(sightings=sightings)
+    lat = db(db.user_point.latitude).select().first()
+    long = db(db.user_point.longitude).select().first()
+    user_email = db(db.user_point.user_email).select().first()
+    existingChecklist = db(db.checklist.LATITUDE == lat
+                   and db.checklist.LONGITUDE == long
+                   and db.checklist.user_email == user_email).select().first()
+    event_id = None
+    if existingChecklist:
+        event_id = existingChecklist[0].SAMPLING_EVENT_IDENTIFIER
+    else:
+        id = db(db.checklist).insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
+                                LONGITUDE=long, user_email=user_email)
+        db(db.checklist.LATITUDE == lat and db.checklist.LONGITUDE == long).update(SAMPLING_EVENT_IDENTIFIER=str(id))
+        event_id = str(id)
+    sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
+    return dict(event_id=event_id, sightings=sightings)
+
+@action('add_to_checklist')
+@action.uses(db, auth.user)
+def add_to_checklist():
+    return

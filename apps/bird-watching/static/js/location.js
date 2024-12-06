@@ -154,12 +154,10 @@ app.vue = Vue.createApp({
             });
         },
         processChecklists() {
-            // Compute total lists and total sightings
             this.totalLists = this.checklists.length;
-
+        
             const identifiers = this.checklists.map(cl => cl.SAMPLING_EVENT_IDENTIFIER);
-
-            // Fetch sightings for the checklists
+        
             axios.post(get_sightings_for_checklist_url, {
                 identifiers: identifiers
             })
@@ -167,6 +165,7 @@ app.vue = Vue.createApp({
                 console.log("data received", response.data);
                 const sightings = response.data.sightings;
                 this.totalSightings = sightings.length;
+                // Use COMMON_NAME from the joined query result
                 const speciesSet = new Set(sightings.map(s => s.COMMON_NAME));
                 this.speciesList = Array.from(speciesSet);
                 
@@ -178,7 +177,7 @@ app.vue = Vue.createApp({
             .catch(error => {
                 console.error('Error fetching sightings:', error);
             });
-        },
+        }
     },
     mounted() {
         // Load data when the component is mounted

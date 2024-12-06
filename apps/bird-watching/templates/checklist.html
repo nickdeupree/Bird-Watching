@@ -25,9 +25,9 @@
         <td><input class="input add-item" type="text" name="new_item" v-model="new_item"></td>
         <td class="is-narrow"></td>
       </tr>
-      <tr class="item-row" v-for="(item, idx) in shoppinglist"> <!-- table of species -->
-        <td class="check is-narrow"><input type="checkbox" :checked="item.checked" @click="update_quantity(idx)"></td>
-        <td class="item"> {{ item.product_name}} </td>
+      <tr class="item-row" v-for="(item, idx) in checklists[checklist_id]"> <!-- table of species -->
+        <!-- <td class="check is-narrow"><input type="checkbox" :checked="item.checked" @click="update_quantity(idx)"></td> -->
+        <td class="item"> {{ item.species_name}} </td>
         <td class="trash is-narrow" @click="remove_item(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
       </tr> 
     </table>
@@ -39,6 +39,7 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
   // Add other URLs here if you wish.
+  let load_sightings_url = "[[=XML(load_sightings_url)]]";
 </script>
 <script src="js/checklist.js"></script>
 [[end]]

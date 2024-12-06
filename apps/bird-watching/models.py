@@ -35,7 +35,7 @@ db.define_table(
 db.define_table(
     'sightings',
     Field('SAMPLING_EVENT_IDENTIFIER', 'string', requires=IS_NOT_EMPTY()),
-    Field('species_id', 'references species', requires=IS_NOT_EMPTY()),
+    Field('species_id', 'references species', requires=IS_NOT_EMPTY()), # index of the common name in the species table
     Field('OBSERVATION_COUNT', 'integer')
 )
 
@@ -97,28 +97,47 @@ def populate_tables():
         print("Checklist table already populated.")
 
         # Populate Sightings Table
+    # Populate Sightings Table with improved error handling
     if db(db.sightings).isempty():
         sightings_csv_path = os.path.join(uploads_dir, 'sightings.csv')
         with open(sightings_csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 try:
-                    observation_count_str = row['OBSERVATION COUNT'].strip()
-                    observation_count = int(observation_count_str)
-                except KeyError:
-                    break  # Exit the loop or handle as needed (Error: 'OBSERVATION COUNT' column not found.)
-                except ValueError:
-                    observation_count = None  # Set a default value or handle the error
+                    species = db(db.species.COMMON_NAME == row['COMMON NAME'].strip()).select().first()
+                    if not species:
+                        print(f"Species not found: {row['COMMON NAME']}")
+                        continue
 
-                db.sightings.insert(
-                    SAMPLING_EVENT_IDENTIFIER=row['SAMPLING EVENT IDENTIFIER'].strip(),
-                    COMMON_NAME=row['COMMON NAME'].strip(),
-                    OBSERVATION_COUNT=observation_count
-                )
+                    observation_count_str = row['OBSERVATION COUNT'].strip()
+                    try:
+                        observation_count = int(observation_count_str)
+                    except ValueError:
+                        # Handle 'X' 
+                        observation_count = 0  # Default to 1 when count is unknown
+
+                    db.sightings.insert(
+                        SAMPLING_EVENT_IDENTIFIER=row['SAMPLING EVENT IDENTIFIER'].strip(),
+                        species_id=species.id,
+                        OBSERVATION_COUNT=observation_count
+                    )
+                except Exception as e:
+                    print(f"Error inserting sighting row: {e}")
         db.commit()
         print("Sightings table populated successfully.")
     else:
         print("Sightings table already populated.")
 
 populate_tables()
+
+#print 1 row of each table
+# species = db(db.species).select().first()
+# print(species)
+
+# checklist = db(db.checklist).select().first()
+# print(checklist)
+
+# sighting = db(db.sightings).select().first()
+# print(sighting)
+
 db.commit()
