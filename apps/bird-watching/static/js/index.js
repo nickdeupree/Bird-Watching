@@ -19,6 +19,7 @@ let init = (app) => {
         all_species: [],
         checklists: [],
         heatmapData: [],
+        heatmapLayer: null
         // `filteredSpecies` is no longer needed as a data property
     };
 
@@ -106,19 +107,23 @@ let init = (app) => {
         selectSpecies: function (species) {
             this.selected_species = species;
             this.searched = species.COMMON_NAME;
-            console.log(`Selected species updated to: ${this.selected_species}`);
+            console.log('Selected species updated to:', this.selected_species);
 
             this.updateHeatmap();
         },
 
         updateHeatmap() {
             // Remove the existing heatmap layer (if any)
-            if (this.heatmapLayer) {
-                this.map.removeLayer(this.heatmapLayer);
+            if (this.heatLayer) {
+                this.map.removeLayer(this.heatLayer);
+                this.heatLayer = null;
             }
             // Only add the heatmap layer if there is filtered data
             if (this.filteredHeatmapData.length > 0) {
-                this.heatmapLayer = L.heatLayer(this.filteredHeatmapData, { radius: 25 }).addTo(this.map);
+                console.log(this.filteredHeatmapData)
+                let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
+                console.log(heatmapLayerData)
+                this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(this.map);
             } else {
                 console.error("No valid heatmap data for the selected species.");
             }
@@ -128,7 +133,6 @@ let init = (app) => {
             let self = this;
             axios.get(load_species_url).then((r) => {
                 self.all_species = r.data.all_species;
-                console.log(r.data.species)
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
@@ -140,7 +144,6 @@ let init = (app) => {
                         ];
                     });
 
-                console.log("heatmapData", self.heatmapData);
                 setTimeout(() => {
                     self.map = L.map("map").setView([36.98, -121.98], 13);
                     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -149,8 +152,8 @@ let init = (app) => {
                     }).addTo(self.map);
 
                     if (self.heatmapData.length > 0) {
-                        const heatmapLayerData = self.heatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
-                        L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(self.map);
+                        let heatmapLayerData = self.heatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
+                        this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(self.map);
                     } else {
                         console.error("No valid heatmap data found.");
                     }
@@ -171,17 +174,17 @@ let init = (app) => {
                 }
                 return this.all_species.filter((species) =>
                     species.COMMON_NAME.includes(this.searched.toLowerCase())
-                ); 
+                );
             },
 
             filteredHeatmapData() {
                 if (!this.selected_species) {
                     return [];
                 }
-        
-                return this.heatmapData.filter((sighting) => {
-                    return sighting.species_id === this.selected_species.id;
-                });
+
+                return this.heatmapData
+                    .filter((sighting) => sighting[0] !== null && sighting[1] !== null) // Check for valid latitude/longitude
+                    .filter((sighting) => sighting[3] === this.selected_species.id); // Check species ID match
             }
         },
         mounted() {
