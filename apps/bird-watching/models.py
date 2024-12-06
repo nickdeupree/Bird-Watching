@@ -63,8 +63,7 @@ def populate_tables():
         with open(species_csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                common_name = row.get('COMMON_NAME', '').strip()
-                common_name = ' '.join([word.capitalize() for word in common_name.split()])
+                common_name = row.get('COMMON_NAME', '').strip().lower()
                 if common_name:
                     db.species.insert(COMMON_NAME=common_name)
         db.commit()
