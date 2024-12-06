@@ -49,7 +49,7 @@ def index():
     )   
 
 @action('location')
-@action.uses('location.html', db, auth)
+@action.uses('location.html', db, auth.user)
 def location():
     return dict(
         load_user_polygon_url = URL('load_user_polygon', signer=url_signer),
@@ -60,12 +60,12 @@ def location():
     )
 
 @action('stats')
-@action.uses('stats.html', db, auth)
+@action.uses('stats.html', db, auth.user)
 def stats():
     return dict()
 
 @action('checklist')
-@action.uses('checklist.html', db, auth)
+@action.uses('checklist.html', db, auth.user)
 def checklist():
     return dict()
 
