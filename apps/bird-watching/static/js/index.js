@@ -96,6 +96,7 @@ let init = (app) => {
                 if (foundSpecies) {
                     this.selected_species = foundSpecies;
                     console.log(`Selected species updated to: ${this.selected_species}`);
+                    this.updateHeatmap()
                 } else {
                     console.error("Species not found.");
                 }
@@ -115,7 +116,6 @@ let init = (app) => {
             if (this.heatmapLayer) {
                 this.map.removeLayer(this.heatmapLayer);
             }
-    
             // Only add the heatmap layer if there is filtered data
             if (this.filteredHeatmapData.length > 0) {
                 this.heatmapLayer = L.heatLayer(this.filteredHeatmapData, { radius: 25 }).addTo(this.map);
@@ -161,6 +161,26 @@ let init = (app) => {
             return app.data;
         },
         methods: app.methods,
+        computed: {
+            // filteredSpecies() {
+            //     if (this.searched.trim() === "") {
+            //         return [];
+            //     }
+            //     return this.all_species.filter((species) =>
+            //         species.COMMON_NAME.toLowerCase().includes(this.searched.toLowerCase())
+            //     ); 
+            // },
+
+            filteredHeatmapData() {
+                if (!this.selected_species) {
+                    return [];
+                }
+        
+                return this.heatmapData.filter((sighting) => {
+                    return sighting.species_id === this.selected_species.id;
+                });
+            }
+        },
         mounted() {
             this.load_data();
         },
