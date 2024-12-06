@@ -90,7 +90,7 @@ def load_species():
         species_info.append({
             'latitude': sighting.checklist.LATITUDE, 
             'longitude': sighting.checklist.LONGITUDE,
-            'common_name': sighting.sightings.species_id, 
+            'species_id': sighting.sightings.species_id, 
             'observation_count': sighting.sightings.OBSERVATION_COUNT, 
         })
 
@@ -258,7 +258,6 @@ def save_user_point():
     if user_email:
         preexisting_polygon = db(db.user_point.user_email == user_email).select().first()
         
-
         if preexisting_polygon:
             db(db.user_point.id == preexisting_polygon.id).update(
                 lat = lat,
