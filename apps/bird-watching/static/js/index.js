@@ -108,7 +108,7 @@ let init = (app) => {
             this.searched = species.COMMON_NAME;
             console.log(`Selected species updated to: ${this.selected_species}`);
 
-            // this.updateHeatmap();
+            this.updateHeatmap();
         },
 
         updateHeatmap() {
@@ -128,13 +128,15 @@ let init = (app) => {
             let self = this;
             axios.get(load_species_url).then((r) => {
                 self.all_species = r.data.all_species;
+                console.log(r.data.species)
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
                         return [
                             sighting.latitude,
                             sighting.longitude,
-                            sighting.observation_count
+                            sighting.observation_count,
+                            sighting.species_id
                         ];
                     });
 
@@ -147,7 +149,8 @@ let init = (app) => {
                     }).addTo(self.map);
 
                     if (self.heatmapData.length > 0) {
-                        L.heatLayer(self.heatmapData, { radius: 25 }).addTo(self.map);
+                        const heatmapLayerData = self.heatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
+                        L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(self.map);
                     } else {
                         console.error("No valid heatmap data found.");
                     }
@@ -162,14 +165,14 @@ let init = (app) => {
         },
         methods: app.methods,
         computed: {
-            // filteredSpecies() {
-            //     if (this.searched.trim() === "") {
-            //         return [];
-            //     }
-            //     return this.all_species.filter((species) =>
-            //         species.COMMON_NAME.toLowerCase().includes(this.searched.toLowerCase())
-            //     ); 
-            // },
+            filteredSpecies() {
+                if (this.searched.trim() === "") {
+                    return [];
+                }
+                return this.all_species.filter((species) =>
+                    species.COMMON_NAME.includes(this.searched.toLowerCase())
+                ); 
+            },
 
             filteredHeatmapData() {
                 if (!this.selected_species) {
