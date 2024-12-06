@@ -68,7 +68,8 @@ def stats():
 @action.uses('checklist.html', db, auth)
 def checklist():
     return dict(
-        add_to_checklist_url = URL('add_to_checklist')
+        add_to_checklist_url = URL('add_to_checklist'),
+        load_sightings_url = URL('load_sightings_url')
     )
 
 @action('load_species_url')
@@ -272,14 +273,29 @@ def save_user_point():
 @action('load_checklist_url')
 @action.uses(db, auth.user)
 def load_checklist():
+    # add user email check
     checklist = db(db.checklist).select().as_list()
     return dict(checklist=checklist)
 
 @action('load_sightings_url')
 @action.uses(db, auth.user)
-def load_sightings(idx):
-    sightings = db(db.sightings.event_id == idx).select().as_list()
-    return dict(event_id=idx, sightings=sightings)
+def load_sightings():
+    lat = db(db.user_point.latitude).select().first()
+    long = db(db.user_point.longitude).select().first()
+    user_email = db(db.user_point.user_email).select().first()
+    existingChecklist = db(db.checklist.LATITUDE == lat
+                   and db.checklist.LONGITUDE == long
+                   and db.checklist.user_email == user_email).select().first()
+    event_id = None
+    if existingChecklist:
+        event_id = existingChecklist[0].SAMPLING_EVENT_IDENTIFIER
+    else:
+        id = db(db.checklist).insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
+                                LONGITUDE=long, user_email=user_email)
+        db(db.checklist.LATITUDE == lat and db.checklist.LONGITUDE == long).update(SAMPLING_EVENT_IDENTIFIER=str(id))
+        event_id = str(id)
+    sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
+    return dict(event_id=event_id, sightings=sightings)
 
 @action('add_to_checklist')
 @action.uses(db, auth.user)
