@@ -49,7 +49,8 @@ db.define_table(
 db.define_table(
     'user_point',
     Field('user_email', 'string', default=get_user_email()), 
-    Field('coord', 'json', requires=IS_NOT_EMPTY()),
+    Field('lat', 'double', requires=IS_NOT_EMPTY()),
+    Field('lng', 'double', requires=IS_NOT_EMPTY()),
     Field('last_updated', 'datetime', default=get_time()),  
 )
 

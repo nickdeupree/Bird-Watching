@@ -19,6 +19,7 @@ let init = (app) => {
         all_species: [],
         checklists: [],
         heatmapData: [],
+        // `filteredSpecies` is no longer needed as a data property
     };
 
     app.enumerate = (a) => {
@@ -27,21 +28,10 @@ let init = (app) => {
         return a;
     };
 
-    app.computed = {
-        // filteredSpecies() {
-        //     if (this.searched.trim() === "") {
-        //         return [];
-        //     }
-        //     return this.all_species.filter(species =>
-        //         species.toLowerCase().includes(this.searched.toLowerCase())
-        //     );
-        // }
-    };
-
     app.methods = {
         toggleDrawing: function () {
-            if(this.is_drawing === false){
-                if (this.drawing_polygon){
+            if (this.is_drawing === false) {
+                if (this.drawing_polygon) {
                     this.drawing_polygon.remove();
                     this.drawing_polygon = null;
                 }
@@ -66,11 +56,9 @@ let init = (app) => {
                 });
             } else {
                 if (this.drawing_polygon) {
-                    axios.post(save_user_polygon_url,
-                        {
-                            polygon_coords: this.drawing_coords
-                        }
-                    ).then(() => {
+                    axios.post(save_user_polygon_url, {
+                        polygon_coords: this.drawing_coords
+                    }).then(() => {
                         console.log("Polygon saved successfully!");
                     });
                 }
@@ -79,28 +67,67 @@ let init = (app) => {
             }
         },
         selectLocation: function () {
+            console.log("method clicked")
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
-                console.log(lat, lng)
-                L.marker([lat, lng]).addTo(this.map)
+                console.log(lat, lng);  // Ensure lat and lng are correct
+                L.marker([lat, lng]).addTo(this.map);
                 axios.post(save_user_point_url, {
-                    coord: [lat, lng],
-                })
+                    lat: lat,
+                    lng: lng,
+                }).then(response => {
+                    console.log('Point saved:', response);
+                }).catch(error => {
+                    console.error('Error saving point:', error);
+                });
                 this.map.off('click', selectPointHandler);
             };
             alert("Click on the map to select a location.");
             this.map.on('click', selectPointHandler);
         },
 
-        selectSpecies: function (species) {
-            this.selected_species = species;
-            this.searched = species;
+        updateSelectedSpecies: function () {
+            console.log("Method called");
+            console.log(this.searched)
+            if (this.searched.trim()) {
+                let foundSpecies = this.all_species.find(species =>
+                    species.COMMON_NAME.toLowerCase() === this.searched.trim().toLowerCase()
+                );
+                if (foundSpecies) {
+                    this.selected_species = foundSpecies;
+                    console.log(`Selected species updated to: ${this.selected_species}`);
+                } else {
+                    console.error("Species not found.");
+                }
+            }
         },
 
+        selectSpecies: function (species) {
+            this.selected_species = species;
+            this.searched = species.COMMON_NAME;
+            console.log(`Selected species updated to: ${this.selected_species}`);
+
+            // this.updateHeatmap();
+        },
+
+        updateHeatmap() {
+            // Remove the existing heatmap layer (if any)
+            if (this.heatmapLayer) {
+                this.map.removeLayer(this.heatmapLayer);
+            }
+    
+            // Only add the heatmap layer if there is filtered data
+            if (this.filteredHeatmapData.length > 0) {
+                this.heatmapLayer = L.heatLayer(this.filteredHeatmapData, { radius: 25 }).addTo(this.map);
+            } else {
+                console.error("No valid heatmap data for the selected species.");
+            }
+        },
 
         load_data: function () {
             let self = this;
             axios.get(load_species_url).then((r) => {
+                self.all_species = r.data.all_species;
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
@@ -125,7 +152,7 @@ let init = (app) => {
                         console.error("No valid heatmap data found.");
                     }
                 }, 1); // Adding slight delay to help with rendering
-            })
+            });
         },
     };
 
