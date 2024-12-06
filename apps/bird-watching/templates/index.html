@@ -15,6 +15,20 @@
     height: 500px;
     width: 100%;
   }
+
+  .dropdown {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+
+  .dropdown-content {
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
 </style>
 [[end]]
 
@@ -28,14 +42,13 @@
           placeholder="Enter species name" />
 
         <!-- Dropdown for filtered species -->
-        <!-- <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
-          <div class="dropdown-menu">
-            <div class="dropdown-content">
-              <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
-                {{ species.COMMON_NAME }}
-              </a>
-            </div>
-          </div>-->
+        <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
+          <div class="dropdown-content">
+            <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
+              {{ species.COMMON_NAME }}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -58,8 +71,6 @@
     </div>
   </div>
 </div>
-</div>
-
 </div>
 
 [[block page_scripts]]
