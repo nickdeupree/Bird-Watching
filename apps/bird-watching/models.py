@@ -58,13 +58,13 @@ db.define_table(
 def populate_tables():
     uploads_dir = os.path.join(os.getcwd(), 'apps', 'bird-watching', 'uploads')
     
-    ## Populate Species Table
+    # Populate Species Table
     if db(db.species).isempty():
         species_csv_path = os.path.join(uploads_dir, 'species.csv')
         with open(species_csv_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                common_name = row.get('COMMON_NAME', '').strip()
+                common_name = row.get('COMMON_NAME', '').strip().lower()
                 if common_name:
                     db.species.insert(COMMON_NAME=common_name)
         db.commit()
@@ -89,7 +89,6 @@ def populate_tables():
                         DURATION_MINUTES=float(row['DURATION MINUTES'])
                     )
                 except Exception as e:
-                    # print(f"Error inserting checklist row: {e}")
                     pass
         db.commit()
         print("Checklist table populated successfully.")
