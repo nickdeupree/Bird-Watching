@@ -54,14 +54,14 @@
 
 
     <div id="map"></div>
-    <button class="button is-success mt-2" @click="toggleDrawing">
+    <button class="button is-success mt-2 mr-3" @click="toggleDrawing">
       <span v-if="is_drawing">Stop drawing</span>
       <span v-else>Start drawing</span>
     </button>
-    <button class="button is-info mt-2" @click="selectLocation">
+    <button class="button is-info mt-2 mr-3" @click="selectLocation">
       Select a Single Location
     </button>
-    <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish with a double-click.</p>
+    <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish by clicking stop drawing.</p>
     <div class="buttons mt-2">
       <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'">Go to
         Location</button>

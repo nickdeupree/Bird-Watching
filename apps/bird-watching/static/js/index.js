@@ -17,10 +17,9 @@ let init = (app) => {
         searched: '',
         selected_species: null,
         all_species: [],
-        checklists: [],
         heatmapData: [],
-        heatmapLayer: null
-        // `filteredSpecies` is no longer needed as a data property
+        heatmapLayer: null,
+        marker: null
     };
 
     app.enumerate = (a) => {
@@ -68,11 +67,16 @@ let init = (app) => {
             }
         },
         selectLocation: function () {
-            console.log("method clicked")
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
-                console.log(lat, lng);  // Ensure lat and lng are correct
-                L.marker([lat, lng]).addTo(this.map);
+                
+                if (this.marker != null){
+                    this.map.removeLayer(this.marker);
+                    this.marker = null;
+                }
+
+                this.marker = L.marker([lat, lng]).addTo(this.map);
+               
                 axios.post(save_user_point_url, {
                     lat: lat,
                     lng: lng,
@@ -88,7 +92,6 @@ let init = (app) => {
         },
 
         updateSelectedSpecies: function () {
-            console.log("Method called");
             console.log(this.searched)
             if (this.searched.trim()) {
                 let foundSpecies = this.all_species.find(species =>
@@ -113,12 +116,12 @@ let init = (app) => {
         },
 
         updateHeatmap() {
-            // Remove the existing heatmap layer (if any)
+            // Removing the existing heatmap layer
             if (this.heatLayer) {
                 this.map.removeLayer(this.heatLayer);
                 this.heatLayer = null;
             }
-            // Only add the heatmap layer if there is filtered data
+            // Only adding the heatmap layer if there is filtered data
             if (this.filteredHeatmapData.length > 0) {
                 console.log(this.filteredHeatmapData)
                 let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
@@ -192,7 +195,6 @@ let init = (app) => {
         },
     });
 
-    // Mount the Vue app to the target element.
     app.vue.mount("#vue-target");
 };
 
