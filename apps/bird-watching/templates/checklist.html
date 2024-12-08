@@ -42,9 +42,9 @@
     <table class="table is-fullwidth is-striped is-bordered">
       <tr class="item-row" v-for="(entry, idx) in filter_species"> <!-- table of species -->
         <td class="quantity is-narrow">
-          <button @click="inc(s_idx, 1)"><span><i class="fa fa-plus"></i></span></button>
-          <span class="quantity m-1">{{ entry.quantity}}</span>
-          <button @click="inc(s_idx, -1)"><span><i class="fa fa-minus"></i></span></button>
+          <button @click="update_quantity(idx, 1)"><span><i class="fa fa-plus"></i></span></button>
+          <span class="quantity m-1">{{ entry.OBSERVATION_COUNT}}</span>
+          <button :disabled="!entry.OBSERVATION_COUNT" @click="update_quantity(idx, -1)"><span><i class="fa fa-minus"></i></span></button>
         </td>
         <td class="item"> {{ entry.species_name}} </td>
         <td class="trash is-narrow" @click="remove_item(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
