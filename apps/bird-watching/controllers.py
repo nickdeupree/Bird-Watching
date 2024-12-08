@@ -350,4 +350,16 @@ def remove_species():
 @action.uses(db, auth.user)
 def load_user_stats():
     user_email = get_user_email()
+    user_stats = db(
+    (db.checklist.USER_EMAIL == user_email) & 
+    (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+    (db.sightings.species_id == db.species.id)).select(
+        db.species.COMMON_NAME,  # assuming `common_name` is the field for species name in `species` table
+        db.checklist.OBSERVATION_DATE,
+        db.checklist.TIME_OBSERVATIONS_STARTED,
+        orderby=db.checklist.OBSERVATION_DATE
+    )
+    for row in user_stats:
+        print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
+    return dict(user_email=user_email, user_stats=user_stats)
 
