@@ -67,7 +67,9 @@ def location():
 @action('stats')
 @action.uses('stats.html', db, auth.user)
 def stats():
-    return dict()
+    return dict(
+        load_user_stats_url = URL('load_user_stats')
+    )
 
 @action('checklist')
 @action.uses('checklist.html', db, auth.user)
@@ -354,7 +356,7 @@ def load_user_stats():
     (db.checklist.USER_EMAIL == user_email) & 
     (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
     (db.sightings.species_id == db.species.id)).select(
-        db.species.COMMON_NAME,  # assuming `common_name` is the field for species name in `species` table
+        db.species.COMMON_NAME,
         db.checklist.OBSERVATION_DATE,
         db.checklist.TIME_OBSERVATIONS_STARTED,
         orderby=db.checklist.OBSERVATION_DATE

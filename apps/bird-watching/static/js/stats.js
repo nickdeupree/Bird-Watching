@@ -7,6 +7,8 @@ let app = {};
 app.data = {
     data: function() {
         return {
+            user_email: null,
+            user_stats: [],
 
         };
     },
@@ -18,7 +20,10 @@ app.data = {
 app.vue = Vue.createApp(app.data).mount("#app");
 
 app.load_data = function () {
-    // Initialize the chart
+    axios.get(load_user_stats_url).then(function (r) {
+        app.vue.user_email = r.data.user_email;
+        app.vue.user_stats = r.data.user_stats;
+    });
 };
 
 app.load_data();
