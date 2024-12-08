@@ -14,18 +14,18 @@
   <div class="container">
     <table class="table is-fullwidth is-striped">
       <tr class="search-row"> <!-- search bar for filtering -->
-        <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species"></i></td>
-        <td><input class="input search-species" type="text" name="new_item" v-model="new_item"></td>
+        <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species()"></i></td>
+        <td><input class="input search-species" type="text" name="new_species" v-model="new_species"></td>
         <td class="is-narrow"></td>
       </tr>
     </table>
     <table class="table is-fullwidth is-striped">
       <tr class="add-row"> <!-- add bar for new species -->
-        <td class="is-narrow"><i class="is-size-2 fa fa-plus-square has-text-success add-item" @click="add_species"></i></td>
-        <td><input class="input add-item" type="text" name="new_item" v-model="new_item"></td>
+        <td class="is-narrow"><i class="is-size-2 fa fa-plus-square has-text-success add-item" @click="add_species()"></i></td>
+        <td><input class="input add-item" type="text" name="new_species" v-model="new_species"></td>
         <td class="is-narrow"></td>
       </tr>
-      <tr class="item-row" v-for="(item, idx) in checklists[checklist_id]"> <!-- table of species -->
+      <tr class="item-row" v-for="(item, idx) in checklists[event_id]"> <!-- table of species -->
         <!-- <td class="check is-narrow"><input type="checkbox" :checked="item.checked" @click="update_quantity(idx)"></td> -->
         <td class="item"> {{ item.species_name}} </td>
         <td class="trash is-narrow" @click="remove_item(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
@@ -40,6 +40,7 @@
 <script>
   // Add other URLs here if you wish.
   let load_sightings_url = "[[=XML(load_sightings_url)]]";
+  let add_to_sightings_url = "[[=XML(add_to_sightings_url)]]";
 </script>
 <script src="js/checklist.js"></script>
 [[end]]

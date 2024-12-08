@@ -23,6 +23,7 @@ db.define_table(
 
 db.define_table(
     'checklist',
+    Field('USER_EMAIL', 'string', default=get_user_email()),
     Field('SAMPLING_EVENT_IDENTIFIER', 'string', unique=True, requires=IS_NOT_EMPTY()),
     Field('LATITUDE', 'double'),
     Field('LONGITUDE', 'double'),

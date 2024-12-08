@@ -13,28 +13,28 @@ app.data = {
             user_email: null,
             new_species: "",
             quantity: 0,
-            checklist_id: null // which checklist is currently being worked on
+            event_id: null // which checklist is currently being worked on
         };
     },
     methods: {
         // Complete as you see fit.
-        add_item: function () {
-            // let self = this;
-            // let time = this.getCurrentDateTime();
-            // axios.post(add_species_url, { // send to backend
-            //     checklist_id: self.checklist_id,
-            //     species_name: self.new_species,
-            //     quantity: self.quantity,
-            //     input_time: time
-            // }).then(function (r) {
-            //     self.checklists[checklist_id].unshift({ // should update a single entry in checklists
-            //         id: r.data.id,
-            //         species_name: self.species_name,
-            //         quantity: self.quantity,
-            //         input_time: time,
-            //         user_email: r.data.user_email // unsure if necessary at the moment
-            //     });
-            // });
+        add_species: function () {
+            let self = this;
+            let time = this.getCurrentDateTime();
+            axios.post(add_to_sightings_url, { // send to backend
+                event_id: self.event_id,
+                species_name: self.new_species,
+                quantity: self.quantity,
+                input_time: time
+            }).then(function (r) {
+                self.checklists[event_id].unshift({ // should update a single entry in checklists
+                    id: r.data.id,
+                    species_name: self.species_name,
+                    quantity: self.quantity,
+                    input_time: time,
+                    user_email: r.data.user_email // unsure if necessary at the moment
+                });
+            });
         }
     },
 };
@@ -43,11 +43,8 @@ app.vue = Vue.createApp(app.data).mount("#app");
 
 app.load_data = function () {
     axios.get(load_sightings_url).then(function (r) {
-        app.vue.checklist_id = r.data.event_id;
-        app.vue.checklists[app.vue.checklist_id] = r.data.sightings;
-        // app.vue.my_value = r.data.my_value;
-        // load checklist info from database to identify which checklist we're working with
-        // set checklist_id
+        app.vue.event_id = r.data.event_id;
+        app.vue.checklists[app.vue.event_id] = r.data.sightings;
     });
 }
 
