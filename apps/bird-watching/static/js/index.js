@@ -67,15 +67,16 @@ let init = (app) => {
             }
         },
         selectLocation: function () {
+            let self = this;
             let selectPointHandler = (e) => {
                 let { lat, lng } = e.latlng;
                 
-                if (this.marker != null){
-                    this.map.removeLayer(this.marker);
-                    this.marker = null;
+                if (self.marker != null){
+                    self.map.removeLayer(self.marker);
+                    self.marker = null;
                 }
 
-                this.marker = L.marker([lat, lng]).addTo(this.map);
+                self.marker = L.marker([lat, lng]).addTo(self.map);
                
                 axios.post(save_user_point_url, {
                     lat: lat,
@@ -85,7 +86,7 @@ let init = (app) => {
                 }).catch(error => {
                     console.error('Error saving point:', error);
                 });
-                this.map.off('click', selectPointHandler);
+                self.map.off('click', selectPointHandler);
             };
             alert("Click on the map to select a location.");
             this.map.on('click', selectPointHandler);
@@ -171,6 +172,14 @@ let init = (app) => {
         },
         methods: app.methods,
         computed: {
+            isLocationSelected() {
+                return this.marker !== null;
+            },
+    
+            isPolygonDrawn() {
+                return this.drawing_polygon !== null && this.drawing_coords.length > 3;
+            },
+
             filteredSpecies() {
                 if (this.searched.trim() === "") {
                     return [];
@@ -184,10 +193,9 @@ let init = (app) => {
                 if (!this.selected_species) {
                     return [];
                 }
-
                 return this.heatmapData
-                    .filter((sighting) => sighting[0] !== null && sighting[1] !== null) // Check for valid latitude/longitude
-                    .filter((sighting) => sighting[3] === this.selected_species.id); // Check species ID match
+                    .filter((sighting) => sighting[0] !== null && sighting[1] !== null) 
+                    .filter((sighting) => sighting[3] === this.selected_species.id); 
             }
         },
         mounted() {
