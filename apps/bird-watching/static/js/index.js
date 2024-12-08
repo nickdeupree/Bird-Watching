@@ -18,7 +18,7 @@ let init = (app) => {
         selected_species: null,
         all_species: [],
         heatmapData: [],
-        heatmapLayer: null,
+        heatLayer: null,
         marker: null
     };
 
@@ -93,7 +93,6 @@ let init = (app) => {
         },
 
         updateSelectedSpecies: function () {
-            console.log(this.searched)
             if (this.searched.trim()) {
                 let foundSpecies = this.all_species.find(species =>
                     species.COMMON_NAME.toLowerCase() === this.searched.trim().toLowerCase()
@@ -117,20 +116,23 @@ let init = (app) => {
         },
 
         updateHeatmap() {
-            // Removing the existing heatmap layer
-            if (this.heatLayer) {
-                this.map.removeLayer(this.heatLayer);
-                this.heatLayer = null;
+            try {
+                // Removing the existing heatmap layer
+                if (this.heatLayer) {
+                    this.map.removeLayer(this.heatLayer);
+                    this.heatLayer = null;
+                }
+                // Only adding the heatmap layer if there is filtered data
+                if (this.filteredHeatmapData.length > 0) {
+                    let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));
+                    this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(this.map);
+                } else {
+                    console.error("No valid heatmap data found.");
+                }
+            } catch {
+                console.error("Error updating heatmap.");
             }
-            // Only adding the heatmap layer if there is filtered data
-            if (this.filteredHeatmapData.length > 0) {
-                console.log(this.filteredHeatmapData)
-                let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
-                console.log(heatmapLayerData)
-                this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(this.map);
-            } else {
-                console.error("No valid heatmap data for the selected species.");
-            }
+            
         },
 
         load_data: function () {
@@ -157,7 +159,7 @@ let init = (app) => {
 
                     if (self.heatmapData.length > 0) {
                         let heatmapLayerData = self.heatmapData.map(item => item.slice(0, 3));  // Get only the first 3 values
-                        this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(self.map);
+                        self.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(self.map);
                     } else {
                         console.error("No valid heatmap data found.");
                     }
