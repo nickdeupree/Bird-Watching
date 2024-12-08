@@ -19,6 +19,7 @@
     <!-- Navigation bar -->
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
+        [[if globals().get('user'):]]
         <a class="navbar-item" href="[[=URL('index')]]">
           Map
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
@@ -35,6 +36,13 @@
           Stats
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
         </a>
+        [[else:]]
+        <a class="navbar-item" href="[[=URL('stats')]]">
+          Let's go bird watching!
+          <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
+        </a>
+
+        [[pass]]
 
 
 
