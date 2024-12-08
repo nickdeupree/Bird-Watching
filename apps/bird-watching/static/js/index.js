@@ -109,7 +109,7 @@ let init = (app) => {
 
         selectSpecies: function (species) {
             this.selected_species = species;
-            this.searched = species.COMMON_NAME;
+            this.searched = '';
             console.log('Selected species updated to:', this.selected_species);
 
             this.updateHeatmap();

@@ -35,13 +35,13 @@
 <div v-if="user_email">
   <div class="section" id="vue-target" v-cloak>
     <div class="field">
-      <label class="label">Select a Species</label>
+      <label class="label">
+        {{ selected_species ? 'Showing sightings for: ' + selected_species.COMMON_NAME : 'Select a species' }}
+      </label>
       <div class="control">
-        <!-- Input field for searching species -->
         <input class="input" type="text" v-model="searched" @keydown.enter="updateSelectedSpecies"
           placeholder="Enter species name" />
 
-        <!-- Dropdown for filtered species -->
         <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
           <div class="dropdown-content">
             <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
