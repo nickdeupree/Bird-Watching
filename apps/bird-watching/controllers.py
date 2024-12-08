@@ -68,8 +68,11 @@ def stats():
 @action.uses('checklist.html', db, auth.user)
 def checklist():
     return dict(
+        load_sightings_url = URL('load_sightings_url'),
+        index_url = URL('index'),
         add_to_sightings_url = URL('add_to_sightings'),
-        load_sightings_url = URL('load_sightings_url')
+        update_quantity_url = URL('update_quantity'),
+        remove_species_url = URL('remove_species'),
     )
 
 @action('load_species_url')
@@ -305,3 +308,15 @@ def load_sightings():
 @action.uses(db, auth.user)
 def add_to_sightings():
     return
+
+@action('update_quantity', method=["POST"])
+@action.uses(db, auth.user)
+def update_quantity():
+    return
+
+@action('remove_species', method=["POST"])
+@action.uses(db, auth.user)
+def remove_species():
+    return
+
+
