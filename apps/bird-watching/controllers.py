@@ -31,6 +31,10 @@ from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email, get_time
+from py4web.utils.form import Form, FormStyleBulma, TextareaWidget
+from pydal import Field
+from pydal.validators import *
+from py4web.utils.grid import Grid, GridClassStyleBulma
 
 url_signer = URLSigner(session)
 
@@ -44,6 +48,7 @@ def index():
         location_url = URL('location'),
         stats_url = URL('stats'),
         checklist_url = URL('checklist'),
+        my_checklists_url = URL('my_checklists'),
         save_user_polygon_url = URL('save_user_polygon', signer=url_signer),
         save_user_point_url = URL('save_user_point')
     )   
@@ -68,8 +73,30 @@ def stats():
 @action.uses('checklist.html', db, auth.user)
 def checklist():
     return dict(
+        load_sightings_url = URL('load_sightings_url'),
+        index_url = URL('index'),
         add_to_sightings_url = URL('add_to_sightings'),
-        load_sightings_url = URL('load_sightings_url')
+        update_quantity_url = URL('update_quantity'),
+        remove_species_url = URL('remove_species'),
+    )
+
+@action('my_checklists')
+@action('my_checklists/<path:path>', method=['POST', 'GET'])
+@action.uses('my_checklists.html', db, session, auth.user)
+def my_checklists(path=None):
+    grid = Grid(
+        path, query=db.checklist.id > 0,
+        search_queries=None, 
+        search_form=None, editable=False, deletable=True, details=False, create=False,
+        grid_class_style=GridClassStyleBulma, formstyle=FormStyleBulma,
+    )
+    return dict(
+        grid=grid,
+        load_sightings_url = URL('load_sightings_url'),
+        index_url = URL('index'),
+        add_to_sightings_url = URL('add_to_sightings'),
+        update_quantity_url = URL('update_quantity'),
+        remove_species_url = URL('remove_species'),
     )
 
 @action('load_species_url')
@@ -286,7 +313,7 @@ def load_sightings():
     point = db(db.user_point).select(db.user_point.lat, db.user_point.lng).first()
     lat = point.lat
     long = point.lng
-    user_email = db(db.user_point.user_email).select().first()
+    user_email = get_user_email()
     existingChecklist = db(db.checklist.LATITUDE == lat
         and db.checklist.LONGITUDE == long
         and db.checklist.USER_EMAIL == user_email).select().first()
@@ -299,9 +326,23 @@ def load_sightings():
         db(db.checklist.LATITUDE == lat and db.checklist.LONGITUDE == long).update(SAMPLING_EVENT_IDENTIFIER=str(id))
         event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
+    # S80376372
+    print(sightings)
     return dict(event_id=event_id, sightings=sightings)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
 def add_to_sightings():
     return
+
+@action('update_quantity', method=["POST"])
+@action.uses(db, auth.user)
+def update_quantity():
+    return
+
+@action('remove_species', method=["POST"])
+@action.uses(db, auth.user)
+def remove_species():
+    return
+
+

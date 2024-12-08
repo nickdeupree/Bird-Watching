@@ -9,25 +9,44 @@
 
 <div class="section" id="app" v-cloak>
   <!-- Put here your Vue.js template -->
-  <h1 class="title">Checklist</h1>
-
   <div class="container">
+    <div class="checklist">
+      <h1 class="title is-pulled-left">Update Checklist</h1>
+      <button class="button is-success is-pulled-right mr-3" @click="showModal">Submit</button>
+      <div class="modal" id="submitModal">
+        <div class="modal-background"></div>
+        <div class="modal-card" style="width: fit-content;">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Checklist Saved</p>
+          </header>
+          <footer class="modal-card-foot">
+            <button class="button is-success is-fullwidth" @click="closeModal" onclick="window.location.href='[[=index_url]]'">OK</button>
+          </footer>
+        </div>
+      </div>
+    </div>
     <table class="table is-fullwidth is-striped">
       <tr class="search-row"> <!-- search bar for filtering -->
-        <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species()"></i></td>
-        <td><input class="input search-species" type="text" name="new_species" v-model="new_species"></td>
-        <td class="is-narrow"></td>
+        <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species"></i></td>
+        <td><input class="input" type="text" @keydown.enter="filter_species" name="search_species" placeholder="Search for species" v-model="search_species"></td>
+        <!-- <td class="is-narrow"></td> -->
       </tr>
     </table>
     <table class="table is-fullwidth is-striped">
       <tr class="add-row"> <!-- add bar for new species -->
-        <td class="is-narrow"><i class="is-size-2 fa fa-plus-square has-text-success add-item" @click="add_species()"></i></td>
-        <td><input class="input add-item" type="text" name="new_species" v-model="new_species"></td>
-        <td class="is-narrow"></td>
+        <td class="is-narrow"><i class="is-size-2 fa fa-plus-square has-text-success add-item" @click="add_species"></i></td>
+        <td><input class="input" type="text" @keydown.enter="add_species" name="new_species" placeholder="Add new species" v-model="new_species"></td>
+        <!-- <td class="is-narrow"></td> -->
       </tr>
-      <tr class="item-row" v-for="(item, idx) in checklists[event_id]"> <!-- table of species -->
-        <!-- <td class="check is-narrow"><input type="checkbox" :checked="item.checked" @click="update_quantity(idx)"></td> -->
-        <td class="item"> {{ item.species_name}} </td>
+    </table>
+    <table class="table is-fullwidth is-striped is-bordered">
+      <tr class="item-row" v-for="(entry, idx) in filter_species"> <!-- table of species -->
+        <td class="quantity is-narrow">
+          <button @click="update_quantity(idx, 1)"><span><i class="fa fa-plus"></i></span></button>
+          <span class="quantity m-1">{{ entry.OBSERVATION_COUNT}}</span>
+          <button :disabled="!entry.OBSERVATION_COUNT" @click="update_quantity(idx, -1)"><span><i class="fa fa-minus"></i></span></button>
+        </td>
+        <td class="item"> {{ entry.species_name}} </td>
         <td class="trash is-narrow" @click="remove_item(idx)"><span><i class="trash has-text-danger fa fa-trash"></i></span></td>
       </tr> 
     </table>
@@ -41,6 +60,9 @@
   // Add other URLs here if you wish.
   let load_sightings_url = "[[=XML(load_sightings_url)]]";
   let add_to_sightings_url = "[[=XML(add_to_sightings_url)]]";
+  let update_quantity_url = "[[=XML(update_quantity_url)]]";
+  let remove_species_url = "[[=XML(remove_species_url)]]";
+  let index_url = "[[=XML(index_url)]]";
 </script>
 <script src="js/checklist.js"></script>
 [[end]]
