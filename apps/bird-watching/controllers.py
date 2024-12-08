@@ -346,3 +346,8 @@ def remove_species():
     return
 
 
+@action('load_user_stats', method=["GET"])
+@action.uses(db, auth.user)
+def load_user_stats():
+    user_email = get_user_email()
+
