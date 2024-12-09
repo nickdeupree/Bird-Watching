@@ -4,10 +4,33 @@
 [v-cloak] {
      display: none;
 }
-.quantity {
-  display: inline-block; /* Ensure the span behaves like a box */
-  text-align: center;    /* Center the number within the box */
-}
+  .quantity {
+    display: inline-block; /* Ensure the span behaves like a box */
+    text-align: center;    /* Center the number within the box */
+  }
+  .field {
+    position: relative;
+  }
+  .dropdown {
+    position: absolute;
+    top: 100%;   /* This positions the dropdown right below the input field */
+    left: 0;     /* Aligns the dropdown with the left edge of the input field */
+    width: 100%; /* Makes the dropdown width the same as the input field */
+    z-index: 1000; /* Makes sure the dropdown stays on top of other content */
+  }
+  .dropdown-content {
+    max-height: 200px; /* Adds a max height for scrolling */
+    overflow-y: auto;  /* Enables scrolling if the content exceeds max height */
+  }
+  .add-item, .search-species, .submit-button {
+    transition: color 0.3s ease;
+  }
+  .add-item:hover, .search-species:hover {
+    color: #2c9b4f !important;
+  }
+  .submit-button:hover {
+    background-color: #2c9b4f !important;
+  }
 </style>
 
 
@@ -15,7 +38,7 @@
   <div class="container">
     <div class="checklist">
       <h1 class="title is-pulled-left">Update Checklist</h1>
-      <button class="button is-success is-pulled-right mr-3" @click="showModal">Submit</button>
+      <button class="button submit-button is-success is-pulled-right mr-3" @click="showModal">Submit</button>
       <div class="modal" id="submitModal">
         <div class="modal-background"></div>
         <div class="modal-card" style="width: fit-content;">
@@ -32,19 +55,37 @@
     <table class="table is-fullwidth is-striped">
       <tr class="search-row"> <!-- search bar for filtering -->
         <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species"></i></td>
-        <td><input class="input" type="text" @keydown.enter="filter_species" name="search_species" placeholder="Search for species" v-model="search_species"></td>
+        <td>
+          <input class="input" :disabled="checklist_empty" type="text" name="search_species" placeholder="Search for species" v-model="search_species">
+          <small v-if="checklist_empty" class="help ml-1">Checklist is empty</small>
+        </td>
       </tr>
     </table>
     <table class="table is-fullwidth is-striped">
       <tr class="add-row"> <!-- add bar for new species -->
-        <td class="is-narrow"><i class="is-size-2 fa fa-plus-square has-text-success add-item" @click="add_species"></i></td>
+        <td class="is-narrow"><i class="is-size-2 fa fa-share-square-o has-text-success add-item" @click="add_species"></i></td>
         <td>
-          <input class="input" :class="{'is-danger': missing_species_name}" type="text" @keydown.enter="add_species" name="new_species" placeholder="Add new species" v-model="new_species">
-          <small v-if="missing_species_name" class="help is-danger ml-1">Species name is required</small>
+          <div class="field">
+            <input class="input" id="add-species" :class="{'is-danger': missing_species_name}" type="text" @keydown.enter="add_species"
+              @click="showDropdown = true" placeholder="Add new species" v-model="new_species" ref="species_input">
+            <small v-if="missing_species_name" class="help is-danger ml-1">Species name is required</small>
+            <div class="dropdown is-active" ref="dropdown" v-if="showDropdown && show_species.length > 0" >
+              <div class="dropdown-menu">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" v-for="species in show_species" @click="select_species(species)">
+                    {{ species.COMMON_NAME }}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <small v-if="show_species.length > 0 && new_species.length > 0" class="help ml-1">Select from dropdown</small>
+            <small v-if="show_species.length == 0 && new_species.length > 0" class="help ml-1">Species not found</small>
+            <small v-if="show_species.length == 0 && new_species.length > 0" class="help ml-1">Continue with manual entry</small>
+          </div>
         </td>
         <td>
-          <input class="input" :disabled="!new_species" type="text" @keydown.enter="add_species" name="initial_quantity" placeholder="Enter number of birds" v-model="initial_quantity">
-          <small class="ml-1">Defaults to 1</small>
+          <input class="input" :disabled="!new_species" type="text" @keydown.enter="add_species" name="initial_quantity" placeholder="Enter number of birds" v-model="initial_quantity" ref="count">
+          <small class="help ml-1">Defaults to 1</small>
         </td>
       </tr>
     </table>

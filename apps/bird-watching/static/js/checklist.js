@@ -10,6 +10,7 @@ app.data = {
         return {
             // Complete as you see fit.
             checklist: [], // should be a single checklist
+            all_species: [], // should be a list of all species
             user_email: null,
             new_species: "",
             search_species: "",
@@ -17,6 +18,8 @@ app.data = {
             event_id: null, // which checklist is currently being worked on,
             max_char_width: 1,
             missing_species_name: false,
+            checklist_empty: true,
+            showDropdown: false,
         };
     },
     methods: {
@@ -60,9 +63,17 @@ app.data = {
                     console.log("added", self.new_species)
                     self.new_species = "";
                     self.initial_quantity = null;
+                    self.checklist_empty = false;
                 });
             }
             self.fixWidth();
+        }, select_species: function (species) {
+            let self = this;
+            self.new_species = species.COMMON_NAME;
+            self.showDropdown = false;
+            this.$nextTick(() => {
+                this.$refs.count.focus();  // Focus on the input with the ref "quantityInput"
+            });
         }, update_quantity: function(idx, quantity) {
             let self = this;
             let species = this.checklist[idx];
@@ -87,6 +98,9 @@ app.data = {
                 try {
                     if (r.data == 'ok') {
                         self.checklist.splice(idx, 1);
+                        if (self.checklist.length == 0) {
+                            self.checklist_empty = true;
+                        }
                     }
                 } catch (e) {
                     console.log('failed to delete species')
@@ -95,8 +109,22 @@ app.data = {
             self.fixWidth();
         }, showModal: function () {
             document.getElementById("submitModal").classList.add("is-active");
+            window.addEventListener('keydown', this.handleEscapeKey);
         }, closeModal: function () {
             document.getElementById("submitModal").classList.remove("is-active");
+            window.removeEventListener('keydown', this.handleEscapeKey);
+        }, handleEscapeKey: function (e) {
+            if (e.key === 'Escape') {
+                this.closeModal();
+            }
+        }, handleClickOutside(event) {
+            const dropdown = this.$refs.dropdown;
+            const input = this.$refs.species_input;
+            if (dropdown && input) {
+                if (!dropdown.contains(event.target) && !input.contains(event.target)) {
+                    this.showDropdown = false;
+                }
+            }
         }, fixWidth: function () {
             let self = this;
             let width = '3ch';
@@ -112,12 +140,26 @@ app.data = {
             let self = this;
             if (this.search_species == "") {
                 return this.checklist;
+            } else if (this.checklist.length == 0) {
+                return [];
             } else {
                 return this.checklist.filter((species) => {
                     return species.species_name.toLowerCase().includes(this.search_species.toLowerCase());
                 });
             }
-        },
+        }, show_species() {
+            this.showDropdown = true;
+            if (this.new_species.trim() === "") {
+                return [];
+            }
+            return this.all_species.filter((species) => 
+                species.COMMON_NAME.toLowerCase().includes(this.new_species.toLowerCase())
+            );
+        }
+    }, mounted() {
+        document.addEventListener('click', this.handleClickOutside);
+    }, beforeDestroy() {
+        document.removeEventListener('click', this.handleClickOutside);
     }
 };
 
@@ -126,7 +168,11 @@ app.vue = Vue.createApp(app.data).mount("#app");
 app.load_data = function () {
     axios.get(load_sightings_url).then(function (r) {
         app.vue.event_id = r.data.event_id;
+        app.vue.all_species = r.data.all_species;
         app.vue.checklist = r.data.sightings;
+        if (app.vue.checklist.length > 0) {
+            app.vue.checklist_empty = false;
+        }
         app.vue.fixWidth();
     });
 }
