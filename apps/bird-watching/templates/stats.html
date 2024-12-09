@@ -48,7 +48,9 @@
              </thead>
              <tbody>
                <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
-                 <td class="item">{{ species.COMMON_NAME }}</td>
+                 <td class="item">
+                    <button class="button is-fullwidth">{{ species.COMMON_NAME }}</button>
+                 </td>
                </tr>
              </tbody>
            </table>
