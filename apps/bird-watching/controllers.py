@@ -77,6 +77,7 @@ def checklist():
     return dict(
         load_sightings_url = URL('load_sightings_url'),
         index_url = URL('index'),
+        my_checklists_url = URL('my_checklists'),
         add_to_sightings_url = URL('add_to_sightings'),
         update_quantity_url = URL('update_quantity'),
         remove_species_url = URL('remove_species'),
@@ -86,20 +87,77 @@ def checklist():
 @action('my_checklists/<path:path>', method=['POST', 'GET'])
 @action.uses('my_checklists.html', db, session, auth.user)
 def my_checklists(path=None):
+    GridClassStyleBulma
+    columns = [
+        db.checklist.LATITUDE,
+        db.checklist.LONGITUDE,
+        db.checklist.OBSERVATION_DATE,
+        db.checklist.TIME_OBSERVATIONS_STARTED,
+        db.checklist.OBSERVER_ID,
+        db.checklist.DURATION_MINUTES
+    ]
+    
+    headings = [
+        'Latitude', 
+        'Longitude', 
+        'Observation Date',
+        'Time Observations Started',
+        'Observer ID',
+        'Duration Minutes',
+        'Actions'  
+    ]
+    
     grid = Grid(
-        path, query=db.checklist.id > 0,
+        path, query=(db.checklist.id > 0) & (db.checklist.USER_EMAIL == get_user_email()),
         search_queries=None, 
-        search_form=None, editable=False, deletable=True, details=False, create=False,
-        grid_class_style=GridClassStyleBulma, formstyle=FormStyleBulma,
+        search_form=None, editable=False, deletable=False, details=False, create=False,
+        grid_class_style=GridClassStyleBulma(), formstyle=FormStyleBulma,
+        columns=columns, headings=headings, post_action_buttons=[GridEditButton(), GridDeleteButton()]
     )
+
     return dict(
         grid=grid,
-        load_sightings_url = URL('load_sightings_url'),
-        index_url = URL('index'),
-        add_to_sightings_url = URL('add_to_sightings'),
-        update_quantity_url = URL('update_quantity'),
-        remove_species_url = URL('remove_species'),
+        index_url=URL('index')
     )
+
+class GridEditButton(object):
+    """This is the edit button for the grid."""
+    def __init__(self):
+        self.url = URL('edit_selected_checklist')
+        self.append_id = True # append the ID to the edit.
+        self.additional_classes = 'button is-small is-responsive is-info m-1'
+        self.icon = 'fa-pencil'
+        self.text = 'Edit'
+        self.message = None
+        self.onclick = None # Used for things like confirmation.
+
+class GridDeleteButton(object):
+    """This is the edit button for the grid."""
+    def __init__(self):
+        self.url = URL('delete_selected_checklist')
+        self.append_id = True # append the ID to the edit.
+        self.additional_classes = 'button is-small is-responsive is-danger m-1'
+        self.icon = 'fa-trash'
+        self.text = 'Delete'
+        self.message = None
+        self.onclick = None # Used for things like confirmation.
+
+@action('edit_selected_checklist/<checklist_id:int>')
+@action.uses('edit_selected_checklist', db, auth.user)
+def edit_selected_checklist(checklist_id=None):
+    checklist = db(db.checklist.id == checklist_id).select().first()
+    db(db.user_point).update(lat=checklist.LATITUDE, lng=checklist.LONGITUDE)
+    redirect(URL('checklist'))
+
+@action('delete_selected_checklist/<checklist_id:int>')
+@action.uses('delete_selected_checklist', db, auth.user)
+def delete_selected_checklist(checklist_id=None):
+    checklist = db(db.checklist.id == checklist_id).select().first()
+    event_id = checklist.SAMPLING_EVENT_IDENTIFIER
+    db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).delete()
+    db((db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id) & 
+       (db.checklist.id == checklist_id)).delete()
+    redirect(URL('my_checklists'))
 
 @action('load_species_url')
 @action.uses(db, auth.user)
@@ -300,14 +358,6 @@ def save_user_point():
                 lng=lng,
                 last_updated=get_time()
             )            
-        
-# use py4web grid functionality to load checklists
-@action('load_checklist_url')
-@action.uses(db, auth.user)
-def load_checklist():
-    # add user email check
-    checklist = db(db.checklist).select().as_list()
-    return dict(checklist=checklist)
 
 @action('load_sightings_url', method=["GET"])
 @action.uses(db, auth.user)
@@ -316,36 +366,64 @@ def load_sightings():
     lat = point.lat
     long = point.lng
     user_email = get_user_email()
-    existingChecklist = db(db.checklist.LATITUDE == lat
-        and db.checklist.LONGITUDE == long
-        and db.checklist.USER_EMAIL == user_email).select().first()
+    existingChecklist = db((db.checklist.LATITUDE == lat)
+        & (db.checklist.LONGITUDE == long)
+        & (db.checklist.USER_EMAIL == user_email)).select().first()
     event_id = None
     if existingChecklist:
         event_id = existingChecklist.SAMPLING_EVENT_IDENTIFIER
     else:
         id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
             LONGITUDE=long, USER_EMAIL=user_email)
-        db(db.checklist.LATITUDE == lat and db.checklist.LONGITUDE == long).update(SAMPLING_EVENT_IDENTIFIER=str(id))
+        db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
         event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
-    # S80376372
-    print(sightings)
-    return dict(event_id=event_id, sightings=sightings)
+    for sighting in sightings:
+        species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
+        if species_record:
+            sighting['species_name'] = species_record.COMMON_NAME
+    all_species = db(db.species).select().as_list()
+    return dict(event_id=event_id, sightings=reversed(sightings), all_species=all_species)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
 def add_to_sightings():
-    return
+    event_id = request.json.get("event_id")
+    species_name = request.json.get("species_name")
+    quantity = request.json.get("quantity")
+    species_id = db(db.species.COMMON_NAME == species_name).select(db.species.id).first()
+    if species_id:
+        species_id = species_id.id
+    else:
+        species_id = db.species.insert(COMMON_NAME=species_name)
+    id = None
+    if event_id:
+        existing_sighting = db((db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id) & (db.sightings.species_id == species_id)).select().first()
+        if existing_sighting:
+            id = db(db.sightings.id == existing_sighting.id).select().first().id
+            db(db.sightings.id == existing_sighting.id).update(OBSERVATION_COUNT=quantity)
+        else:
+            id = db.sightings.insert(SAMPLING_EVENT_IDENTIFIER=event_id, species_id=species_id, OBSERVATION_COUNT=quantity)
+    return dict(id=id, species_id=species_id)
 
 @action('update_quantity', method=["POST"])
 @action.uses(db, auth.user)
 def update_quantity():
-    return
+    event_id = request.json.get("event_id")
+    species_id = request.json.get("species_id")
+    quantity = request.json.get("quantity")
+    db((db.sightings.species_id == species_id) & 
+       (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).update(OBSERVATION_COUNT=quantity)
+    return "ok"
 
 @action('remove_species', method=["POST"])
 @action.uses(db, auth.user)
 def remove_species():
-    return
+    event_id = request.json.get('event_id')
+    id = request.json.get('species_id')
+    db((db.sightings.species_id == id) & 
+       (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
+    return "ok"
 
 
 @action('load_user_stats', method=["GET"])
