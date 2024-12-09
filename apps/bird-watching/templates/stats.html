@@ -26,7 +26,7 @@
          
          <!-- Left Column: Species List -->
          <div class="column is-half">
-          <h1 class="title is-pulled-left">My Statistics</h1>
+          <h1 class="title is-pulled-left">My Bird Watching Statistics</h1>
            <div class="field">
              <div class="control has-icons-left is-expanded">
                <span class="icon is-small">
@@ -60,12 +60,14 @@
          <div class="column is-half">
            <!-- This area is for future content, e.g., the species details or map -->
             <!-- {{total_species}} -->
-            <canvas id="speciesChart" width="400" height="300"></canvas>
-             <p v-for='(sighting, sighting_index) in sighting_stats' class="item-row">
+            <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
+               <h3 class="subtitle is-size-4 has-text-centered">Select a species to view its chart below.</h3>
+               <canvas id="speciesChart" width="400" height="300"></canvas>
+               <!-- <p v-for='(sighting, sighting_index) in sighting_stats' class="item-row">
                {{sighting.checklist}}
                {{sighting.species}}
                {{sighting}}
-             </p>
+               </p> -->
          </div>
        
        </div>
