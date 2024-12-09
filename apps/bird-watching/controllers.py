@@ -67,7 +67,9 @@ def location():
 @action('stats')
 @action.uses('stats.html', db, auth.user)
 def stats():
-    return dict()
+    return dict(
+        load_user_stats_url = URL('load_user_stats')
+    )
 
 @action('checklist')
 @action.uses('checklist.html', db, auth.user)
@@ -380,7 +382,8 @@ def load_sightings():
         species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
         if species_record:
             sighting['species_name'] = species_record.COMMON_NAME
-    return dict(event_id=event_id, sightings=reversed(sightings))
+    all_species = db(db.species).select().as_list()
+    return dict(event_id=event_id, sightings=reversed(sightings), all_species=all_species)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
@@ -416,13 +419,50 @@ def update_quantity():
 @action('remove_species', method=["POST"])
 @action.uses(db, auth.user)
 def remove_species():
-    user_email = get_user_email()
-    print(request.json)
     event_id = request.json.get('event_id')
     id = request.json.get('species_id')
-    print(event_id, id)
     db((db.sightings.species_id == id) & 
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
     return "ok"
 
+
+@action('load_user_stats', method=["GET"])
+@action.uses(db, auth.user)
+def load_user_stats():
+    user_email = get_user_email()
+    species_seen = db(
+        (db.checklist.USER_EMAIL == user_email) & 
+        (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+        (db.sightings.species_id == db.species.id)
+    ).select(
+        db.species.COMMON_NAME,
+        distinct=True,  # Ensure the results are unique by species
+        orderby=db.species.COMMON_NAME  # Ordering by species name (optional)
+    ).as_list()
+
+    total_species = db(
+        (db.checklist.USER_EMAIL == user_email) & 
+        (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+        (db.sightings.species_id == db.species.id)
+    ).select(
+        db.species.COMMON_NAME,
+        db.sightings.OBSERVATION_COUNT.sum().with_alias('total_sightings'),
+        groupby=db.species.COMMON_NAME,
+        having=(db.checklist.USER_EMAIL == user_email)
+    ).as_list()
+    
+    sighting_stats = db(
+    (db.checklist.USER_EMAIL == user_email) & 
+    (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+    (db.sightings.species_id == db.species.id)).select(
+        db.species.COMMON_NAME,
+        db.checklist.OBSERVATION_DATE,
+        db.checklist.TIME_OBSERVATIONS_STARTED,
+        orderby=db.checklist.OBSERVATION_DATE
+    ).as_list()
+    
+    # print(f"length of user stats is {len(user_stats)}")
+    # for row in user_stats:
+    #     print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
+    return dict(user_email=user_email, species_list=species_seen, total_species=total_species, sighting_stats=sighting_stats)
 
