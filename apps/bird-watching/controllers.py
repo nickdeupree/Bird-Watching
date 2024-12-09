@@ -446,11 +446,11 @@ def load_user_stats():
         (db.sightings.species_id == db.species.id)
     ).select(
         db.species.COMMON_NAME,
-        db.sightings.OBSERVATION_COUNT.sum().with_alias('total_sightings'),
+        db.sightings.OBSERVATION_COUNT.sum(),
         groupby=db.species.COMMON_NAME,
         having=(db.checklist.USER_EMAIL == user_email)
     ).as_list()
-    
+
     sighting_stats = db(
     (db.checklist.USER_EMAIL == user_email) & 
     (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 

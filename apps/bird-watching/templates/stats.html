@@ -49,7 +49,7 @@
              <tbody>
                <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
                  <td class="item">
-                    <button class="button is-fullwidth">{{ species.COMMON_NAME }}</button>
+                    <button class="button is-fullwidth" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
                  </td>
                </tr>
              </tbody>
@@ -59,6 +59,12 @@
          <!-- Right Column (can be empty or have additional content) -->
          <div class="column is-half">
            <!-- This area is for future content, e.g., the species details or map -->
+            <!-- {{total_species}} -->
+            <canvas id="speciesChart" width="400" height="300"></canvas>
+             <p v-for='(sighting, sighting_index) in sighting_stats' class="item-row">
+               {{sighting.checklist}}
+               {{sighting.species}}
+             </p>
          </div>
        
        </div>
@@ -70,7 +76,6 @@
 <script>
      let load_user_stats_url = "[[=XML(load_user_stats_url)]]";
  </script>
-
-<!-- Change js source file when needed. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/stats.js"></script>
 [[end]]
