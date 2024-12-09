@@ -11,6 +11,9 @@ app.data = {
             species_list: [],
             total_species: [],
             sighting_stats: [],
+            total_birds: 0,
+            distinct_species: 0,
+            distinct_locations: 0,
             search_query: '',
             selected_species: null,  // Store selected species
             chart_instance: null,     // Store Chart.js instance
@@ -139,8 +142,14 @@ app.load_data = function () {
         // });
         app.vue.total_species = r.data.total_species;
         app.vue.sighting_stats = r.data.sighting_stats;
+        app.vue.total_birds = r.data.total_birds;
+        app.vue.distinct_species = r.data.distinct_species;
+        app.vue.distinct_locations = r.data.distinct_locations;
         console.log('total species are ', app.vue.total_species);
         console.log('total species should be ', r.data.total_species);
+        console.log('total birds is', app.vue.total_birds);
+        console.log('total birds is', app.vue.distinct_species);
+        console.log('total birds is', app.vue.distinct_locations);
     });
 };
 
