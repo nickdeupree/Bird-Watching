@@ -361,6 +361,7 @@ def load_user_stats():
         db.checklist.TIME_OBSERVATIONS_STARTED,
         orderby=db.checklist.OBSERVATION_DATE
     )
+    print(f"length of user stats is {len(user_stats)}")
     for row in user_stats:
         print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
     return dict(user_email=user_email, user_stats=user_stats)
