@@ -4,14 +4,70 @@
 [v-cloak] {
      display: none;
 }
+
+.table .item-row {
+    cursor: pointer;
+    padding: 1rem; /* Adds padding for a button-like feel */
+    transition: background-color 0.2s ease;
+}
+
+.table .item-row:hover {
+    background-color: #f5f5f5; /* Light grey background on hover */
+}
+
+.table td {
+    vertical-align: middle; /* Center-align text vertically */
+}
 </style>
 
 <div class="section" id="app" v-cloak>
-     Welcome to the Stats page.
-</div>
+     <div class="container">
+       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->
+         
+         <!-- Left Column: Species List -->
+         <div class="column is-half">
+          <h1 class="title is-pulled-left">My Statistics</h1>
+           <div class="field">
+             <div class="control has-icons-left is-expanded">
+               <span class="icon is-small">
+                    <i class="fa fa-search has-text-success"></i>
+               </span>
+               <input class="input is-medium" 
+                      type="text" 
+                      id="speciesSearch" 
+                      placeholder="Search for species..." 
+                      v-model="search_query">
+             </div>
+           </div>
+           
+           <table class="table is-fullwidth is-striped is-hoverable">
+             <thead>
+               <tr>
+                 <th class="is-narrow">Species</th>
+               </tr>
+             </thead>
+             <tbody>
+               <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
+                 <td class="item">{{ species.COMMON_NAME }}</td>
+               </tr>
+             </tbody>
+           </table>
+         </div>
+     
+         <!-- Right Column (can be empty or have additional content) -->
+         <div class="column is-half">
+           <!-- This area is for future content, e.g., the species details or map -->
+         </div>
+       
+       </div>
+     </div>
+  </div>
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
+<script>
+     let load_user_stats_url = "[[=XML(load_user_stats_url)]]";
+ </script>
 
 <!-- Change js source file when needed. -->
 <script src="js/stats.js"></script>
