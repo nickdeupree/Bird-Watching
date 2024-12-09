@@ -380,7 +380,8 @@ def load_sightings():
         species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
         if species_record:
             sighting['species_name'] = species_record.COMMON_NAME
-    return dict(event_id=event_id, sightings=reversed(sightings))
+    all_species = db(db.species).select().as_list()
+    return dict(event_id=event_id, sightings=reversed(sightings), all_species=all_species)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
@@ -416,11 +417,8 @@ def update_quantity():
 @action('remove_species', method=["POST"])
 @action.uses(db, auth.user)
 def remove_species():
-    user_email = get_user_email()
-    print(request.json)
     event_id = request.json.get('event_id')
     id = request.json.get('species_id')
-    print(event_id, id)
     db((db.sightings.species_id == id) & 
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
     return "ok"
