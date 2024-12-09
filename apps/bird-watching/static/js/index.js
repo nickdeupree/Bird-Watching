@@ -10,6 +10,7 @@ let init = (app) => {
     app.data = {
         user_email: null,
         is_drawing: false,
+        is_selecting: false,
         map: null,
         drawing_polygon: null,
         drawing_coords: [],
@@ -67,29 +68,32 @@ let init = (app) => {
             }
         },
         selectLocation: function () {
-            let self = this;
-            let selectPointHandler = (e) => {
-                let { lat, lng } = e.latlng;
-                
-                if (self.marker != null){
+            this.is_selecting = !this.is_selecting;
+
+            if (this.is_selecting) {
+                let self = this;
+                if (self.marker != null) {
                     self.map.removeLayer(self.marker);
                     self.marker = null;
                 }
+                let selectPointHandler = (e) => {
+                    let { lat, lng } = e.latlng;
 
-                self.marker = L.marker([lat, lng]).addTo(self.map);
-               
-                axios.post(save_user_point_url, {
-                    lat: lat,
-                    lng: lng,
-                }).then(response => {
-                    console.log('Point saved:', response);
-                }).catch(error => {
-                    console.error('Error saving point:', error);
-                });
-                self.map.off('click', selectPointHandler);
-            };
-            alert("Click on the map to select a location.");
-            this.map.on('click', selectPointHandler);
+                    self.marker = L.marker([lat, lng]).addTo(self.map);
+
+                    axios.post(save_user_point_url, {
+                        lat: lat,
+                        lng: lng,
+                    }).then(response => {
+                        console.log('Point saved:', response);
+                    }).catch(error => {
+                        console.error('Error saving point:', error);
+                    });
+                    self.map.off('click', selectPointHandler);
+                };
+                this.map.on('click', selectPointHandler);
+            }
+
         },
 
         updateSelectedSpecies: function () {
@@ -132,7 +136,7 @@ let init = (app) => {
             } catch {
                 console.error("Error updating heatmap.");
             }
-            
+
         },
 
         load_data: function () {
@@ -177,7 +181,7 @@ let init = (app) => {
             isLocationSelected() {
                 return this.marker !== null;
             },
-    
+
             isPolygonDrawn() {
                 return this.drawing_polygon !== null && this.drawing_coords.length > 3;
             },
@@ -196,8 +200,8 @@ let init = (app) => {
                     return [];
                 }
                 return this.heatmapData
-                    .filter((sighting) => sighting[0] !== null && sighting[1] !== null) 
-                    .filter((sighting) => sighting[3] === this.selected_species.id); 
+                    .filter((sighting) => sighting[0] !== null && sighting[1] !== null)
+                    .filter((sighting) => sighting[3] === this.selected_species.id);
             }
         },
         mounted() {
