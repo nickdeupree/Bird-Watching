@@ -20,7 +20,9 @@ let init = (app) => {
         all_species: [],
         heatmapData: [],
         heatLayer: null,
-        marker: null
+        marker: null,
+        handleSelecting: false,
+        handleDrawing: false,
     };
 
     app.enumerate = (a) => {
@@ -30,15 +32,46 @@ let init = (app) => {
     };
 
     app.methods = {
-        toggleDrawing: function () {
-            if (this.is_drawing === false) {
+        handleDrawingClick() {
+            if (this.is_drawing) {
+                this.is_drawing = false;
                 if (this.drawing_polygon) {
-                    this.drawing_polygon.remove();
-                    this.drawing_polygon = null;
+                    axios.post(save_user_polygon_url, {
+                        polygon_coords: this.drawing_coords
+                    }).then(() => {
+                        console.log("Polygon saved successfully!");
+                    });
                 }
+
+                this.map.off('click');
+                window.location.href = location_url;
+            } else {
+                this.is_drawing = true;
+                this.toggleDrawing();
+            }
+        },
+        handleSelectingClick() {
+            if (this.is_selecting) {
+                this.is_selecting = false;
+                window.location.href = checklist_url; 
+            } else {
+                this.is_selecting = true;
+                this.selectLocation();
+            }
+        },
+        toggleDrawing: function () {
+            this.handleDrawing = true;
+
+            if (self.marker != null) {
+                self.map.removeLayer(self.marker);
+                self.marker = null;
+            }
+            
+            if (this.drawing_polygon) {
+                this.drawing_polygon.remove();
+                this.drawing_polygon = null;
             }
 
-            this.is_drawing = !this.is_drawing;
             if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
                 this.drawing_coords = [];
@@ -54,28 +87,27 @@ let init = (app) => {
                             .setContent("Max 4 points are allowed; stop drawing.")
                             .openOn(this.map);
                     }
+                    if (this.drawing_coords.length === 4) {
+                        this.handleDrawing = false;
+                    }    
                 });
-            } else {
-                if (this.drawing_polygon) {
-                    axios.post(save_user_polygon_url, {
-                        polygon_coords: this.drawing_coords
-                    }).then(() => {
-                        console.log("Polygon saved successfully!");
-                    });
-                }
-
-                this.map.off('click');
-            }
+                
+            } 
         },
         selectLocation: function () {
-            this.is_selecting = !this.is_selecting;
-
             if (this.is_selecting) {
+                if (this.drawing_polygon) {
+                    this.drawing_polygon.remove();
+                    this.drawing_polygon = null;
+                }
+    
                 let self = this;
+                self.handleSelecting = true;
                 if (self.marker != null) {
                     self.map.removeLayer(self.marker);
                     self.marker = null;
                 }
+                
                 let selectPointHandler = (e) => {
                     let { lat, lng } = e.latlng;
 
@@ -90,6 +122,7 @@ let init = (app) => {
                         console.error('Error saving point:', error);
                     });
                     self.map.off('click', selectPointHandler);
+                    self.handleSelecting = false;
                 };
                 this.map.on('click', selectPointHandler);
             }

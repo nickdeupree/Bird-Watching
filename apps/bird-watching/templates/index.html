@@ -54,31 +54,25 @@
 
 
     <div id="map"></div>
-    <button class="button is-success mt-2 mr-3" @click="toggleDrawing"
-    :disabled="is_selecting">
-      <span v-if="is_drawing">Stop Drawing</span>
+    <button class="button is-success mt-2 mr-3" @click="handleDrawingClick" :disabled="handleDrawing||is_selecting">
+      <span v-if="is_drawing">Go to Location</span>
       <span v-else>Start Drawing</span>
     </button>
-    <button class="button is-info mt-2 mr-3" @click="selectLocation"
-    :disabled="is_drawing">
-      <span v-if="is_selecting">Stop Select</span>
+
+    <button class="button is-info mt-2 mr-3" @click="handleSelectingClick" :disabled="handleSelecting||is_drawing">
+      <span v-if="is_selecting">Go to Checklist</span>
       <span v-else>Select Location</span>
     </button>
-    <p v-if="is_drawing" class="mt-2">Draw the polygon clicking to create vertices and finish by clicking stop drawing.
-    </p>
-    <p v-if="is_selecting" class="mt-2">Click on the map to select a location.</p>
-    <div class="buttons mt-2">
-      <button class="button is-primary mt-2" onclick="window.location.href='[[=checklist_url]]'"
-        :disabled="!isLocationSelected">
-        Go to Checklist
-      </button>
-      <button class="button is-primary mt-2" onclick="window.location.href='[[=location_url]]'"
-        :disabled="!isPolygonDrawn">
-        Go to Location
-      </button>
 
-    </div>
+    <p v-if="is_drawing" class="mt-2">
+      Draw the polygon clicking to create vertices and finish by clicking go to location.
+    </p>
+    <p v-if="is_selecting" class="mt-2">
+      Click on the map to select a location and finish by clicking go to checklist.
+    </p>
+
   </div>
+</div>
 </div>
 </div>
 
@@ -86,6 +80,7 @@
 <!-- Loads the index-specific js for Vue -->
 <script>
   let checklist_url = "[[=XML(checklist_url)]]";
+  let location_url = "[[=XML(location_url)]]";
   let load_species_url = "[[=XML(load_species_url)]]";
   let find_locations_in_range_url = "[[=XML(find_locations_in_range_url)]]";
   let save_user_polygon_url = "[[=XML(save_user_polygon_url)]]";
