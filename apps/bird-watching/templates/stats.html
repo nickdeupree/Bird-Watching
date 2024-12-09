@@ -36,8 +36,7 @@
                       type="text" 
                       id="speciesSearch" 
                       placeholder="Search for species..." 
-                      v-model="search_query"
-                      @input="filter_species">
+                      v-model="search_query">
              </div>
            </div>
            
@@ -48,7 +47,7 @@
                </tr>
              </thead>
              <tbody>
-               <tr v-for='(species, species_index) in species_list' class="item-row">
+               <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
                  <td class="item">{{ species.COMMON_NAME }}</td>
                </tr>
              </tbody>

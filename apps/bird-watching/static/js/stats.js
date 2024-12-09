@@ -13,13 +13,21 @@ app.data = {
 
         };
     },
-    methods: {
-        filter_species: function () {
+    computed: {
+        filtered_species_list: function() {
             let query = this.search_query.toLowerCase();
             return this.species_list.filter(species => {
                 return species.COMMON_NAME.toLowerCase().includes(query);
             });
         }
+    },
+    methods: {
+        // filter_species: function () {
+        //     let query = this.search_query.toLowerCase();
+        //     return this.species_list.filter(species => {
+        //         return species.COMMON_NAME.toLowerCase().includes(query);
+        //     });
+        // }
 
     }
 };
