@@ -22,11 +22,21 @@
 
 <div class="section" id="app" v-cloak>
      <div class="container">
-       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->
-         
+          <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
+               <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
+               <h3 class="subtitle is-size-4 has-text-centered">
+                 You've seen 
+                 <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
+                 <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
+                 <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
+               </h3>
+               <canvas id="totalSightingsChart" width="400" height="300"></canvas>
+             </div>
+
+       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->  
          <!-- Left Column: Species List -->
          <div class="column is-half">
-          <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
+          <!-- <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1> -->
            <div class="field">
              <div class="control has-icons-left is-expanded">
                <span class="icon is-small">
@@ -58,23 +68,11 @@
      
          <!-- Right Column (can be empty or have additional content) -->
          <div class="column is-half">
+             <!-- <p>{{sighting_stats}}</p> -->
            <!-- This area is for future content, e.g., the species details or map -->
-            <!-- {{total_species}} -->
-             <!-- Total Birds Section -->
-             <h3 class="subtitle is-size-4 has-text-centered">
-               You've seen 
-               <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
-               <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
-               <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
-             </h3>
             <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
                <h3 class="subtitle is-size-4 has-text-centered">Click on a bird to view its chart below.</h3>
                <canvas id="speciesChart" width="400" height="300"></canvas>
-               <!-- <p v-for='(sighting, sighting_index) in sighting_stats' class="item-row">
-               {{sighting.checklist}}
-               {{sighting.species}}
-               {{sighting}}
-               </p> -->
          </div>
        
        </div>
