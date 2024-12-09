@@ -26,39 +26,57 @@ app.data = {
         },
         selected_species_sightings: function() {
             if (this.selected_species) {
-                return this.sighting_stats.filter(sighting => sighting.species === this.selected_species.COMMON_NAME);
+                console.log("Selected species:", this.selected_species);
+        
+                // Filter sightings by comparing species.COMMON_NAME to the selected species
+                const filtered_sightings = this.sighting_stats.filter(sighting => {
+                    return sighting.species.COMMON_NAME === this.selected_species.COMMON_NAME;
+                });
+                
+                console.log("Filtered list of sightings:", filtered_sightings);
+                return filtered_sightings;
+                // console.log("selected species is", this.selected_species);
+                // console.log("filtered list is",this.sighting_stats.filter(sighting => sighting.species === this.selected_species.COMMON_NAME));
+                // return this.sighting_stats.filter(sighting => sighting.species === this.selected_species.COMMON_NAME);
             }
             return [];
         }
     },
     methods: {
         select_species: function(species) {
+            console.log("species is", species);
             this.selected_species = species;
             this.update_chart();  // Update chart when a species is selected
         },
 
         update_chart: function() {
             const sightings = this.selected_species_sightings;
+            console.log("Filtered sightings for species:", sightings);
+        
             if (this.chart_instance) {
                 this.chart_instance.destroy();  // Destroy the old chart instance
             }
-
-            // Prepare data for Chart.js
-            const labels = [];
-            const data = [];
-
+        
+            // Aggregate sightings by date
+            const dateCounts = {};
+        
             sightings.forEach(sighting => {
-                const date = sighting.OBSERVATION_DATE;
-                console.log("date is", date);
-                if (!labels.includes(date)) {
-                    labels.push(date);
-                    data.push(1);  // First sighting on this date
+                const date = sighting.checklist.OBSERVATION_DATE;
+        
+                if (dateCounts[date]) {
+                    dateCounts[date] += 1;
                 } else {
-                    const index = labels.indexOf(date);
-                    data[index] += 1;  // Increment sightings for this date
+                    dateCounts[date] = 1;
                 }
             });
-
+        
+            // Prepare the data for the chart
+            const labels = Object.keys(dateCounts);  // Get the dates
+            const data = Object.values(dateCounts);  // Get the counts
+        
+            // Optionally, sort the dates (chronologically)
+            labels.sort((a, b) => new Date(a) - new Date(b));
+        
             // Create the Chart.js instance
             const ctx = document.getElementById('speciesChart').getContext('2d');
             this.chart_instance = new Chart(ctx, {
@@ -70,7 +88,7 @@ app.data = {
                         data: data,  // Number of sightings on y-axis
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: true,
+                        fill: false,
                     }]
                 },
                 options: {
@@ -81,6 +99,12 @@ app.data = {
                                 display: true,
                                 text: 'Date',
                             },
+                            type: 'category',  // Treat the dates as categories
+                            labels: labels,  // Dates on the x-axis
+                            ticks: {
+                                autoSkip: true,  // Skip labels if needed
+                                maxRotation: 90, // Rotate labels for better readability
+                            }
                         },
                         y: {
                             title: {
