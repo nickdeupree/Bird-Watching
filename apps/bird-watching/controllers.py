@@ -361,18 +361,30 @@ def load_user_stats():
         distinct=True,  # Ensure the results are unique by species
         orderby=db.species.COMMON_NAME  # Ordering by species name (optional)
     ).as_list()
-    # user_stats = db(
-    # (db.checklist.USER_EMAIL == user_email) & 
-    # (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
-    # (db.sightings.species_id == db.species.id)).select(
-    #     db.species.COMMON_NAME,
-    #     db.checklist.OBSERVATION_DATE,
-    #     db.checklist.TIME_OBSERVATIONS_STARTED,
-    #     orderby=db.checklist.OBSERVATION_DATE
-    # ).as_list()
+
+    total_species = db(
+        (db.checklist.USER_EMAIL == user_email) & 
+        (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+        (db.sightings.species_id == db.species.id)
+    ).select(
+        db.species.COMMON_NAME,
+        db.sightings.OBSERVATION_COUNT.sum().with_alias('total_sightings'),
+        groupby=db.species.COMMON_NAME,
+        having=(db.checklist.USER_EMAIL == user_email)
+    ).as_list()
+    
+    sighting_stats = db(
+    (db.checklist.USER_EMAIL == user_email) & 
+    (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
+    (db.sightings.species_id == db.species.id)).select(
+        db.species.COMMON_NAME,
+        db.checklist.OBSERVATION_DATE,
+        db.checklist.TIME_OBSERVATIONS_STARTED,
+        orderby=db.checklist.OBSERVATION_DATE
+    ).as_list()
     
     # print(f"length of user stats is {len(user_stats)}")
     # for row in user_stats:
     #     print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
-    return dict(user_email=user_email, species_list=species_seen)
+    return dict(user_email=user_email, species_list=species_seen, total_species=total_species, sighting_stats=sighting_stats)
 

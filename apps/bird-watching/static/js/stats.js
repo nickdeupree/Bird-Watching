@@ -9,6 +9,8 @@ app.data = {
         return {
             user_email: null,
             species_list: [],
+            total_species: [],
+            sighting_stats: [],
             search_query: '',
 
         };
@@ -42,8 +44,10 @@ app.load_data = function () {
             species.COMMON_NAME = species.COMMON_NAME.replace(/\s*sp\.$/, ''); // Regex to match " sp."
             return species;
         });
-        console.log('stats are ', app.vue.species_list);
-        console.log('stats should be ', r.data.species_list);
+        app.vue.total_species = r.data.total_species;
+        app.vue.sighting_stats = r.data.sighting_stats;
+        console.log('total species are ', app.vue.total_species);
+        console.log('total species should be ', r.data.total_species);
     });
 };
 
