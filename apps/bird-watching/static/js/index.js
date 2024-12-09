@@ -61,16 +61,8 @@ let init = (app) => {
         },
         toggleDrawing: function () {
             this.handleDrawing = true;
-
-            if (self.marker != null) {
-                self.map.removeLayer(self.marker);
-                self.marker = null;
-            }
             
-            if (this.drawing_polygon) {
-                this.drawing_polygon.remove();
-                this.drawing_polygon = null;
-            }
+            this.clearDrawing();
 
             if (this.is_drawing) {
                 this.drawing_polygon = L.polygon([], { color: 'red' }).addTo(this.map);
@@ -94,6 +86,23 @@ let init = (app) => {
                 
             } 
         },
+
+        clearDrawing() {
+            if (this.drawing_polygon) {
+                this.drawing_polygon.remove();  
+                this.drawing_polygon = null;    
+                this.drawing_coords = [];  
+                this.is_drawing = false;
+                this.handleDrawing = false; 
+                this.map.off('click');   
+            }
+
+            if (this.marker != null) {
+                this.map.removeLayer(this.marker);
+                this.marker = null;
+                this.is_selecting = false;
+            }
+        },
         selectLocation: function () {
             if (this.is_selecting) {
                 if (this.drawing_polygon) {
@@ -103,10 +112,7 @@ let init = (app) => {
     
                 let self = this;
                 self.handleSelecting = true;
-                if (self.marker != null) {
-                    self.map.removeLayer(self.marker);
-                    self.marker = null;
-                }
+                this.clearDrawing();
                 
                 let selectPointHandler = (e) => {
                     let { lat, lng } = e.latlng;
