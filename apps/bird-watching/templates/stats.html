@@ -9,27 +9,69 @@
 <div class="section" id="app" v-cloak>
    <div class="container">
      <h1 class="title is-pulled-left">My Statistics</h1>
-     <br>
      <!-- <table class="table is-fullwidth is-striped">
           <tr class="search_row">
                <td class="is-narrow"><i class="is-size-2 fa fa-search has-text-success search-species" @click="filter_species"></i></td>
                <input type="text" id="speciesSearch" placeholder="Search for species..." oninput="filterSpecies()">
           </tr>
      </table> -->
-     <div class="field">
+     <!-- <div class="field">
           <div class="control has-icons-left is-expanded">
             <input class="input is-large is-fullwidth" type="text" id="speciesSearch" placeholder="Search for species..." oninput="filterSpecies()">
             <span class="icon is-small is-left">
               <i class="fa fa-search has-text-success"></i>
             </span>
           </div>
-     </div>
+     </div> -->
    
-     <table>
+     <!-- <table>
        <tr v-for='(species, species_index) in species_list' class="item-row">
           <td class="item">{{ species.COMMON_NAME }}</td>
        </tr>
-     </table>
+     </table> -->
+     <!-- <table class="table is-fullwidth is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th class="is-narrow">Species</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for='(species, species_index) in species_list' class="item-row">
+               <td class="item">{{ species.COMMON_NAME }}</td>
+            </tr>
+          </tbody>
+     </table> -->
+     <div class="columns">
+          <!-- Left Column: Species List -->
+          <div class="column is-half">
+            <div class="field">
+              <div class="control has-icons-left is-expanded">
+                <input class="input is-large is-fullwidth" type="text" id="speciesSearch" placeholder="Search for species..." oninput="filterSpecies()">
+                <span class="icon is-small is-left">
+                  <i class="fa fa-search has-text-success"></i>
+                </span>
+              </div>
+            </div>
+            
+            <table class="table is-fullwidth is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th class="is-narrow">Species</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for='(species, species_index) in species_list' class="item-row">
+                   <td class="item">{{ species.COMMON_NAME }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+   
+          <!-- Right Column (can be empty or have additional content) -->
+          <div class="column is-half">
+            <!-- This area is for future content, e.g., the species details or map -->
+          </div>
+        </div>
    </div>
 </div>
 
