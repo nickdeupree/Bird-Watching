@@ -52,17 +52,28 @@
       </div>
     </div>
 
-
     <div id="map"></div>
-    <button class="button is-success mt-2 mr-3" @click="handleDrawingClick" :disabled="handleDrawing||is_selecting">
-      <span v-if="is_drawing">Go to Location</span>
-      <span v-else>Start Drawing</span>
-    </button>
 
-    <button class="button is-info mt-2 mr-3" @click="handleSelectingClick" :disabled="handleSelecting||is_drawing">
-      <span v-if="is_selecting">Go to Checklist</span>
-      <span v-else>Select Location</span>
-    </button>
+    <div class="is-flex is-justify-content-space-between is-align-items-center mt-2">
+      <div>
+        <!-- Start Drawing Button -->
+        <button class="button is-success mr-3" @click="handleDrawingClick" :disabled="handleDrawing || is_selecting">
+          <span v-if="is_drawing">Go to Location</span>
+          <span v-else>Start Drawing</span>
+        </button>
+
+        <!-- Select Location Button -->
+        <button class="button is-info mr-3" @click="handleSelectingClick" :disabled="handleSelecting || is_drawing">
+          <span v-if="is_selecting">Go to Checklist</span>
+          <span v-else>Select Location</span>
+        </button>
+      </div>
+
+      <!-- Clear Drawing Button, aligned to the right -->
+      <button class="button is-danger" @click="clearDrawing" v-if="is_drawing || is_selecting">
+        Clear Map
+      </button>
+    </div>
 
     <p v-if="is_drawing" class="mt-2">
       Draw the polygon clicking to create vertices and finish by clicking go to location.
