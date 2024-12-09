@@ -9,10 +9,17 @@ app.data = {
         return {
             user_email: null,
             species_list: [],
+            search_query: '',
 
         };
     },
     methods: {
+        filter_species: function () {
+            let query = this.search_query.toLowerCase();
+            return this.species_list.filter(species => {
+                return species.COMMON_NAME.toLowerCase().includes(query);
+            });
+        }
 
     }
 };
