@@ -8,9 +8,11 @@
 
 <div class="section" id="app" v-cloak>
      <h1 class="title is-pulled-left">My Statistics</h1>
-     <tr v-for='(stat, stats_index) in user_stats' class="item-row">
-          <td class="item">{{ stat }}</td>
-        </tr>
+     <table>
+       <tr v-for='(species, species_index) in species_list' class="item-row">
+          <td class="item">{{ species.COMMON_NAME }}</td>
+       </tr>
+     </table>
 </div>
 
 [[block page_scripts]]
