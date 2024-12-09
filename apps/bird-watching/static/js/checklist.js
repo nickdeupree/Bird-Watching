@@ -13,33 +13,56 @@ app.data = {
             user_email: null,
             new_species: "",
             search_species: "",
-            initial_quantity: 0,
-            event_id: null // which checklist is currently being worked on
+            initial_quantity: null,
+            event_id: null, // which checklist is currently being worked on,
+            max_char_width: 1,
+            missing_species_name: false,
         };
     },
     methods: {
         // Complete as you see fit.
         add_species: function () {
-            console.log("Adding species");
             let self = this;
-            let time = this.getCurrentDateTime();
-            axios.post(add_to_sightings_url, { // send to backend
-                event_id: self.event_id,
-                species_name: self.new_species,
-                quantity: self._initial_quantity,
-                input_time: time
-            }).then(function (r) {
-                self.checklist.unshift({ // should update a single entry in checklists
-                    id: r.data.id,
-                    species_name: self.new_species,
-                    OBSERVATION_COUNT: self.initial_quantity,
-                    input_time: time,
-                    user_email: r.data.user_email // unsure if necessary at the moment
-                });
-                console.log("added", self.new_species)
+            self.missing_species_name = false;
+            if (self.new_species.trim() === "") {
+                console.log("Species name was not inputted");
+                self.missing_species_name = true;
+                return;
+            }
+
+            if (self.initial_quantity == null) {
+                self.initial_quantity = 1;
+            }
+            self.initial_quantity = Number(self.initial_quantity);
+            let idx = this.checklist.findIndex(
+                (item) => item.species_name.toLowerCase() === this.new_species.trim().toLowerCase()
+            );
+
+            if (idx !== -1) { 
+                console.log("Updating quantity");
+                self.update_quantity(idx, self.initial_quantity - self.checklist[idx].OBSERVATION_COUNT);
                 self.new_species = "";
-                console.log(self.checklist)
-            });
+                self.initial_quantity = null;
+            } else {
+                console.log("Adding species");
+                axios.post(add_to_sightings_url, { // send to backend
+                    event_id: self.event_id,
+                    species_name: self.new_species.trim(),
+                    quantity: self.initial_quantity
+                }).then(function (r) {
+                    self.checklist.unshift({ // should update a single entry in checklists
+                        OBSERVATION_COUNT: self.initial_quantity,
+                        SAMPLING_EVENT_IDENTIFIER: self.event_id,
+                        id: r.data.id,
+                        species_id: r.data.species_id,
+                        species_name: self.new_species.trim()
+                    });
+                    console.log("added", self.new_species)
+                    self.new_species = "";
+                    self.initial_quantity = null;
+                });
+            }
+            self.fixWidth();
         }, update_quantity: function(idx, quantity) {
             let self = this;
             let species = this.checklist[idx];
@@ -47,28 +70,41 @@ app.data = {
                 species.OBSERVATION_COUNT += quantity;
                 axios.post(update_quantity_url, {
                     event_id: self.event_id,
-                    species_id: species.id,
+                    species_id: species.species_id,
                     quantity: species.OBSERVATION_COUNT
                 }).then(function (r) {
                     console.log("updated", species.species_name, "quantity to", species.OBSERVATION_COUNT);
                 });
             }
+            self.fixWidth();
         }, remove_item: function (idx) {
             let self = this;
             let species = this.checklist[idx];
             axios.post(remove_species_url, {
                 event_id: self.event_id,
-                species_id: species.id, // check if needs fixing
+                species_id: species.species_id,
             }).then(function (r) {
-                self.checklist.splice(idx, 1);
+                try {
+                    if (r.data == 'ok') {
+                        self.checklist.splice(idx, 1);
+                    }
+                } catch (e) {
+                    console.log('failed to delete species')
+                }
             });
-        }, getCurrentDateTime: function () {
-            const date = new Date();
-            return date.toISOString().replace('T', ' ').split('.')[0];
+            self.fixWidth();
         }, showModal: function () {
             document.getElementById("submitModal").classList.add("is-active");
         }, closeModal: function () {
             document.getElementById("submitModal").classList.remove("is-active");
+        }, fixWidth: function () {
+            let self = this;
+            let width = '3ch';
+            if (self.checklist.length > 0) {
+                let maxQuantity = Math.max(...this.checklist.map(entry => entry.OBSERVATION_COUNT));
+                width = `${Math.max(maxQuantity.toString().length, 3)}ch`;
+            }
+            self.max_char_width = width;
         }
     }, 
     computed: {
@@ -91,6 +127,7 @@ app.load_data = function () {
     axios.get(load_sightings_url).then(function (r) {
         app.vue.event_id = r.data.event_id;
         app.vue.checklist = r.data.sightings;
+        app.vue.fixWidth();
     });
 }
 
