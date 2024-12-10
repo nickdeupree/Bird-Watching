@@ -24,25 +24,45 @@
      <div class="container">
        <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
          <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
-         
-         <h3 class="subtitle is-size-4 has-text-left">
-           You've seen 
-           <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
-           <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
-           <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
-         </h3>
+
+         <div class="card">
+          <div class="card-content">
+            <h3 class="subtitle is-size-4 has-text-left">
+              You've seen 
+              <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
+              <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
+              <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
+            </h3>
+          </div>
+        </div>
    
          <!-- Conditional text based on selected species -->
-         <h3 v-if="selected_species" class="subtitle is-size-4 has-text-left">
+         <!-- <h3 v-if="selected_species" class="subtitle is-size-4 has-text-left">
            Curious about the different kinds of birds you've seen? You have observed
            <span class="has-text-weight-bold has-text-info">{{ get_total_observations_by_species() }}</span> sightings of 
            <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>.
-         </h3>
+         </h3> -->
    
          <!-- Default text when no species is selected -->
-         <h3 v-else class="subtitle is-size-4 has-text-left">
+         <!-- <h3 v-else class="subtitle is-size-4 has-text-left">
            Curious about the birds you've seen? Click on a bird in the list below to find out more.
-         </h3>
+         </h3> -->
+
+         <div class="card">
+          <div class="card-content">
+            <!-- Conditional content when a species is selected -->
+            <h3 v-if="selected_species" class="subtitle is-size-4 has-text-left">
+              Curious about the different kinds of birds you've seen? You have observed
+              <span class="has-text-weight-bold has-text-info">{{ get_total_observations_by_species() }}</span> sightings of 
+              <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>.
+            </h3>
+           
+            <!-- Default content when no species is selected -->
+            <h3 v-else class="subtitle is-size-4 has-text-left">
+              Curious about the birds you've seen? Click on a bird in the list below to find out more.
+            </h3>
+          </div>
+        </div>
    
        </div>
    
