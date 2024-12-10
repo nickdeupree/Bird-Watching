@@ -521,8 +521,8 @@ def load_user_stats():
         (db.checklist.USER_EMAIL == get_user_email()) & 
         (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER)
     ).select(db.sightings.OBSERVATION_COUNT.sum()).first()
-    total_birds_count = total_birds[db.sightings.OBSERVATION_COUNT.sum()] if total_birds else 0
-
+    observation_count = total_birds['_extra']['SUM("sightings"."OBSERVATION_COUNT")']
+    total_birds_count = observation_count if observation_count is not None else 0
 
     distinct_locations = db(
         db.checklist.USER_EMAIL == get_user_email()

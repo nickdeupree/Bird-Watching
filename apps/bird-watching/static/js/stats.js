@@ -13,9 +13,7 @@ app.load_data = function () {
         app.vue.total_birds = r.data.total_birds;
         app.vue.distinct_species = r.data.distinct_species;
         app.vue.distinct_locations = r.data.distinct_locations;
-        console.log('sighting stats should be', app.vue.sighting_stats)
-        console.log('total species are ', app.vue.total_species);
-        console.log('total species should be ', r.data.total_species);
+        console.log('total birds should be', r.data.total_birds);
         console.log('total birds is', app.vue.total_birds);
         console.log('total birds is', app.vue.distinct_species);
         console.log('total birds is', app.vue.distinct_locations);
