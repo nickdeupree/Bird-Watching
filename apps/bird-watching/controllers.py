@@ -126,7 +126,7 @@ def my_checklists(path=None):
         path, query=(db.checklist.id > 0) & (db.checklist.USER_EMAIL == get_user_email()),
         search_queries=None, 
         search_form=None, editable=False, deletable=False, details=False, create=False,
-        grid_class_style=GridClassStyleBulma(), formstyle=FormStyleBulma,
+        orderby=~db.checklist.id, grid_class_style=GridClassStyleBulma(), formstyle=FormStyleBulma,
         columns=columns, headings=headings, post_action_buttons=[GridViewButton(), GridEditButton(), GridDeleteButton()]
     )
 
