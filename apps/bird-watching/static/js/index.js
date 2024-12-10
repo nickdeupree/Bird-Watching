@@ -104,6 +104,16 @@ let init = (app) => {
                 this.is_selecting = false;
             }
         },
+
+        clearMap() {
+            this.clearDrawing();
+            this.is_drawing = false;
+            this.handleDrawing = false; 
+            this.marker = null;
+            this.is_selecting = false;
+            this.handleSelecting = false;
+        },
+
         selectLocation: function () {
             if (this.is_selecting) {
                 if (this.drawing_polygon) {
