@@ -117,7 +117,6 @@ def populate_tables():
                 try:
                     species = db(db.species.COMMON_NAME == row['COMMON NAME'].strip()).select().first()
                     if not species:
-                        print(f"Species not found: {row['COMMON NAME']}")
                         continue
 
                     observation_count_str = row['OBSERVATION COUNT'].strip()
