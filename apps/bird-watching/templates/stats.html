@@ -27,31 +27,30 @@
 
          <div class="card">
           <div class="card-content">
-            <h3 class="subtitle is-size-4 has-text-left">
+            <h6 class="subtitle is-size-4 has-text-left">
               In total, you've seen 
               <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds. This includes 
               <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
               <span class="has-text-weight-bold has-text-link-dark">{{ distinct_locations }}</span> locations.
-            </h3>
-          </div>
-        </div>
+              <h6 v-if="selected_species" class="subtitle is-size-4 has-text-left">
+               You have witnessed
+               <span class="has-text-weight-bold has-text-danger-dark">{{ get_total_observations_by_species() }}</span> sightings of
+               <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span> 
+              </h6>
+            
+             <!-- Default content when no species is selected -->
+             <h6 v-else class="subtitle is-size-4 has-text-left">
+               Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
+             </h6>
+            </h6>
 
-         <div class="card">
-          <div class="card-content">
-            <!-- Conditional content when a species is selected -->
-            <h3 v-if="selected_species" class="subtitle is-size-4 has-text-left">
-              You have witnessed
-              <span class="has-text-weight-bold has-text-danger-dark">{{ get_total_observations_by_species() }}</span> sightings of
-              <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span> 
-            </h3>
-           
-            <!-- Default content when no species is selected -->
-            <h3 v-else class="subtitle is-size-4 has-text-left">
-              Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
-            </h3>
+            <div class="buttons">
+               <button class="button is-primary" @click="reset_to_total_sightings">
+                 View Total Sightings
+               </button>
+             </div>
           </div>
         </div>
-   
        </div>
    
        <div class="columns is-gapless">

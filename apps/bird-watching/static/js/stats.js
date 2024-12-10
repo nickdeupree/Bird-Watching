@@ -97,6 +97,12 @@ app.data = {
 
         },
 
+        reset_to_total_sightings: function() {
+            console.log("Resetting to total sightings view.");
+            this.selected_species = null;  // Reset selected species
+            this.update_species_chart();   // Update the chart to show total sightings
+        },
+
         update_species_chart: function() {
             if (this.is_loading) {
                 console.log("Data is still loading...");
@@ -198,106 +204,6 @@ app.data = {
                 }
             });
         }
-
-        // update_species_chart: function() {
-        //     if (this.is_loading) {
-        //         console.log("Data is still loading...");
-        //         return; // Prevent chart update until data is loaded
-        //     }
-        //     let sightings;
-        
-        //     // Check if a species is selected
-        //     if (this.selected_species) {
-        //         sightings = this.selected_species_sightings;  // Filtered sightings for the selected species
-        //         console.log("Filtered sightings for species:", sightings);
-        //     } else {
-        //         sightings = this.sighting_stats;  // Use all sightings if no species is selected
-        //         console.log("All sightings:", sightings);
-        //     }
-
-        //     if (sightings.length === 0) {
-        //         console.log("No sightings available for the chart.");
-        //         return;  // Don't render the chart if there's no data
-        //     }
-
-        //     const canvas = document.getElementById('speciesChart');
-        //     if (!canvas) {
-        //         console.error("Canvas element not found!");
-        //         return;
-        //     }
-        //     const ctx = canvas.getContext('2d');
-        //     if (!ctx) {
-        //         console.error("Canvas context is invalid.");
-        //         return;
-        //     }
-        
-        //     // Destroy the old chart if it exists
-        //     if (this.chart_instance) {
-        //         console.log("Destroying previous chart...");
-        //         this.chart_instance.destroy();
-        //     }
-        
-        //     // Aggregate sightings by date
-        //     const dateCounts = {};
-        
-        //     sightings.forEach(sighting => {
-        //         const date = sighting.checklist.OBSERVATION_DATE;
-        
-        //         // Count the sightings for each date
-        //         if (dateCounts[date]) {
-        //             dateCounts[date] += 1;
-        //         } else {
-        //             dateCounts[date] = 1;
-        //         }
-        //     });
-        
-        //     // Prepare the data for the chart
-        //     const labels = Object.keys(dateCounts);  // Get the dates
-        //     const data = Object.values(dateCounts);  // Get the counts
-        
-        //     // Sort the dates chronologically
-        //     labels.sort((a, b) => new Date(a) - new Date(b));
-        
-        //     // Create the Chart.js instance
-        //     // const ctx = document.getElementById('speciesChart').getContext('2d');
-        //     this.chart_instance = new Chart(ctx, {
-        //         type: 'bar',
-        //         data: {
-        //             labels: labels,  // Dates on x-axis
-        //             datasets: [{
-        //                 label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
-        //                 data: data,  // Number of sightings on y-axis
-        //                 borderColor: 'rgba(75, 192, 192, 1)',
-        //                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        //                 fill: false,
-        //             }]
-        //         },
-        //         options: {
-        //             responsive: true,
-        //             scales: {
-        //                 x: {
-        //                     title: {
-        //                         display: true,
-        //                         text: 'Date',
-        //                     },
-        //                     type: 'category',  // Treat the dates as categories
-        //                     labels: labels,  // Dates on the x-axis
-        //                     ticks: {
-        //                         autoSkip: true,  // Skip labels if needed
-        //                         maxRotation: 90, // Rotate labels for better readability
-        //                     }
-        //                 },
-        //                 y: {
-        //                     title: {
-        //                         display: true,
-        //                         text: 'Number of Sightings',
-        //                     },
-        //                     beginAtZero: true,
-        //                 }
-        //             }
-        //         }
-        //     });
-        // }
     }
 };
 
