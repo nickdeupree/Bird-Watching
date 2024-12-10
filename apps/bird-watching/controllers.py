@@ -449,8 +449,12 @@ def load_user_stats():
         db.species.COMMON_NAME,
         db.sightings.OBSERVATION_COUNT.sum(),
         groupby=db.species.COMMON_NAME,
-        having=(db.checklist.USER_EMAIL == user_email)
+        # having=(db.checklist.USER_EMAIL == user_email)
     ).as_list()
+
+    for species in total_species:
+        species['total_observations'] = species['_extra'][f'SUM("sightings"."OBSERVATION_COUNT")']
+        del species['_extra']  # Remove the _extra field
 
     sighting_stats = db(
     (db.checklist.USER_EMAIL == user_email) & 

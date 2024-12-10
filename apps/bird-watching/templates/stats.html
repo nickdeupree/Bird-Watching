@@ -68,14 +68,26 @@
          </div>
      
          <!-- Right Column (can be empty or have additional content) -->
-         <div class="column is-half">
-             <!-- <p>{{sighting_stats}}</p> -->
+         <!-- <div class="column is-half">
+             <p>{{total_species}}</p> -->
            <!-- This area is for future content, e.g., the species details or map -->
-            <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
+            <!-- <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
                <h3 class="subtitle is-size-4 has-text-centered">Click on a bird to view its chart below.</h3>
                <canvas id="speciesChart" width="400" height="300"></canvas>
          </div>
-       
+        -->
+        <div class="column is-half">
+          <!-- <p>{{total_species}}</p> -->
+          <!-- Display the total number of observations for the selected species -->
+          <div v-if="selected_species" class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
+            <h3 class="subtitle is-size-4 has-text-left">
+              You have observed 
+              <span class="has-text-weight-bold has-text-info">{{ get_total_observations_by_species() }}</span>
+              total sightings of <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>.
+            </h3>
+            <canvas id="speciesChart" width="400" height="300"></canvas>
+          </div>
+        </div>
        </div>
      </div>
   </div>

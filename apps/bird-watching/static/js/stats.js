@@ -62,6 +62,29 @@ app.data = {
             this.update_species_chart();  // Update chart when a species is selected
         },
 
+        get_total_observations_by_species: function() {
+            // Find the species in total_species that matches selected_species COMMON_NAME
+            console.log("Selected Species:", this.selected_species);
+            console.log("Total Species Array:", this.total_species);
+
+            // const species = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species);
+            // console.log("Found Species:", species);
+            // const total_observations = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species)?.total_observations || 0;
+            // console.log("total observations are", total_observations);
+            const species = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species.COMMON_NAME);
+            console.log("species is", species);
+            console.log("this.selected species is", this.selected_species);
+
+            // Return the total_observations of the matching species, or 0 if not found
+            const total_observations = species ? species.total_observations : 0;
+            console.log("Total Observations:", total_observations);
+
+            return total_observations;
+
+
+            // return species ? species.total_observations : 0;
+        },
+
         update_species_chart: function() {
             const sightings = this.selected_species_sightings;
             console.log("Filtered sightings for species:", sightings);
