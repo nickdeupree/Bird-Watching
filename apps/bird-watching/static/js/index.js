@@ -23,6 +23,7 @@ let init = (app) => {
         marker: null,
         handleSelecting: false,
         handleDrawing: false,
+        center: { LATITUDE: 37.7749, LONGITUDE: -122.4194 },
     };
 
     app.enumerate = (a) => {
@@ -182,6 +183,10 @@ let init = (app) => {
             let self = this;
             axios.get(load_species_url).then((r) => {
                 self.all_species = r.data.all_species;
+                if(r.data.center !== null){
+                    self.center = r.data.center;
+                }
+                console.log(self.center);
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
@@ -194,7 +199,7 @@ let init = (app) => {
                     });
 
                 setTimeout(() => {
-                    self.map = L.map("map").setView([37.4, -122], 8.5);
+                    self.map = L.map("map").setView([this.center.LATITUDE, this.center.LONGITUDE], 8.5);
                     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',

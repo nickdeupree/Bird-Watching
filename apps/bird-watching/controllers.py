@@ -196,6 +196,8 @@ def delete_selected_checklist(checklist_id=None):
 @action.uses(db, auth.user)
 def load_species():
     all_species = db(db.species).select().as_list()
+    user_email = get_user_email() 
+    center = db(db.center.user_email == user_email).select().first()
     sightings_data = db(db.sightings).select(
         db.checklist.LATITUDE,                
         db.checklist.LONGITUDE,               
@@ -214,7 +216,7 @@ def load_species():
             'observation_count': sighting.sightings.OBSERVATION_COUNT, 
         })
 
-    return dict(all_species=all_species, species=species_info)
+    return dict(all_species=all_species, species=species_info, center=center)
 
 @action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)
