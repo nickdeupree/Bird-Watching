@@ -58,6 +58,13 @@ db.define_table(
     Field('last_updated', 'datetime', default=get_time()),  
 )
 
+db.define_table(
+    'center',  
+    Field('user_email', 'string', default=get_user_email()), 
+    Field('LATITUDE', 'double', requires=IS_NOT_EMPTY(), default=37.4),
+    Field('LONGITUDE', 'double', requires=IS_NOT_EMPTY(), default=-122),
+)
+
 # Function to import CSV data manually
 def populate_tables():
     uploads_dir = os.path.join(os.getcwd(), 'apps', 'bird-watching', 'uploads')
@@ -84,7 +91,6 @@ def populate_tables():
             for row in reader:
                 try:
                     db.checklist.insert(
-                        USER_EMAIL='apai03@icloud.com',
                         SAMPLING_EVENT_IDENTIFIER=row['SAMPLING EVENT IDENTIFIER'].strip(),
                         LATITUDE=float(row['LATITUDE']),
                         LONGITUDE=float(row['LONGITUDE']),
@@ -110,7 +116,6 @@ def populate_tables():
                 try:
                     species = db(db.species.COMMON_NAME == row['COMMON NAME'].strip()).select().first()
                     if not species:
-                        print(f"Species not found: {row['COMMON NAME']}")
                         continue
 
                     observation_count_str = row['OBSERVATION COUNT'].strip()

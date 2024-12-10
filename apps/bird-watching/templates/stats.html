@@ -22,26 +22,44 @@
 
 <div class="section" id="app" v-cloak>
      <div class="container">
-          <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
-               <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
-               <h3 class="subtitle is-size-4 has-text-left">
-                 You've seen 
-                 <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
-                 <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
-                 <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
-               </h3>
-               <canvas id="totalSightingsChart" width="400" height="300"></canvas>
-               <h3>Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.</h3>
-             </div>
+       <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
+         <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
 
-       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->  
+         <div class="card">
+          <div class="card-content">
+            <h6 class="subtitle is-size-4 has-text-left">
+              In total, you've seen 
+              <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds. This includes 
+              <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
+              <span class="has-text-weight-bold has-text-link-dark">{{ distinct_locations }}</span> locations.
+              <h6 v-if="selected_species" class="subtitle is-size-4 has-text-left">
+               You have witnessed
+               <span class="has-text-weight-bold has-text-danger-dark">{{ get_total_observations_by_species() }}</span> sightings of
+               <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span> 
+              </h6>
+            
+             <!-- Default content when no species is selected -->
+             <h6 v-else class="subtitle is-size-4 has-text-left">
+               Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
+             </h6>
+            </h6>
+
+            <div class="buttons">
+               <button class="button is-primary" @click="reset_to_total_sightings">
+                 View Total Sightings
+               </button>
+             </div>
+          </div>
+        </div>
+       </div>
+   
+       <div class="columns is-gapless">
          <!-- Left Column: Species List -->
-         <div class="column is-half">
-          <!-- <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1> -->
+         <div class="column is-one-quarter">
            <div class="field">
              <div class="control has-icons-left is-expanded">
                <span class="icon is-small">
-                    <i class="fa fa-search has-text-success"></i>
+                 <i class="fa fa-search has-text-success"></i>
                </span>
                <input class="input is-medium" 
                       type="text" 
@@ -60,37 +78,21 @@
              <tbody>
                <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
                  <td class="item">
-                    <button class="button is-fullwidth" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
+                   <button class="button is-fullwidth" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
                  </td>
                </tr>
              </tbody>
            </table>
          </div>
-     
-         <!-- Right Column (can be empty or have additional content) -->
-         <!-- <div class="column is-half">
-             <p>{{total_species}}</p> -->
-           <!-- This area is for future content, e.g., the species details or map -->
-            <!-- <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
-               <h3 class="subtitle is-size-4 has-text-centered">Click on a bird to view its chart below.</h3>
-               <canvas id="speciesChart" width="400" height="300"></canvas>
+   
+         <!-- Right Column (Chart Area) -->
+         <div class="column is-three-quarters">      
+           <!-- Chart -->
+           <canvas id="speciesChart" witch="400" height="300"></canvas>  
          </div>
-        -->
-        <div class="column is-half">
-          <!-- <p>{{total_species}}</p> -->
-          <!-- Display the total number of observations for the selected species -->
-          <div v-if="selected_species" class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
-            <h3 class="subtitle is-size-4 has-text-left">
-              You have observed 
-              <span class="has-text-weight-bold has-text-info">{{ get_total_observations_by_species() }}</span>
-              total sightings of <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>.
-            </h3>
-            <canvas id="speciesChart" width="400" height="300"></canvas>
-          </div>
-        </div>
        </div>
      </div>
-  </div>
+   </div>   
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
