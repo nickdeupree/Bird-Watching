@@ -30,7 +30,8 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_time
+from .models import get_user_email, get_time, get_current_time
+from datetime import time
 from py4web.utils.form import Form, FormStyleBulma, TextareaWidget
 from pydal import Field
 from pydal.validators import *
@@ -81,6 +82,7 @@ def checklist():
         add_to_sightings_url = URL('add_to_sightings'),
         update_quantity_url = URL('update_quantity'),
         remove_species_url = URL('remove_species'),
+        save_checklist_url = URL('save_checklist')
     )
 
 @action('my_checklists')
@@ -91,18 +93,18 @@ def my_checklists(path=None):
     columns = [
         db.checklist.LATITUDE,
         db.checklist.LONGITUDE,
+        db.checklist.OBSERVER_ID,
         db.checklist.OBSERVATION_DATE,
         db.checklist.TIME_OBSERVATIONS_STARTED,
-        db.checklist.OBSERVER_ID,
         db.checklist.DURATION_MINUTES
     ]
     
     headings = [
         'Latitude', 
-        'Longitude', 
+        'Longitude',
+        'Observer ID',
         'Observation Date',
         'Time Observations Started',
-        'Observer ID',
         'Duration Minutes',
         'Actions'  
     ]
@@ -370,11 +372,17 @@ def load_sightings():
         & (db.checklist.LONGITUDE == long)
         & (db.checklist.USER_EMAIL == user_email)).select().first()
     event_id = None
+    obs_date = ""
+    obs_time = ""
+    obs_dur = ""
     if existingChecklist:
         event_id = existingChecklist.SAMPLING_EVENT_IDENTIFIER
+        obs_date = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.OBSERVATION_DATE).first().OBSERVATION_DATE
+        obs_time = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.TIME_OBSERVATIONS_STARTED).first().TIME_OBSERVATIONS_STARTED
+        obs_dur = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.DURATION_MINUTES).first().DURATION_MINUTES
     else:
         id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
-            LONGITUDE=long, USER_EMAIL=user_email)
+            LONGITUDE=long, USER_EMAIL=user_email, OBSERVER_ID=user_email)
         db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
         event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
@@ -383,7 +391,8 @@ def load_sightings():
         if species_record:
             sighting['species_name'] = species_record.COMMON_NAME
     all_species = db(db.species).select().as_list()
-    return dict(event_id=event_id, sightings=reversed(sightings), all_species=all_species)
+    return dict(event_id=event_id, obs_date=obs_date, obs_time=obs_time, obs_dur=obs_dur, 
+                sightings=reversed(sightings), all_species=all_species)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
@@ -425,6 +434,16 @@ def remove_species():
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
     return "ok"
 
+@action('save_checklist', method=["POST"])
+@action.uses(db, auth.user)
+def save_checklist():
+    event_id = request.json.get('event_id')
+    observation_date = request.json.get('observation_date')
+    time_observations_started = request.json.get('observation_time')
+    duration_minutes = request.json.get('duration')
+    db((db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id)).update(OBSERVATION_DATE=observation_date, 
+        TIME_OBSERVATIONS_STARTED=time_observations_started, DURATION_MINUTES=duration_minutes)
+    return "ok"
 
 @action('load_user_stats', method=["GET"])
 @action.uses(db, auth.user)
@@ -439,6 +458,7 @@ def load_user_stats():
         distinct=True,  # Ensure the results are unique by species
         orderby=db.species.COMMON_NAME  # Ordering by species name (optional)
     ).as_list()
+    distinct_species = len(species_seen)
 
     total_species = db(
         (db.checklist.USER_EMAIL == user_email) & 
@@ -446,11 +466,15 @@ def load_user_stats():
         (db.sightings.species_id == db.species.id)
     ).select(
         db.species.COMMON_NAME,
-        db.sightings.OBSERVATION_COUNT.sum().with_alias('total_sightings'),
+        db.sightings.OBSERVATION_COUNT.sum(),
         groupby=db.species.COMMON_NAME,
-        having=(db.checklist.USER_EMAIL == user_email)
+        # having=(db.checklist.USER_EMAIL == user_email)
     ).as_list()
-    
+
+    for species in total_species:
+        species['total_observations'] = species['_extra'][f'SUM("sightings"."OBSERVATION_COUNT")']
+        del species['_extra']  # Remove the _extra field
+
     sighting_stats = db(
     (db.checklist.USER_EMAIL == user_email) & 
     (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
@@ -460,9 +484,32 @@ def load_user_stats():
         db.checklist.TIME_OBSERVATIONS_STARTED,
         orderby=db.checklist.OBSERVATION_DATE
     ).as_list()
-    
+
+    total_birds = db(
+        (db.checklist.USER_EMAIL == get_user_email()) & 
+        (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER)
+    ).select(db.sightings.OBSERVATION_COUNT.sum()).first()
+    total_birds_count = total_birds[db.sightings.OBSERVATION_COUNT.sum()] if total_birds else 0
+
+
+    distinct_locations = db(
+        db.checklist.USER_EMAIL == get_user_email()
+    ).select(
+        db.checklist.LATITUDE, db.checklist.LONGITUDE, distinct=True
+    )
+    distinct_location_count = len(distinct_locations)
+
+        
     # print(f"length of user stats is {len(user_stats)}")
     # for row in user_stats:
     #     print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
-    return dict(user_email=user_email, species_list=species_seen, total_species=total_species, sighting_stats=sighting_stats)
+    return dict(
+        user_email=user_email, 
+        species_list=species_seen, 
+        total_species=total_species, # not used yet
+        sighting_stats=sighting_stats,
+        total_birds=total_birds_count,
+        distinct_species=distinct_species,
+        distinct_locations=distinct_location_count
+        )
 

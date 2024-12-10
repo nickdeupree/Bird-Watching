@@ -22,11 +22,22 @@
 
 <div class="section" id="app" v-cloak>
      <div class="container">
-       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->
-         
+          <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
+               <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
+               <h3 class="subtitle is-size-4 has-text-left">
+                 You've seen 
+                 <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds total consisting of 
+                 <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
+                 <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
+               </h3>
+               <canvas id="totalSightingsChart" width="400" height="300"></canvas>
+               <h3>Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.</h3>
+             </div>
+
+       <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->  
          <!-- Left Column: Species List -->
          <div class="column is-half">
-          <h1 class="title is-pulled-left">My Statistics</h1>
+          <!-- <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1> -->
            <div class="field">
              <div class="control has-icons-left is-expanded">
                <span class="icon is-small">
@@ -48,17 +59,35 @@
              </thead>
              <tbody>
                <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
-                 <td class="item">{{ species.COMMON_NAME }}</td>
+                 <td class="item">
+                    <button class="button is-fullwidth" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
+                 </td>
                </tr>
              </tbody>
            </table>
          </div>
      
          <!-- Right Column (can be empty or have additional content) -->
-         <div class="column is-half">
+         <!-- <div class="column is-half">
+             <p>{{total_species}}</p> -->
            <!-- This area is for future content, e.g., the species details or map -->
+            <!-- <div class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
+               <h3 class="subtitle is-size-4 has-text-centered">Click on a bird to view its chart below.</h3>
+               <canvas id="speciesChart" width="400" height="300"></canvas>
          </div>
-       
+        -->
+        <div class="column is-half">
+          <!-- <p>{{total_species}}</p> -->
+          <!-- Display the total number of observations for the selected species -->
+          <div v-if="selected_species" class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">
+            <h3 class="subtitle is-size-4 has-text-left">
+              You have observed 
+              <span class="has-text-weight-bold has-text-info">{{ get_total_observations_by_species() }}</span>
+              total sightings of <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>.
+            </h3>
+            <canvas id="speciesChart" width="400" height="300"></canvas>
+          </div>
+        </div>
        </div>
      </div>
   </div>
@@ -68,7 +97,6 @@
 <script>
      let load_user_stats_url = "[[=XML(load_user_stats_url)]]";
  </script>
-
-<!-- Change js source file when needed. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/stats.js"></script>
 [[end]]

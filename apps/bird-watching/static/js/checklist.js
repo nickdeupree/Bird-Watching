@@ -11,15 +11,17 @@ app.data = {
             // Complete as you see fit.
             checklist: [], // should be a single checklist
             all_species: [], // should be a list of all species
-            user_email: null,
             new_species: "",
-            search_species: "",
-            initial_quantity: null,
+            search_species: "", // species name searched by user
+            initial_quantity: null, // quantity of species typed by user
             event_id: null, // which checklist is currently being worked on,
-            max_char_width: 1,
-            missing_species_name: false,
-            checklist_empty: true,
-            showDropdown: false,
+            max_char_width: 1, // width of the quantity field
+            missing_species_name: false, // flag for missing species name
+            checklist_empty: true, // flag for empty checklist
+            showDropdown: false, // flag for showing species dropdown
+            observation_date: null,
+            observation_time: null,
+            duration: null
         };
     },
     methods: {
@@ -72,7 +74,7 @@ app.data = {
             self.new_species = species.COMMON_NAME;
             self.showDropdown = false;
             this.$nextTick(() => {
-                this.$refs.count.focus();  // Focus on the input with the ref "quantityInput"
+                this.$refs.count.focus();
             });
         }, update_quantity: function(idx, quantity) {
             let self = this;
@@ -107,7 +109,20 @@ app.data = {
                 }
             });
             self.fixWidth();
+        }, moveFocus: function (id) {
+            this.$nextTick(() => {
+                this.$refs[id].focus(); 
+            });
         }, showModal: function () {
+            let self = this;
+            console.log(self.observation_date, self.observation_time, self.duration);
+            axios.post(save_checklist_url, {
+                event_id: self.event_id,
+                observation_date: self.observation_date,
+                observation_time: self.observation_time,
+                duration: self.duration
+            }).then(function (r) {
+            });
             document.getElementById("submitModal").classList.add("is-active");
             window.addEventListener('keydown', this.handleEscapeKey);
         }, closeModal: function () {
@@ -155,6 +170,12 @@ app.data = {
             return this.all_species.filter((species) => 
                 species.COMMON_NAME.toLowerCase().includes(this.new_species.toLowerCase())
             );
+        }, is_valid_date() {
+            if (this.observation_date == "") {
+                return true;
+            }
+            const regex = /^\d{4}-\d{2}-\d{2}$/;
+            return regex.test(this.observation_date);
         }
     }, mounted() {
         document.addEventListener('click', this.handleClickOutside);
@@ -173,6 +194,9 @@ app.load_data = function () {
         if (app.vue.checklist.length > 0) {
             app.vue.checklist_empty = false;
         }
+        app.vue.observation_date = (r.data.obs_date);
+        app.vue.observation_time = (r.data.obs_time);
+        app.vue.duration = r.data.obs_dur;
         app.vue.fixWidth();
     });
 }
