@@ -142,7 +142,7 @@ class GridUpdateCenterButton(object):
         self.url = URL('update_center')  
         self.append_id = True  
         self.additional_classes = 'button is-small is-responsive is-warning m-1'
-        self.icon = None  
+        self.icon = 'fa-map'  
         self.text = 'View on map'
         self.message = None
         self.onclick = None  
