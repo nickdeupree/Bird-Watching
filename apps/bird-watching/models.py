@@ -58,6 +58,13 @@ db.define_table(
     Field('last_updated', 'datetime', default=get_time()),  
 )
 
+db.define_table(
+    'center',  
+    Field('user_email', 'string', default=get_user_email()), 
+    Field('LATITUDE', 'double', requires=IS_NOT_EMPTY(), default=37.4),
+    Field('LONGITUDE', 'double', requires=IS_NOT_EMPTY(), default=-122),
+)
+
 # Function to import CSV data manually
 def populate_tables():
     uploads_dir = os.path.join(os.getcwd(), 'apps', 'bird-watching', 'uploads')
