@@ -85,9 +85,10 @@
         <div class="field">
           <label class="label is-small">Observation Date</label>
           <div class="control">
-            <input class="input is-small" type="date" v-model="observation_date" @keydown.enter="moveFocus('obs_time')"
-              ref="obs_date">
+            <input class="input is-small" type="date" v-model="observation_date" @blur="validate_input('date')"
+              :class="{'is-danger': !valid_date}" @keydown.enter="moveFocus('obs_time')" ref="obs_date">
           </div>
+          <small v-if="!valid_date" class="help is-danger">Invalid Date</small>
         </div>
       </div>
       <!-- Time Observation Started -->
@@ -96,8 +97,10 @@
           <label class="label is-small">Time Observation Started</label>
           <div class="control">
             <input class="input is-small" type="time" v-model="observation_time"
-              @keydown.enter="moveFocus('obs_duration')" ref="obs_time">
+              @keydown.enter="moveFocus('obs_duration')" @blur="validate_input('time')"
+              :class="{'is-danger': !valid_time}" ref="obs_time">
           </div>
+          <small v-if="!valid_time" class="help is-danger">Invalid Time</small>
         </div>
       </div>
       <!-- Duration of Observation -->
@@ -105,7 +108,7 @@
         <div class="field">
           <label class="label is-small">Duration of Observation</label>
           <div class="control">
-            <input class="input is-small" type="text" placeholder="Enter number of minutes" v-model="duration"
+            <input class="input is-small" type="number" min="0" @keydown="prevent_negatives" placeholder="Enter number of minutes" v-model="duration"
               @keydown.enter="moveFocus('species_input')" ref="obs_duration">
           </div>
         </div>
@@ -137,8 +140,8 @@
           </div>
         </td>
         <td>
-          <input class="input" :disabled="!new_species" type="text" @keydown.enter="add_species" name="initial_quantity"
-            placeholder="Enter number of birds" v-model="initial_quantity" ref="count">
+          <input class="input" :disabled="!new_species" type="number" min="0" @keydown="prevent_negatives" @keydown.enter="add_species"
+            name="initial_quantity" placeholder="Enter number of birds" v-model="initial_quantity" ref="count">
           <small class="help ml-1">Defaults to 1</small>
         </td>
         <td class="is-narrow"><button class="button submit-button is-success" @click="add_species">Add</button></td>
@@ -167,7 +170,8 @@
     </table>
     <!-- Saving Checklist -->
     <div class="checklist">
-      <button class="button submit-button is-success is-pulled-right mr-3" @click="showModal">Save Checklist</button>
+      <button class="button submit-button is-success is-pulled-right mr-3"
+        @click="saveAndShowModal">Save Checklist</button>
       <div class="modal" id="submitModal">
         <div class="modal-background"></div>
         <div class="modal-card" style="width: fit-content;">
