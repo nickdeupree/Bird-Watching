@@ -17,6 +17,7 @@ function debounce(func, wait) {
 app.vue = Vue.createApp({
     data() {
         return {
+            species: [],
             speciesList: [],
             topContributors: [],
             totalLists: 0,
@@ -92,11 +93,97 @@ app.vue = Vue.createApp({
                     this.isLoading = false; // Reset loading state
                 });
         },
+        loadTotalSightingsChart() {
+            if (this.isLoading) return;
+            this.isLoading = true;
+            this.selectedSpecies = "Total Species Sightings";
+        
+            // Debug logs
+            console.log('Checklists:', this.checklists);
+            console.log('Sightings:', this.sightings);
+        
+            // Process the sightings data we already have
+            const sightingsByDate = {};
+            console.log('reset data');
+        
+            // Initialize dates from checklists
+            this.checklists.forEach(checklist => {
+                const date = checklist.OBSERVATION_DATE;
+                sightingsByDate[date] = 0;
+            });
+        
+            // Count sightings for each date
+            if (this.sightings && this.sightings.length > 0) {
+                this.sightings.forEach(sighting => {
+                    console.log('Sighting:', sighting.sightings);
+                    const sightingId = String(sighting.sightings.SAMPLING_EVENT_IDENTIFIER).trim();
+                    
+                    const matchingChecklists = this.checklists.filter(
+                        c => String(c.SAMPLING_EVENT_IDENTIFIER).trim() === sightingId
+                    );
+                    
+                    if (matchingChecklists.length > 0) {
+                        const checklist = matchingChecklists[0];
+                        const date = checklist.OBSERVATION_DATE;
+                        if (!sightingsByDate[date]) {
+                            sightingsByDate[date] = 0;
+                        }
+                        sightingsByDate[date] += 1;
+                    } else {
+                        console.warn('No matching checklist for sighting:', sighting);
+                        console.log('Sighting Identifier:', sightingId);
+                        console.log('Available Checklist Identifiers:', this.checklists.map(c => String(c.SAMPLING_EVENT_IDENTIFIER).trim()));
+                    }
+                });
+            }
+        
+            console.log('Processed sightings by date:', sightingsByDate);
+        
+            // Convert to arrays for chart
+            const dates = Object.keys(sightingsByDate).sort();
+            const counts = dates.map(date => sightingsByDate[date]);
+        
+            const ctx = document.getElementById('myChart').getContext('2d');
+            
+            this.resetChart();
+        
+            this.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Total Species Sightings by Date',
+                        data: counts,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Number of Species Sightings'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            this.isLoading = false;
+        },
         debouncedLoadSpeciesChart: debounce(function(speciesName) {
             if (!this.isLoading){
                 this.loadSpeciesChart(speciesName);
             }
-        }, 1000), // Adjust debounce delay as needed
+        }, 1000), // adjust debounce delay as needed
         fetchTopContributors() {
             const lats = this.polygonCoords.map(coord => coord[0]);
             const lngs = this.polygonCoords.map(coord => coord[1]);
@@ -124,7 +211,7 @@ app.vue = Vue.createApp({
                 return;
             }
         
-            // Compute the bounding box from the polygon coordinates
+            // get the bounding box from the polygon coordinates
             const lats = this.polygonCoords.map(coord => coord[0]);
             const lngs = this.polygonCoords.map(coord => coord[1]);
         
@@ -165,14 +252,11 @@ app.vue = Vue.createApp({
                 console.log("data received", response.data);
                 const sightings = response.data.sightings;
                 this.totalSightings = sightings.length;
-                // Use COMMON_NAME from the joined query result
+                this.sightings = sightings;
                 const speciesSet = new Set(sightings.map(s => s.COMMON_NAME));
                 this.speciesList = Array.from(speciesSet);
                 
-                if (this.speciesList.length > 0){
-                    this.selectedSpecies = this.speciesList[0];
-                    this.debouncedLoadSpeciesChart(this.selectedSpecies);
-                }
+                this.loadTotalSightingsChart();
             })
             .catch(error => {
                 console.error('Error fetching sightings:', error);
@@ -180,7 +264,6 @@ app.vue = Vue.createApp({
         }
     },
     mounted() {
-        // Load data when the component is mounted
         axios.get(load_user_polygon_url)
             .then(response => {
                 this.polygonCoords = response.data.polygon_coords;

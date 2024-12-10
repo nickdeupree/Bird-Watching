@@ -135,13 +135,13 @@ def populate_tables():
 populate_tables()
 
 #print 1 row of each table
-# species = db(db.species).select().first()
-# print(species)
+species = db(db.species).select().first()
+print(species)
 
-# checklist = db(db.checklist).select().first()
-# print(checklist)
+checklist = db(db.checklist).select().first()
+print(checklist)
 
-# sighting = db(db.sightings).select().first()
-# print(sighting)
+sighting = db(db.sightings).select().first()
+print(sighting)
 
 db.commit()
