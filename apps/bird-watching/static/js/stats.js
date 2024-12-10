@@ -68,15 +68,23 @@ app.data = {
         app.load_data();
     },
     watch: {
-        selected_species(newSpecies, oldSpecies) {
-            console.log("Selected species changed:", newSpecies);
-            this.update_species_chart();  // Update chart when a species is selected
-        }
+        // selected_species(newSpecies, oldSpecies) {
+        //     console.log("Selected species changed:", newSpecies);
+        //     this.update_species_chart();  // Update chart when a species is selected
+        // }
     },
     methods: {
         select_species: function(species) {
-            console.log("species is", species);
-            this.selected_species = species;
+            if (this.selected_species === species) {
+                console.log("same species is clicked", this.selected_species)
+                this.selected_species = null;
+            } else {
+                console.log("new species is chosen", this.selected_species)
+                this.selected_species = species;
+            }
+            this.update_species_chart(); 
+            // console.log("species is", species);
+            // this.selected_species = species;
             // this.update_species_chart();  // Update chart when a species is selected
         },
 
@@ -97,11 +105,11 @@ app.data = {
 
         },
 
-        reset_to_total_sightings: function() {
-            console.log("Resetting to total sightings view.");
-            this.selected_species = null;  // Reset selected species
-            this.update_species_chart();   // Update the chart to show total sightings
-        },
+        // reset_to_total_sightings: function() {
+        //     console.log("Resetting to total sightings view.");
+        //     this.selected_species = null;  // Reset selected species
+        //     this.update_species_chart();   // Update the chart to show total sightings
+        // },
 
         update_species_chart: function() {
             if (this.is_loading) {
