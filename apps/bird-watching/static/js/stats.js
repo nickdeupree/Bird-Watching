@@ -4,6 +4,29 @@
 // and be used to initialize it.
 let app = {};
 
+app.load_data = function () {
+    axios.get(load_user_stats_url).then(function (r) {
+        app.vue.user_email = r.data.user_email;
+        app.vue.species_list = r.data.species_list;
+        app.vue.total_species = r.data.total_species;
+        app.vue.sighting_stats = r.data.sighting_stats;
+        app.vue.total_birds = r.data.total_birds;
+        app.vue.distinct_species = r.data.distinct_species;
+        app.vue.distinct_locations = r.data.distinct_locations;
+        console.log('sighting stats should be', app.vue.sighting_stats)
+        console.log('total species are ', app.vue.total_species);
+        console.log('total species should be ', r.data.total_species);
+        console.log('total birds is', app.vue.total_birds);
+        console.log('total birds is', app.vue.distinct_species);
+        console.log('total birds is', app.vue.distinct_locations);
+        app.vue.is_loading = false; // Set is_loading to false
+        app.vue.update_species_chart(); // Update the chart with the loaded data
+    }).catch(function (error) {
+        console.error("Error loading data:", error);
+        app.vue.is_loading = false;  // Ensure the loading state is set to false even if there's an error
+    });
+};
+
 app.data = {
     data: function() {
         return {
@@ -17,6 +40,7 @@ app.data = {
             search_query: '',
             selected_species: null,  // Store selected species
             chart_instance: null,     // Store Chart.js instance
+            is_loading: true,
 
         };
     },
@@ -38,28 +62,24 @@ app.data = {
                 
                 console.log("Filtered list of sightings:", filtered_sightings);
                 return filtered_sightings;
-                // console.log("selected species is", this.selected_species);
-                // console.log("filtered list is",this.sighting_stats.filter(sighting => sighting.species === this.selected_species.COMMON_NAME));
-                // return this.sighting_stats.filter(sighting => sighting.species === this.selected_species.COMMON_NAME);
             }
             return [];
         }
     },
     mounted() {
-        // Call the chart update when the component is mounted
-        this.update_total_sightings_chart();
+        app.load_data();
     },
     watch: {
-        // Watch sighting_stats to update the chart whenever it changes
-        sighting_stats: function() {
-            this.update_total_sightings_chart();
+        selected_species(newSpecies, oldSpecies) {
+            console.log("Selected species changed:", newSpecies);
+            this.update_species_chart();  // Update chart when a species is selected
         }
     },
     methods: {
         select_species: function(species) {
             console.log("species is", species);
             this.selected_species = species;
-            this.update_species_chart();  // Update chart when a species is selected
+            // this.update_species_chart();  // Update chart when a species is selected
         },
 
         get_total_observations_by_species: function() {
@@ -67,10 +87,6 @@ app.data = {
             console.log("Selected Species:", this.selected_species);
             console.log("Total Species Array:", this.total_species);
 
-            // const species = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species);
-            // console.log("Found Species:", species);
-            // const total_observations = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species)?.total_observations || 0;
-            // console.log("total observations are", total_observations);
             const species = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species.COMMON_NAME);
             console.log("species is", species);
             console.log("this.selected species is", this.selected_species);
@@ -81,16 +97,44 @@ app.data = {
 
             return total_observations;
 
-
-            // return species ? species.total_observations : 0;
         },
 
         update_species_chart: function() {
-            const sightings = this.selected_species_sightings;
-            console.log("Filtered sightings for species:", sightings);
+            if (this.is_loading) {
+                console.log("Data is still loading...");
+                return; // Prevent chart update until data is loaded
+            }
+            let sightings;
         
+            // Check if a species is selected
+            if (this.selected_species) {
+                sightings = this.selected_species_sightings;  // Filtered sightings for the selected species
+                console.log("Filtered sightings for species:", sightings);
+            } else {
+                sightings = this.sighting_stats;  // Use all sightings if no species is selected
+                console.log("All sightings:", sightings);
+            }
+
+            if (sightings.length === 0) {
+                console.log("No sightings available for the chart.");
+                return;  // Don't render the chart if there's no data
+            }
+
+            const canvas = document.getElementById('speciesChart');
+            if (!canvas) {
+                console.error("Canvas element not found!");
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Canvas context is invalid.");
+                return;
+            }
+        
+            // Destroy the old chart if it exists
             if (this.chart_instance) {
-                this.chart_instance.destroy();  // Destroy the old chart instance
+                console.log("Destroying previous chart...");
+                this.chart_instance.destroy();
             }
         
             // Aggregate sightings by date
@@ -99,6 +143,7 @@ app.data = {
             sightings.forEach(sighting => {
                 const date = sighting.checklist.OBSERVATION_DATE;
         
+                // Count the sightings for each date
                 if (dateCounts[date]) {
                     dateCounts[date] += 1;
                 } else {
@@ -110,17 +155,17 @@ app.data = {
             const labels = Object.keys(dateCounts);  // Get the dates
             const data = Object.values(dateCounts);  // Get the counts
         
-            // Optionally, sort the dates (chronologically)
+            // Sort the dates chronologically
             labels.sort((a, b) => new Date(a) - new Date(b));
         
             // Create the Chart.js instance
-            const ctx = document.getElementById('speciesChart').getContext('2d');
+            // const ctx = document.getElementById('speciesChart').getContext('2d');
             this.chart_instance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,  // Dates on x-axis
                     datasets: [{
-                        label: `Sightings of ${this.selected_species.COMMON_NAME}`,
+                        label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
                         data: data,  // Number of sightings on y-axis
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -152,109 +197,9 @@ app.data = {
                     }
                 }
             });
-        },
-
-        update_total_sightings_chart: function() {
-            const sightings = this.sighting_stats;
-            console.log("All sightings:", sightings);
-
-            if (this.totalSightingsChart_instance) {
-                this.totalSightingsChart_instance.destroy();  // Destroy the old chart instance
-            }
-
-            // Aggregate sightings by date for the total chart
-            const dateCounts = {};
-
-            sightings.forEach(sighting => {
-                const date = sighting.checklist.OBSERVATION_DATE;
-
-                if (dateCounts[date]) {
-                    dateCounts[date] += 1;  // Increment count for this date
-                } else {
-                    dateCounts[date] = 1;  // First sighting for this date
-                }
-            });
-
-            // Prepare the data for the total sightings chart
-            const labels = Object.keys(dateCounts);  // Get the dates
-            const data = Object.values(dateCounts);  // Get the counts
-
-            // Optionally, sort the dates (chronologically)
-            labels.sort((a, b) => new Date(a) - new Date(b));
-
-            // Create the total sightings Chart.js instance
-            const ctx = document.getElementById('totalSightingsChart').getContext('2d');
-            this.totalSightingsChart_instance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,  // Dates on x-axis
-                    datasets: [{
-                        label: 'Total Sightings of Birds',
-                        data: data,  // Number of sightings on y-axis
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0)', // No fill under the curve
-                        fill: false,  // No fill under the curve
-                        tension: 0.1,  // Smooth the curve
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            },
-                            type: 'category', // x-axis treats labels as categories (dates)
-                            ticks: {
-                                autoSkip: true,  // Skip labels if too many
-                                maxRotation: 90, // Rotate labels for better readability
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Number of Birds'
-                            },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
         }
-
-        // filter_species: function () {
-        //     let query = this.search_query.toLowerCase();
-        //     return this.species_list.filter(species => {
-        //         return species.COMMON_NAME.toLowerCase().includes(query);
-        //     });
-        // }
 
     }
 };
 
 app.vue = Vue.createApp(app.data).mount("#app");
-
-app.load_data = function () {
-    axios.get(load_user_stats_url).then(function (r) {
-        app.vue.user_email = r.data.user_email;
-        app.vue.species_list = r.data.species_list;
-        // app.vue.species_list = r.data.species_list.map(function(species) {
-        //     species.COMMON_NAME = species.COMMON_NAME.replace(/\s*sp\.$/, ''); // Regex to match " sp."
-        //     return species;
-        // });
-        app.vue.total_species = r.data.total_species;
-        app.vue.sighting_stats = r.data.sighting_stats;
-        app.vue.total_birds = r.data.total_birds;
-        app.vue.distinct_species = r.data.distinct_species;
-        app.vue.distinct_locations = r.data.distinct_locations;
-        console.log('total species are ', app.vue.total_species);
-        console.log('total species should be ', r.data.total_species);
-        console.log('total birds is', app.vue.total_birds);
-        console.log('total birds is', app.vue.distinct_species);
-        console.log('total birds is', app.vue.distinct_locations);
-    });
-};
-
-app.load_data();
