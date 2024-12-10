@@ -14,6 +14,9 @@ def get_user_email():
 def get_time():
     return datetime.datetime.utcnow()
 
+def get_current_time():
+    return datetime.datetime.now()
+
 ### Define your tables
 
 db.define_table(
@@ -27,10 +30,10 @@ db.define_table(
     Field('SAMPLING_EVENT_IDENTIFIER', 'string', unique=True, requires=IS_NOT_EMPTY()),
     Field('LATITUDE', 'double'),
     Field('LONGITUDE', 'double'),
+    Field('OBSERVER_ID', 'string'),
     Field('OBSERVATION_DATE', 'date'),
     Field('TIME_OBSERVATIONS_STARTED', 'time'),
-    Field('OBSERVER_ID', 'string'),
-    Field('DURATION_MINUTES', 'double')
+    Field('DURATION_MINUTES', 'integer')
 )
 
 db.define_table(

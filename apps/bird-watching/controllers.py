@@ -30,7 +30,8 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_time
+from .models import get_user_email, get_time, get_current_time
+from datetime import time
 from py4web.utils.form import Form, FormStyleBulma, TextareaWidget
 from pydal import Field
 from pydal.validators import *
@@ -79,6 +80,7 @@ def checklist():
         add_to_sightings_url = URL('add_to_sightings'),
         update_quantity_url = URL('update_quantity'),
         remove_species_url = URL('remove_species'),
+        save_checklist_url = URL('save_checklist')
     )
 
 @action('my_checklists')
@@ -89,18 +91,18 @@ def my_checklists(path=None):
     columns = [
         db.checklist.LATITUDE,
         db.checklist.LONGITUDE,
+        db.checklist.OBSERVER_ID,
         db.checklist.OBSERVATION_DATE,
         db.checklist.TIME_OBSERVATIONS_STARTED,
-        db.checklist.OBSERVER_ID,
         db.checklist.DURATION_MINUTES
     ]
     
     headings = [
         'Latitude', 
-        'Longitude', 
+        'Longitude',
+        'Observer ID',
         'Observation Date',
         'Time Observations Started',
-        'Observer ID',
         'Duration Minutes',
         'Actions'  
     ]
@@ -368,11 +370,17 @@ def load_sightings():
         & (db.checklist.LONGITUDE == long)
         & (db.checklist.USER_EMAIL == user_email)).select().first()
     event_id = None
+    obs_date = ""
+    obs_time = ""
+    obs_dur = ""
     if existingChecklist:
         event_id = existingChecklist.SAMPLING_EVENT_IDENTIFIER
+        obs_date = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.OBSERVATION_DATE).first().OBSERVATION_DATE
+        obs_time = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.TIME_OBSERVATIONS_STARTED).first().TIME_OBSERVATIONS_STARTED
+        obs_dur = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.DURATION_MINUTES).first().DURATION_MINUTES
     else:
         id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
-            LONGITUDE=long, USER_EMAIL=user_email)
+            LONGITUDE=long, USER_EMAIL=user_email, OBSERVER_ID=user_email)
         db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
         event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
@@ -381,7 +389,8 @@ def load_sightings():
         if species_record:
             sighting['species_name'] = species_record.COMMON_NAME
     all_species = db(db.species).select().as_list()
-    return dict(event_id=event_id, sightings=reversed(sightings), all_species=all_species)
+    return dict(event_id=event_id, obs_date=obs_date, obs_time=obs_time, obs_dur=obs_dur, 
+                sightings=reversed(sightings), all_species=all_species)
 
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
@@ -423,4 +432,14 @@ def remove_species():
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
     return "ok"
 
+@action('save_checklist', method=["POST"])
+@action.uses(db, auth.user)
+def save_checklist():
+    event_id = request.json.get('event_id')
+    observation_date = request.json.get('observation_date')
+    time_observations_started = request.json.get('observation_time')
+    duration_minutes = request.json.get('duration')
+    db((db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id)).update(OBSERVATION_DATE=observation_date, 
+        TIME_OBSERVATIONS_STARTED=time_observations_started, DURATION_MINUTES=duration_minutes)
+    return "ok"
 
