@@ -7,7 +7,7 @@ html,body {
 }
 
 .species-list{
-    height: 715px;
+    height: 765px;
     overflow-y: auto;
 }
 
@@ -15,7 +15,7 @@ html,body {
     height: 600px;
 }
 .topContBox {
-    height: 200px;
+    height: 250px;
     overflow-y: auto;
 }
 
@@ -27,3 +27,4 @@ html,body {
   .buttons-list button:hover {
     background-color: #f0f0f0;
   }
+
