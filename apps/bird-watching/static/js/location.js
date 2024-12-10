@@ -120,7 +120,6 @@ app.vue = Vue.createApp({
                 });
             }
         
-        
             const dates = Object.keys(sightingsByDate).sort();
 
             const counts = dates.map(date => sightingsByDate[date]);
