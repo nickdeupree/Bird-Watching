@@ -18,7 +18,8 @@ app.data = {
             showDropdown: false, // flag for showing species dropdown
             observation_date: null,
             observation_time: null,
-            duration: null
+            duration: null,
+            center: null
         };
     },
     methods: {
