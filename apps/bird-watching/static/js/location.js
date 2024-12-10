@@ -1,9 +1,5 @@
-// File: static/js/location.js
-
 "use strict";
 
-// This will be the object that will contain the Vue attributes
-// and be used to initialize it.
 let app = {};
 
 function debounce(func, wait) {
@@ -17,7 +13,6 @@ function debounce(func, wait) {
 app.vue = Vue.createApp({
     data() {
         return {
-            species: [],
             speciesList: [],
             topContributors: [],
             totalLists: 0,
@@ -138,6 +133,23 @@ app.vue = Vue.createApp({
         
             // Convert to arrays for chart
             const dates = Object.keys(sightingsByDate).sort();
+            
+            // if there are less than 2 dates add days to the chart
+            // console.log('Dates:', dates);
+            // if (dates.length == 1) {
+            //     let yesterday = dates[0];
+            //     yesterday = yesterday.split('-');
+            //     yesterday[2] = parseInt(yesterday[2]) - 1;
+            //     yesterday = yesterday.join('-');
+            //     dates.push(yesterday);
+
+            //     let tomorrow = dates[0].split('-');
+            //     tomorrow[2] = parseInt(tomorrow[2]) + 1;
+            //     tomorrow = tomorrow.join('-');
+            //     dates.push(tomorrow);
+            // }
+            // dates.sort();
+
             const counts = dates.map(date => sightingsByDate[date]);
         
             const ctx = document.getElementById('myChart').getContext('2d');
