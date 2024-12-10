@@ -122,22 +122,6 @@ app.vue = Vue.createApp({
         
         
             const dates = Object.keys(sightingsByDate).sort();
-            
-            // if there are less than 2 dates add days to the chart
-            // console.log('Dates:', dates);
-            // if (dates.length == 1) {
-            //     let yesterday = dates[0];
-            //     yesterday = yesterday.split('-');
-            //     yesterday[2] = parseInt(yesterday[2]) - 1;
-            //     yesterday = yesterday.join('-');
-            //     dates.push(yesterday);
-
-            //     let tomorrow = dates[0].split('-');
-            //     tomorrow[2] = parseInt(tomorrow[2]) + 1;
-            //     tomorrow = tomorrow.join('-');
-            //     dates.push(tomorrow);
-            // }
-            // dates.sort();
 
             const counts = dates.map(date => sightingsByDate[date]);
         
@@ -182,6 +166,19 @@ app.vue = Vue.createApp({
                 this.loadSpeciesChart(speciesName);
             }
         }, 1000),
+        debouncedLoadTotalChart: debounce(function() {
+            if (!this.isLoading){
+                this.loadTotalSightingsChart();
+            }
+        }, 1000),
+        handleSpeciesClick(speciesName) {
+            if (speciesName === this.selectedSpecies) {
+                this.debouncedLoadTotalChart();
+            }
+            else {
+                this.debouncedLoadSpeciesChart(speciesName);
+            }
+        },
         fetchTopContributors() {
             const lats = this.polygonCoords.map(coord => coord[0]);
             const lngs = this.polygonCoords.map(coord => coord[1]);
@@ -252,7 +249,7 @@ app.vue = Vue.createApp({
                 const speciesSet = new Set(sightings.map(s => s.COMMON_NAME));
                 this.speciesList = Array.from(speciesSet);
                 
-                this.loadTotalSightingsChart();
+                this.debouncedLoadTotalChart();
             })
             .catch(error => {
                 console.error('Error fetching sightings:', error);
