@@ -161,7 +161,7 @@ app.data = {
             // Create the Chart.js instance
             // const ctx = document.getElementById('speciesChart').getContext('2d');
             this.chart_instance = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: labels,  // Dates on x-axis
                     datasets: [{
@@ -198,7 +198,6 @@ app.data = {
                 }
             });
         }
-
     }
 };
 
