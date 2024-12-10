@@ -35,9 +35,14 @@
 <div v-if="user_email">
   <div class="section" id="vue-target" v-cloak>
     <div class="field">
-      <label class="label">
-        {{ selected_species ? 'Showing sightings for: ' + selected_species.COMMON_NAME : 'Select a species' }}
-      </label>
+      <div class="field" style="display: flex; align-items: center;">
+        <label class="label" style="margin-right: 10px;">
+          {{ selected_species ? 'Showing sightings for: ' + selected_species.COMMON_NAME : 'Select a species' }}
+        </label>
+        <button v-if="selected_species" class="button is-warning is-small" style="margin-left: auto;" @click="undo">
+          Undo
+        </button>
+      </div>
       <div class="control">
         <input class="input" type="text" v-model="searched" @keydown.enter="updateSelectedSpecies"
           placeholder="Enter species name" />
