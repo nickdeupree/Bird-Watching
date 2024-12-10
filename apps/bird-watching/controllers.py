@@ -85,6 +85,19 @@ def checklist():
         save_checklist_url = URL('save_checklist')
     )
 
+@action('view_checklist')
+@action.uses('view_checklist.html', db, auth.user)
+def view_checklist():
+    return dict(
+        load_sightings_url = URL('load_sightings_url'),
+        index_url = URL('index'),
+        my_checklists_url = URL('my_checklists'),
+        add_to_sightings_url = URL('add_to_sightings'),
+        update_quantity_url = URL('update_quantity'),
+        remove_species_url = URL('remove_species'),
+        save_checklist_url = URL('save_checklist')
+    )
+
 @action('my_checklists')
 @action('my_checklists/<path:path>', method=['POST', 'GET'])
 @action.uses('my_checklists.html', db, session, auth.user)
@@ -114,13 +127,24 @@ def my_checklists(path=None):
         search_queries=None, 
         search_form=None, editable=False, deletable=False, details=False, create=False,
         grid_class_style=GridClassStyleBulma(), formstyle=FormStyleBulma,
-        columns=columns, headings=headings, post_action_buttons=[GridEditButton(), GridDeleteButton()]
+        columns=columns, headings=headings, post_action_buttons=[GridViewButton(), GridEditButton(), GridDeleteButton()]
     )
 
     return dict(
         grid=grid,
         index_url=URL('index')
     )
+
+class GridViewButton(object):
+    """This is the edit button for the grid."""
+    def __init__(self):
+        self.url = URL('view_selected_checklist')
+        self.append_id = True # append the ID to the edit.
+        self.additional_classes = 'button is-small is-responsive is-primary m-1'
+        self.icon = 'fa-list-ul'
+        self.text = 'View'
+        self.message = None
+        self.onclick = None # Used for things like confirmation.
 
 class GridEditButton(object):
     """This is the edit button for the grid."""
@@ -150,6 +174,13 @@ def edit_selected_checklist(checklist_id=None):
     checklist = db(db.checklist.id == checklist_id).select().first()
     db(db.user_point).update(lat=checklist.LATITUDE, lng=checklist.LONGITUDE)
     redirect(URL('checklist'))
+
+@action('view_selected_checklist/<checklist_id:int>')
+@action.uses('view_selected_checklist', db, auth.user)
+def view_selected_checklist(checklist_id=None):
+    checklist = db(db.checklist.id == checklist_id).select().first()
+    db(db.user_point).update(lat=checklist.LATITUDE, lng=checklist.LONGITUDE)
+    redirect(URL('view_checklist'))
 
 @action('delete_selected_checklist/<checklist_id:int>')
 @action.uses('delete_selected_checklist', db, auth.user)

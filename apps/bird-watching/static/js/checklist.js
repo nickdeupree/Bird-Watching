@@ -1,8 +1,5 @@
 "use strict";
 
-
-// This will be the object that will contain the Vue attributes
-// and be used to initialize it.
 let app = {};
 
 app.data = {
@@ -43,7 +40,7 @@ app.data = {
                 (item) => item.species_name.toLowerCase() === this.new_species.trim().toLowerCase()
             );
 
-            if (idx !== -1) { 
+            if (idx !== -1) {
                 console.log("Updating quantity");
                 self.update_quantity(idx, self.initial_quantity - self.checklist[idx].OBSERVATION_COUNT);
                 self.new_species = "";
@@ -76,7 +73,7 @@ app.data = {
             this.$nextTick(() => {
                 this.$refs.count.focus();
             });
-        }, update_quantity: function(idx, quantity) {
+        }, update_quantity: function (idx, quantity) {
             let self = this;
             let species = this.checklist[idx];
             if (species.OBSERVATION_COUNT + quantity >= 0) {
@@ -111,7 +108,7 @@ app.data = {
             self.fixWidth();
         }, moveFocus: function (id) {
             this.$nextTick(() => {
-                this.$refs[id].focus(); 
+                this.$refs[id].focus();
             });
         }, showModal: function () {
             let self = this;
@@ -149,7 +146,7 @@ app.data = {
             }
             self.max_char_width = width;
         }
-    }, 
+    },
     computed: {
         filter_species() {
             let self = this;
@@ -167,15 +164,9 @@ app.data = {
             if (this.new_species.trim() === "") {
                 return [];
             }
-            return this.all_species.filter((species) => 
+            return this.all_species.filter((species) =>
                 species.COMMON_NAME.toLowerCase().includes(this.new_species.toLowerCase())
             );
-        }, is_valid_date() {
-            if (this.observation_date == "") {
-                return true;
-            }
-            const regex = /^\d{4}-\d{2}-\d{2}$/;
-            return regex.test(this.observation_date);
         }
     }, mounted() {
         document.addEventListener('click', this.handleClickOutside);

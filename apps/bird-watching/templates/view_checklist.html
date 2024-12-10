@@ -1,0 +1,144 @@
+[[extend 'layout.html']]
+
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    .quantity {
+        display: inline-block;
+        /* Ensure the span behaves like a box */
+        text-align: center;
+        /* Center the number within the box */
+    }
+
+    .field {
+        position: relative;
+    }
+
+    .dropdown {
+        position: absolute;
+        top: 100%;
+        /* This positions the dropdown right below the input field */
+        left: 0;
+        /* Aligns the dropdown with the left edge of the input field */
+        width: 100%;
+        /* Makes the dropdown width the same as the input field */
+        z-index: 1000;
+        /* Makes sure the dropdown stays on top of other content */
+    }
+
+    .dropdown-content {
+        max-height: 200px;
+        /* Adds a max height for scrolling */
+        overflow-y: auto;
+        /* Enables scrolling if the content exceeds max height */
+    }
+
+    .add-item,
+    .submit-button {
+        transition: color 0.3s ease;
+    }
+
+    .add-item:hover {
+        color: #2c9b4f !important;
+    }
+
+    .submit-button:hover {
+        background-color: #2c9b4f !important;
+    }
+
+    .input[type="time"],
+    .input[type="date"] {
+        padding-right: 2rem;
+        text-align: right;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input[type="time"]::-webkit-calendar-picker-indicator,
+    .input[type="date"]::-webkit-calendar-picker-indicator {
+        position: absolute;
+        right: 0;
+        padding: 0 10px;
+    }
+</style>
+
+
+<div class="section" id="app" v-cloak>
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="columns is-vcentered">
+            <div class="column">
+                <div class="field">
+                    <label class="label is-small">Search for Species</label>
+                    <div class="control">
+                        <input class="input" :disabled="checklist_empty" type="text" name="search_species"
+                            placeholder="Search within checklist" v-model="search_species">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="columns is-multiline">
+            <!-- Observation Date -->
+            <div class="column is-one-third">
+                <div class="field">
+                    <label class="label is-small">Observation Date</label>
+                    <div class="control">
+                        <input class="input is-small" :disabled="true" type="date"
+                            v-model="observation_date" @keydown.enter="moveFocus('obs_time')" ref="obs_date">
+                    </div>
+                    <!-- <small class="help is-danger" v-if="!is_valid_date">Format must match yyyy-mm-dd</small> -->
+                </div>
+            </div>
+            <!-- Time Observation Started -->
+            <div class="column is-one-third">
+                <div class="field">
+                    <label class="label is-small">Time Observation Started</label>
+                    <div class="control">
+                        <input class="input is-small" :disabled="true" type="time"
+                            v-model="observation_time" @keydown.enter="moveFocus('obs_duration')" ref="obs_time">
+                    </div>
+                </div>
+            </div>
+            <!-- Duration of Observation -->
+            <div class="column is-one-third">
+                <div class="field">
+                    <label class="label is-small">Duration of Observation</label>
+                    <div class="control">
+                        <input class="input is-small" :disabled="true" type="text"
+                            placeholder="Enter number of minutes" v-model="duration"
+                            @keydown.enter="moveFocus('species_input')" ref="obs_duration">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #ccc; margin: 10px 0;">
+        <!-- Checklist Table -->
+        <table class="table is-fullwidth is-striped is-bordered">
+            <thead>
+                <tr>
+                    <th class="is-narrow">Count</th>
+                    <th>Species</th>
+                </tr>
+            </thead>
+            <tr class="item-row" v-for="(entry, idx) in filter_species"> <!-- table of species -->
+                <td class="quantity-cell is-narrow">
+                    <span class="quantity m-1" :style="{width: max_char_width}">{{ entry.OBSERVATION_COUNT}}</span>
+                </td>
+                <td class="item"> {{ entry.species_name}} </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+    let load_sightings_url = "[[=XML(load_sightings_url)]]";
+    let index_url = "[[=XML(index_url)]]";
+    let my_checklists_url = "[[=XML(my_checklists_url)]]";
+</script>
+<script src="js/checklist.js"></script>
+[[end]]
