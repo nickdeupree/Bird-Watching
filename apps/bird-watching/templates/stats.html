@@ -30,13 +30,13 @@
                  <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
                  <span class="has-text-weight-bold has-text-warning">{{ distinct_locations }}</span> locations.
                </h3>
-               <canvas id="totalSightingsChart" width="400" height="300"></canvas>
+               <!-- <canvas id="totalSightingsChart" width="400" height="300"></canvas> -->
                <h3>Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.</h3>
              </div>
 
        <div class="columns is-gapless"> <!-- Ensure no gaps between columns -->  
          <!-- Left Column: Species List -->
-         <div class="column is-half">
+         <div class="column is-one-quarter">
           <!-- <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1> -->
            <div class="field">
              <div class="control has-icons-left is-expanded">
@@ -76,7 +76,7 @@
                <canvas id="speciesChart" width="400" height="300"></canvas>
          </div>
         -->
-        <div class="column is-half">
+        <div class="column is-three-quarters">
           <!-- <p>{{total_species}}</p> -->
           <!-- Display the total number of observations for the selected species -->
           <div v-if="selected_species" class="content is-flex is-flex-direction-column is-align-items-center is-justify-content-center">

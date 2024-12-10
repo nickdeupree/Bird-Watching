@@ -47,13 +47,13 @@ app.data = {
     },
     mounted() {
         // Call the chart update when the component is mounted
-        this.update_total_sightings_chart();
+        // this.update_total_sightings_chart();
     },
     watch: {
         // Watch sighting_stats to update the chart whenever it changes
-        sighting_stats: function() {
-            this.update_total_sightings_chart();
-        }
+        // sighting_stats: function() {
+        //     this.update_total_sightings_chart();
+        // }
     },
     methods: {
         select_species: function(species) {
@@ -154,75 +154,75 @@ app.data = {
             });
         },
 
-        update_total_sightings_chart: function() {
-            const sightings = this.sighting_stats;
-            console.log("All sightings:", sightings);
+        // update_total_sightings_chart: function() {
+        //     const sightings = this.sighting_stats;
+        //     console.log("All sightings:", sightings);
 
-            if (this.totalSightingsChart_instance) {
-                this.totalSightingsChart_instance.destroy();  // Destroy the old chart instance
-            }
+        //     if (this.totalSightingsChart_instance) {
+        //         this.totalSightingsChart_instance.destroy();  // Destroy the old chart instance
+        //     }
 
-            // Aggregate sightings by date for the total chart
-            const dateCounts = {};
+        //     // Aggregate sightings by date for the total chart
+        //     const dateCounts = {};
 
-            sightings.forEach(sighting => {
-                const date = sighting.checklist.OBSERVATION_DATE;
+        //     sightings.forEach(sighting => {
+        //         const date = sighting.checklist.OBSERVATION_DATE;
 
-                if (dateCounts[date]) {
-                    dateCounts[date] += 1;  // Increment count for this date
-                } else {
-                    dateCounts[date] = 1;  // First sighting for this date
-                }
-            });
+        //         if (dateCounts[date]) {
+        //             dateCounts[date] += 1;  // Increment count for this date
+        //         } else {
+        //             dateCounts[date] = 1;  // First sighting for this date
+        //         }
+        //     });
 
-            // Prepare the data for the total sightings chart
-            const labels = Object.keys(dateCounts);  // Get the dates
-            const data = Object.values(dateCounts);  // Get the counts
+        //     // Prepare the data for the total sightings chart
+        //     const labels = Object.keys(dateCounts);  // Get the dates
+        //     const data = Object.values(dateCounts);  // Get the counts
 
-            // Optionally, sort the dates (chronologically)
-            labels.sort((a, b) => new Date(a) - new Date(b));
+        //     // Optionally, sort the dates (chronologically)
+        //     labels.sort((a, b) => new Date(a) - new Date(b));
 
-            // Create the total sightings Chart.js instance
-            const ctx = document.getElementById('totalSightingsChart').getContext('2d');
-            this.totalSightingsChart_instance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,  // Dates on x-axis
-                    datasets: [{
-                        label: 'Total Sightings of Birds',
-                        data: data,  // Number of sightings on y-axis
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0)', // No fill under the curve
-                        fill: false,  // No fill under the curve
-                        tension: 0.1,  // Smooth the curve
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            },
-                            type: 'category', // x-axis treats labels as categories (dates)
-                            ticks: {
-                                autoSkip: true,  // Skip labels if too many
-                                maxRotation: 90, // Rotate labels for better readability
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Number of Birds'
-                            },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+        //     // Create the total sightings Chart.js instance
+        //     const ctx = document.getElementById('totalSightingsChart').getContext('2d');
+        //     this.totalSightingsChart_instance = new Chart(ctx, {
+        //         type: 'line',
+        //         data: {
+        //             labels: labels,  // Dates on x-axis
+        //             datasets: [{
+        //                 label: 'Total Sightings of Birds',
+        //                 data: data,  // Number of sightings on y-axis
+        //                 borderColor: 'rgba(75, 192, 192, 1)',
+        //                 backgroundColor: 'rgba(75, 192, 192, 0)', // No fill under the curve
+        //                 fill: false,  // No fill under the curve
+        //                 tension: 0.1,  // Smooth the curve
+        //                 borderWidth: 2
+        //             }]
+        //         },
+        //         options: {
+        //             responsive: true,
+        //             scales: {
+        //                 x: {
+        //                     title: {
+        //                         display: true,
+        //                         text: 'Date'
+        //                     },
+        //                     type: 'category', // x-axis treats labels as categories (dates)
+        //                     ticks: {
+        //                         autoSkip: true,  // Skip labels if too many
+        //                         maxRotation: 90, // Rotate labels for better readability
+        //                     }
+        //                 },
+        //                 y: {
+        //                     title: {
+        //                         display: true,
+        //                         text: 'Number of Birds'
+        //                     },
+        //                     beginAtZero: true
+        //                 }
+        //             }
+        //         }
+        //     });
+        // }
 
         // filter_species: function () {
         //     let query = this.search_query.toLowerCase();
