@@ -439,6 +439,7 @@ def load_user_stats():
         distinct=True,  # Ensure the results are unique by species
         orderby=db.species.COMMON_NAME  # Ordering by species name (optional)
     ).as_list()
+    distinct_species = len(species_seen)
 
     total_species = db(
         (db.checklist.USER_EMAIL == user_email) & 
@@ -448,8 +449,12 @@ def load_user_stats():
         db.species.COMMON_NAME,
         db.sightings.OBSERVATION_COUNT.sum(),
         groupby=db.species.COMMON_NAME,
-        having=(db.checklist.USER_EMAIL == user_email)
+        # having=(db.checklist.USER_EMAIL == user_email)
     ).as_list()
+
+    for species in total_species:
+        species['total_observations'] = species['_extra'][f'SUM("sightings"."OBSERVATION_COUNT")']
+        del species['_extra']  # Remove the _extra field
 
     sighting_stats = db(
     (db.checklist.USER_EMAIL == user_email) & 
@@ -460,9 +465,32 @@ def load_user_stats():
         db.checklist.TIME_OBSERVATIONS_STARTED,
         orderby=db.checklist.OBSERVATION_DATE
     ).as_list()
-    
+
+    total_birds = db(
+        (db.checklist.USER_EMAIL == get_user_email()) & 
+        (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER)
+    ).select(db.sightings.OBSERVATION_COUNT.sum()).first()
+    total_birds_count = total_birds[db.sightings.OBSERVATION_COUNT.sum()] if total_birds else 0
+
+
+    distinct_locations = db(
+        db.checklist.USER_EMAIL == get_user_email()
+    ).select(
+        db.checklist.LATITUDE, db.checklist.LONGITUDE, distinct=True
+    )
+    distinct_location_count = len(distinct_locations)
+
+        
     # print(f"length of user stats is {len(user_stats)}")
     # for row in user_stats:
     #     print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
-    return dict(user_email=user_email, species_list=species_seen, total_species=total_species, sighting_stats=sighting_stats)
+    return dict(
+        user_email=user_email, 
+        species_list=species_seen, 
+        total_species=total_species, # not used yet
+        sighting_stats=sighting_stats,
+        total_birds=total_birds_count,
+        distinct_species=distinct_species,
+        distinct_locations=distinct_location_count
+        )
 
