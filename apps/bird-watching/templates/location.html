@@ -27,8 +27,14 @@
           <p><strong>Species Seen</strong></p>
           <ul class="buttons-list">
             <li v-for="(species, index) in speciesList" :key="index">
-              <button 
-                class="button is-light is-fullwidth mb-2 has-text-left" 
+              <button
+                :class="[
+                  'button',
+                  'is-fullwidth',
+                  'mb-2',
+                  'has-text-left',
+                  species === selectedSpecies ? 'is-primary' : 'is-light'
+                ]"
                 @click="debouncedLoadSpeciesChart(species)"
               >
                 {{ species }}
@@ -68,6 +74,7 @@
 </div>
 
 [[block page_scripts]]
+[[block footer]]
 <!-- Loads the index-specific js for Vue -->
 <script>
   let load_user_polygon_url = "[[=XML(load_user_polygon_url)]]";
@@ -79,4 +86,5 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/location.js"></script>
+
 [[end]]
