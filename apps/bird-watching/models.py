@@ -91,7 +91,6 @@ def populate_tables():
             for row in reader:
                 try:
                     db.checklist.insert(
-                        USER_EMAIL='apai03@icloud.com',
                         SAMPLING_EVENT_IDENTIFIER=row['SAMPLING EVENT IDENTIFIER'].strip(),
                         LATITUDE=float(row['LATITUDE']),
                         LONGITUDE=float(row['LONGITUDE']),

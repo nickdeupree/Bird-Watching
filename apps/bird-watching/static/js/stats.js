@@ -13,9 +13,7 @@ app.load_data = function () {
         app.vue.total_birds = r.data.total_birds;
         app.vue.distinct_species = r.data.distinct_species;
         app.vue.distinct_locations = r.data.distinct_locations;
-        console.log('sighting stats should be', app.vue.sighting_stats)
-        console.log('total species are ', app.vue.total_species);
-        console.log('total species should be ', r.data.total_species);
+        console.log('total birds should be', r.data.total_birds);
         console.log('total birds is', app.vue.total_birds);
         console.log('total birds is', app.vue.distinct_species);
         console.log('total birds is', app.vue.distinct_locations);
@@ -99,13 +97,19 @@ app.data = {
 
         },
 
+        reset_to_total_sightings: function() {
+            console.log("Resetting to total sightings view.");
+            this.selected_species = null;  // Reset selected species
+            this.update_species_chart();   // Update the chart to show total sightings
+        },
+
         update_species_chart: function() {
             if (this.is_loading) {
                 console.log("Data is still loading...");
                 return; // Prevent chart update until data is loaded
             }
             let sightings;
-        
+            
             // Check if a species is selected
             if (this.selected_species) {
                 sightings = this.selected_species_sightings;  // Filtered sightings for the selected species
@@ -114,12 +118,12 @@ app.data = {
                 sightings = this.sighting_stats;  // Use all sightings if no species is selected
                 console.log("All sightings:", sightings);
             }
-
+        
             if (sightings.length === 0) {
                 console.log("No sightings available for the chart.");
                 return;  // Don't render the chart if there's no data
             }
-
+        
             const canvas = document.getElementById('speciesChart');
             if (!canvas) {
                 console.error("Canvas element not found!");
@@ -137,39 +141,41 @@ app.data = {
                 this.chart_instance.destroy();
             }
         
-            // Aggregate sightings by date
-            const dateCounts = {};
+            // Aggregate sightings by Month Year (e.g., "January 2021")
+            const monthYearCounts = {};
         
             sightings.forEach(sighting => {
-                const date = sighting.checklist.OBSERVATION_DATE;
-        
-                // Count the sightings for each date
-                if (dateCounts[date]) {
-                    dateCounts[date] += 1;
+                const date = new Date(sighting.checklist.OBSERVATION_DATE);
+                
+                // Format the date to "Month YYYY" (e.g., "January 2021")
+                const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // "January 2021"
+                
+                // Count the sightings for each month-year
+                if (monthYearCounts[monthYear]) {
+                    monthYearCounts[monthYear] += 1;
                 } else {
-                    dateCounts[date] = 1;
+                    monthYearCounts[monthYear] = 1;
                 }
             });
         
             // Prepare the data for the chart
-            const labels = Object.keys(dateCounts);  // Get the dates
-            const data = Object.values(dateCounts);  // Get the counts
+            const labels = Object.keys(monthYearCounts);  // Get the "Month YYYY" labels
+            const data = Object.values(monthYearCounts);  // Get the counts of sightings
         
-            // Sort the dates chronologically
+            // Sort the dates chronologically by month-year
             labels.sort((a, b) => new Date(a) - new Date(b));
         
             // Create the Chart.js instance
-            // const ctx = document.getElementById('speciesChart').getContext('2d');
             this.chart_instance = new Chart(ctx, {
-                type: 'bar',
+                type: 'bar',  // Change chart type to 'bar'
                 data: {
-                    labels: labels,  // Dates on x-axis
+                    labels: labels,  // Dates (Month YYYY) on x-axis
                     datasets: [{
                         label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
                         data: data,  // Number of sightings on y-axis
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bar color
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: false,
+                        borderWidth: 1,
                     }]
                 },
                 options: {
@@ -178,10 +184,10 @@ app.data = {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Date',
+                                text: 'Month Year',
                             },
                             type: 'category',  // Treat the dates as categories
-                            labels: labels,  // Dates on the x-axis
+                            labels: labels,  // Month Year labels on the x-axis
                             ticks: {
                                 autoSkip: true,  // Skip labels if needed
                                 maxRotation: 90, // Rotate labels for better readability
