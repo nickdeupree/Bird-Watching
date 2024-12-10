@@ -33,7 +33,7 @@
                   'has-text-left',
                   species === selectedSpecies ? 'is-primary' : 'is-light'
                 ]"
-                @click="debouncedLoadSpeciesChart(species)"
+                @click="handleSpeciesClick(species)"
               >
                 {{ species }}
               </button>
