@@ -29,9 +29,6 @@ app.vue = Vue.createApp({
         };
     },
     methods: {
-        go_back() {
-            window.history.back();
-        },
         resetChart() {
             if (this.chart) {
                 this.chart.destroy();

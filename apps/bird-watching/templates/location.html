@@ -12,6 +12,9 @@
   
 
   <div class="container">
+    <div class="mt-4">
+      <button class="button is-info" onclick="window.location.href='[[=index_url]]'">Go back</button>
+   </div>
     <div class="columns">
       <!-- Sidebar -->
       <div class="column is-one-quarter">
@@ -79,6 +82,7 @@
   let get_sightings_for_checklist_url = "[[=XML(get_sightings_for_checklist_url)]]";
   let get_species_sightings_over_time_url = "[[=XML(get_species_sightings_over_time_url)]]";
   let get_top_contributors_url = "[[=XML(get_top_contributors_url)]]";
+  let index_url = "[[=XML(index_url)]]";
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/location.js"></script>

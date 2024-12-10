@@ -63,6 +63,7 @@ def location():
         get_sightings_for_checklist_url = URL('get_sightings_for_checklist', signer=url_signer),
         get_species_sightings_over_time_url = URL('get_species_sightings_over_time', signer=url_signer),
         get_top_contributors_url = URL('get_top_contributors', signer=url_signer),
+        index_url = URL('index')
     )
 
 @action('stats')
