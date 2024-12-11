@@ -7,9 +7,7 @@
 
     .quantity {
         display: inline-block;
-        /* Ensure the span behaves like a box */
         text-align: center;
-        /* Center the number within the box */
     }
 
     .field {
@@ -19,20 +17,14 @@
     .dropdown {
         position: absolute;
         top: 100%;
-        /* This positions the dropdown right below the input field */
         left: 0;
-        /* Aligns the dropdown with the left edge of the input field */
         width: 100%;
-        /* Makes the dropdown width the same as the input field */
         z-index: 1000;
-        /* Makes sure the dropdown stays on top of other content */
     }
 
     .dropdown-content {
         max-height: 200px;
-        /* Adds a max height for scrolling */
         overflow-y: auto;
-        /* Enables scrolling if the content exceeds max height */
     }
 
     .add-item,
@@ -88,7 +80,6 @@
                         <input class="input is-small" :disabled="true" type="date"
                             v-model="observation_date" @keydown.enter="moveFocus('obs_time')" ref="obs_date">
                     </div>
-                    <!-- <small class="help is-danger" v-if="!is_valid_date">Format must match yyyy-mm-dd</small> -->
                 </div>
             </div>
             <!-- Time Observation Started -->

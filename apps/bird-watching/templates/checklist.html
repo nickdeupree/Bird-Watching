@@ -7,9 +7,7 @@
 
   .quantity {
     display: inline-block;
-    /* Ensure the span behaves like a box */
     text-align: center;
-    /* Center the number within the box */
   }
 
   .field {
@@ -19,20 +17,14 @@
   .dropdown {
     position: absolute;
     top: 100%;
-    /* This positions the dropdown right below the input field */
     left: 0;
-    /* Aligns the dropdown with the left edge of the input field */
     width: 100%;
-    /* Makes the dropdown width the same as the input field */
     z-index: 1000;
-    /* Makes sure the dropdown stays on top of other content */
   }
 
   .dropdown-content {
     max-height: 200px;
-    /* Adds a max height for scrolling */
     overflow-y: auto;
-    /* Enables scrolling if the content exceeds max height */
   }
 
   .add-item,
@@ -71,9 +63,9 @@
     <div class="columns is-vcentered">
       <div class="column">
         <div class="field">
-          <label class="label is-small">Search for Species</label>
+          <label class="label is-small" for="search">Search for Species</label>
           <div class="control">
-            <input class="input" :disabled="checklist_empty" type="text" name="search_species"
+            <input class="input" id="search" :disabled="checklist_empty" type="text" name="search_species"
               placeholder="Search within checklist" v-model="search_species">
           </div>
         </div>
@@ -83,33 +75,37 @@
       <!-- Observation Date -->
       <div class="column is-one-third">
         <div class="field">
-          <label class="label is-small">Observation Date</label>
+          <label class="label is-small" for="date">Observation Date</label>
           <div class="control">
-            <input class="input is-small" type="date" v-model="observation_date" @blur="validate_input('date')"
-              :class="{'is-danger': !valid_date}" @keydown.enter="moveFocus('obs_time')" ref="obs_date">
+            <input class="input is-small" id="date" type="date" v-model="observation_date"
+              @blur="validate_input('date')" :class="{'is-danger': !valid_date}" @keydown.enter="moveFocus('obs_time')"
+              ref="obs_date">
           </div>
+          <!-- error message -->
           <small v-if="!valid_date" class="help is-danger">Invalid Date</small>
         </div>
       </div>
       <!-- Time Observation Started -->
       <div class="column is-one-third">
         <div class="field">
-          <label class="label is-small">Time Observation Started</label>
+          <label class="label is-small" for="time">Time Observation Started</label>
           <div class="control">
-            <input class="input is-small" type="time" v-model="observation_time"
+            <input class="input is-small" id="time" type="time" v-model="observation_time"
               @keydown.enter="moveFocus('obs_duration')" @blur="validate_input('time')"
               :class="{'is-danger': !valid_time}" ref="obs_time">
           </div>
+          <!-- error message -->
           <small v-if="!valid_time" class="help is-danger">Invalid Time</small>
         </div>
       </div>
       <!-- Duration of Observation -->
       <div class="column is-one-third">
         <div class="field">
-          <label class="label is-small">Duration of Observation</label>
+          <label class="label is-small" for="count">Duration of Observation</label>
           <div class="control">
-            <input class="input is-small" type="number" min="0" @keydown="prevent_negatives" placeholder="Enter number of minutes" v-model="duration"
-              @keydown.enter="moveFocus('species_input')" ref="obs_duration">
+            <input class="input is-small" id="count" type="number" min="0" @keydown="prevent_negatives"
+              placeholder="Enter number of minutes" v-model="duration" @keydown.enter="moveFocus('species_input')"
+              ref="obs_duration">
           </div>
         </div>
       </div>
@@ -123,7 +119,9 @@
             <input class="input" id="add-species" :class="{'is-danger': missing_species_name}" type="text"
               @keydown.enter="add_species" @click="showDropdown = true" placeholder="Add new species"
               v-model="new_species" ref="species_input">
+            <!-- error message -->
             <small v-if="missing_species_name" class="help is-danger ml-1">Species name is required</small>
+            <!-- dropdown -->
             <div class="dropdown is-active" ref="dropdown" v-if="showDropdown && show_species.length > 0">
               <div class="dropdown-menu">
                 <div class="dropdown-content">
@@ -133,6 +131,7 @@
                 </div>
               </div>
             </div>
+            <!-- error messages -->
             <small v-if="show_species.length > 0 && new_species.length > 0" class="help ml-1">Select from
               dropdown</small>
             <small v-if="show_species.length == 0 && new_species.length > 0" class="help ml-1">Not found, enter
@@ -140,8 +139,9 @@
           </div>
         </td>
         <td>
-          <input class="input" :disabled="!new_species" type="number" min="0" @keydown="prevent_negatives" @keydown.enter="add_species"
-            name="initial_quantity" placeholder="Enter number of birds" v-model="initial_quantity" ref="count">
+          <input class="input" :disabled="!new_species" type="number" min="0" @keydown="prevent_negatives"
+            @keydown.enter="add_species" name="initial_quantity" placeholder="Enter number of birds"
+            v-model="initial_quantity" ref="count">
           <small class="help ml-1">Defaults to 1</small>
         </td>
         <td class="is-narrow"><button class="button submit-button is-success" @click="add_species">Add</button></td>
@@ -149,6 +149,7 @@
     </table>
     <!-- Checklist Table -->
     <table class="table is-fullwidth is-striped is-bordered">
+      <!-- header -->
       <thead>
         <tr>
           <th class="is-narrow has-text-centered">Count</th>
@@ -156,6 +157,7 @@
           <th class="is-narrow">Delete</th>
         </tr>
       </thead>
+      <!-- rows -->
       <tr class="item-row" v-for="(entry, idx) in filter_species"> <!-- table of species -->
         <td class="quantity-cell is-narrow">
           <button @click="update_quantity(idx, 1)"><span><i class="fa fa-plus"></i></span></button>
@@ -170,8 +172,8 @@
     </table>
     <!-- Saving Checklist -->
     <div class="checklist">
-      <button class="button submit-button is-success is-pulled-right mr-3"
-        @click="saveAndShowModal">Save Checklist</button>
+      <button class="button submit-button is-success is-pulled-right mr-3" @click="saveAndShowModal">Save
+        Checklist</button>
       <div class="modal" id="submitModal">
         <div class="modal-background"></div>
         <div class="modal-card" style="width: fit-content;">
@@ -179,8 +181,10 @@
             <p class="modal-card-title has-text-centered">Checklist Saved</p>
           </header>
           <footer class="modal-card-foot">
+            <!-- Goes to my_checklists -->
             <button class="button is-info is-fullwidth" @click="closeModal"
               onclick="window.location.href='[[=my_checklists_url]]'">My Checklists</button>
+            <!-- Goes to home -->
             <button class="button is-success is-fullwidth" @click="closeModal"
               onclick="window.location.href='[[=index_url]]'">OK</button>
           </footer>
