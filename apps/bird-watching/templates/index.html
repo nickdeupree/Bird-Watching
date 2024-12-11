@@ -32,64 +32,59 @@
 </style>
 [[end]]
 
-<div v-if="user_email">
-  <div class="section" id="vue-target" v-cloak>
-    <div class="field">
-      <div class="field" style="display: flex; align-items: center;">
-        <label class="label" style="margin-right: 10px;">
-          {{ selected_species ? 'Showing sightings for: ' + selected_species.COMMON_NAME : 'Select a species' }}
-        </label>
-        <button v-if="selected_species" class="button is-warning is-small" style="margin-left: auto;" @click="undo">
-          Undo
-        </button>
-      </div>
-      <div class="control">
-        <input class="input" type="text" v-model="searched" @keydown.enter="updateSelectedSpecies"
-          placeholder="Enter species name" />
+<div class="section" id="vue-target" v-cloak>
+  <div class="field">
+    <div class="field" style="display: flex; align-items: center;">
+      <label class="label" style="margin-right: 10px;">
+        {{ selected_species ? 'Showing sightings for: ' + selected_species.COMMON_NAME : 'Select a species' }}
+      </label>
+      <button v-if="selected_species" class="button is-warning is-small" style="margin-left: auto;" @click="undo">
+        Undo
+      </button>
+    </div>
+    <div class="control">
+      <input class="input" type="text" v-model="searched" @keydown.enter="updateSelectedSpecies"
+        placeholder="Enter species name" />
 
-        <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
-          <div class="dropdown-content">
-            <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
-              {{ species.COMMON_NAME }}
-            </a>
-          </div>
+      <div class="dropdown is-active" v-if="filteredSpecies.length > 0">
+        <div class="dropdown-content">
+          <a class="dropdown-item" v-for="species in filteredSpecies" @click="selectSpecies(species)">
+            {{ species.COMMON_NAME }}
+          </a>
         </div>
       </div>
     </div>
+  </div>
 
-    <div id="map"></div>
+  <div id="map"></div>
 
-    <div class="is-flex is-justify-content-space-between is-align-items-center mt-2">
-      <div>
-        <!-- Start Drawing Button -->
-        <button class="button is-success mr-3" @click="handleDrawingClick" :disabled="handleDrawing || is_selecting">
-          <span v-if="is_drawing">Go to Location</span>
-          <span v-else>Start Drawing</span>
-        </button>
+  <div class="is-flex is-justify-content-space-between is-align-items-center mt-2">
+    <div>
+      <!-- Start Drawing Button -->
+      <button class="button is-success mr-3" @click="handleDrawingClick" :disabled="handleDrawing || is_selecting">
+        <span v-if="is_drawing">Go to Location</span>
+        <span v-else>Start Drawing</span>
+      </button>
 
-        <!-- Select Location Button -->
-        <button class="button is-info mr-3" @click="handleSelectingClick" :disabled="handleSelecting || is_drawing">
-          <span v-if="is_selecting">Create Checklist</span>
-          <span v-else>Select Location</span>
-        </button>
-      </div>
-
-      <!-- Clear Drawing Button, aligned to the right -->
-      <button class="button is-danger" @click="clearMap" v-if="is_drawing || is_selecting">
-        Clear
+      <!-- Select Location Button -->
+      <button class="button is-info mr-3" @click="handleSelectingClick" :disabled="handleSelecting || is_drawing">
+        <span v-if="is_selecting">Create Checklist</span>
+        <span v-else>Select Location</span>
       </button>
     </div>
 
-    <p v-if="is_drawing" class="mt-2">
-      Draw the polygon clicking to create vertices and finish by clicking go to location.
-    </p>
-    <p v-if="is_selecting" class="mt-2">
-      Click on the map to select a location and finish by clicking 'Create Checklist'.
-    </p>
-
+    <!-- Clear Drawing Button, aligned to the right -->
+    <button class="button is-danger" @click="clearMap" v-if="is_drawing || is_selecting">
+      Clear
+    </button>
   </div>
-</div>
-</div>
+
+  <p v-if="is_drawing" class="mt-2">
+    Draw the polygon clicking to create vertices and finish by clicking go to location.
+  </p>
+  <p v-if="is_selecting" class="mt-2">
+    Click on the map to select a location and finish by clicking 'Create Checklist'.
+  </p>
 </div>
 
 [[block page_scripts]]
