@@ -116,6 +116,7 @@ app.data = {
                 console.log("Data is still loading...");
                 return; // Prevent chart update until data is loaded
             }
+        
             let sightings;
             
             // Check if a species is selected
@@ -149,7 +150,7 @@ app.data = {
                 this.chart_instance.destroy();
             }
         
-            // Aggregate sightings by Month Year (e.g., "January 2021")
+            // Aggregate sightings by Month Year (e.g., "January 2021") and sum OBSERVATION_COUNT
             const monthYearCounts = {};
         
             sightings.forEach(sighting => {
@@ -158,17 +159,20 @@ app.data = {
                 // Format the date to "Month YYYY" (e.g., "January 2021")
                 const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // "January 2021"
                 
-                // Count the sightings for each month-year
+                // Add the observation count for the sighting (instead of just counting sightings)
+                const observationCount = sighting.sightings.OBSERVATION_COUNT;
+                
+                // Sum the OBSERVATION_COUNT for each month-year
                 if (monthYearCounts[monthYear]) {
-                    monthYearCounts[monthYear] += 1;
+                    monthYearCounts[monthYear] += observationCount;
                 } else {
-                    monthYearCounts[monthYear] = 1;
+                    monthYearCounts[monthYear] = observationCount;
                 }
             });
         
             // Prepare the data for the chart
             const labels = Object.keys(monthYearCounts);  // Get the "Month YYYY" labels
-            const data = Object.values(monthYearCounts);  // Get the counts of sightings
+            const data = Object.values(monthYearCounts);  // Get the sum of observation counts for each month-year
         
             // Sort the dates chronologically by month-year
             labels.sort((a, b) => new Date(a) - new Date(b));
@@ -180,7 +184,7 @@ app.data = {
                     labels: labels,  // Dates (Month YYYY) on x-axis
                     datasets: [{
                         label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
-                        data: data,  // Number of sightings on y-axis
+                        data: data,  // Sum of observation counts on y-axis
                         backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bar color
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,
