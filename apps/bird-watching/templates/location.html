@@ -22,7 +22,7 @@
         </div>
 
         <div class="box species-list">
-          <p><strong>Species Seen</strong></p>
+          <p><strong>Species</strong></p>
           <ul class="buttons-list">
             <li v-for="(species, index) in speciesList" :key="index">
               <button
@@ -33,7 +33,7 @@
                   'has-text-left',
                   species === selectedSpecies ? 'is-primary' : 'is-light'
                 ]"
-                @click="debouncedLoadSpeciesChart(species)"
+                @click="handleSpeciesClick(species)"
               >
                 {{ species }}
               </button>
