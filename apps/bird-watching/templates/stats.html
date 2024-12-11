@@ -55,10 +55,15 @@
               </h6>
             
              <!-- Default content when no species is selected -->
+             <!-- Default content when no species is selected -->
              <h6 v-else class="subtitle is-size-4 has-text-left">
-               Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
-             </h6>
-            </h6>
+               <span v-if="sighting_stats.length === 0">
+                   Create new checklists and add the birds that you observe to be able to see each your stats per species.
+               </span>
+               <span v-else>
+                   Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
+               </span>
+           </h6>
 
           </div>
         </div>
@@ -101,15 +106,26 @@
            <!-- Chart -->
            <!-- <canvas id="speciesChart" witch="400" height="300"></canvas>  
          </div> -->
-         <div class="column is-three-quarters">
+         <!-- <div class="column is-three-quarters"> -->
           <!-- Conditionally render the chart or a "No Data" message -->
-               <div v-if="sighting_stats.length > 0 || selected_species" class="chart-container">
+               <!-- <div v-if="sighting_stats.length > 0 || selected_species" class="chart-container">
                <canvas id="speciesChart" width="400" height="300"></canvas>  
                </div>
                <div v-else class="no-data-message">
                <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
                </div>
-          </div>
+          </div> -->
+          <div class="column is-three-quarters">
+               <!-- Chart container with canvas always present -->
+               <div class="chart-container" style="position: relative;">
+                   <canvas id="speciesChart" width="400" height="300"></canvas>  
+           
+                   <!-- Conditionally render the no-data message, overlaying it on top of the canvas -->
+                   <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
+                       <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
+                   </div>
+               </div>
+           </div>
        </div>
      </div>
    </div>   
