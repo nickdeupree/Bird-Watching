@@ -552,6 +552,7 @@ def load_user_stats():
         db.species.COMMON_NAME,
         db.checklist.OBSERVATION_DATE,
         db.checklist.TIME_OBSERVATIONS_STARTED,
+        db.sightings.OBSERVATION_COUNT,
         orderby=db.checklist.OBSERVATION_DATE
     ).as_list()
 
