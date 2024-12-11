@@ -68,15 +68,23 @@ app.data = {
         app.load_data();
     },
     watch: {
-        selected_species(newSpecies, oldSpecies) {
-            console.log("Selected species changed:", newSpecies);
-            this.update_species_chart();  // Update chart when a species is selected
-        }
+        // selected_species(newSpecies, oldSpecies) {
+        //     console.log("Selected species changed:", newSpecies);
+        //     this.update_species_chart();  // Update chart when a species is selected
+        // }
     },
     methods: {
         select_species: function(species) {
-            console.log("species is", species);
-            this.selected_species = species;
+            if (this.selected_species === species) {
+                console.log("same species is clicked", this.selected_species)
+                this.selected_species = null;
+            } else {
+                console.log("new species is chosen", this.selected_species)
+                this.selected_species = species;
+            }
+            this.update_species_chart(); 
+            // console.log("species is", species);
+            // this.selected_species = species;
             // this.update_species_chart();  // Update chart when a species is selected
         },
 
@@ -97,17 +105,18 @@ app.data = {
 
         },
 
-        reset_to_total_sightings: function() {
-            console.log("Resetting to total sightings view.");
-            this.selected_species = null;  // Reset selected species
-            this.update_species_chart();   // Update the chart to show total sightings
-        },
+        // reset_to_total_sightings: function() {
+        //     console.log("Resetting to total sightings view.");
+        //     this.selected_species = null;  // Reset selected species
+        //     this.update_species_chart();   // Update the chart to show total sightings
+        // },
 
         update_species_chart: function() {
             if (this.is_loading) {
                 console.log("Data is still loading...");
                 return; // Prevent chart update until data is loaded
             }
+        
             let sightings;
             
             // Check if a species is selected
@@ -141,7 +150,7 @@ app.data = {
                 this.chart_instance.destroy();
             }
         
-            // Aggregate sightings by Month Year (e.g., "January 2021")
+            // Aggregate sightings by Month Year (e.g., "January 2021") and sum OBSERVATION_COUNT
             const monthYearCounts = {};
         
             sightings.forEach(sighting => {
@@ -150,17 +159,20 @@ app.data = {
                 // Format the date to "Month YYYY" (e.g., "January 2021")
                 const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // "January 2021"
                 
-                // Count the sightings for each month-year
+                // Add the observation count for the sighting (instead of just counting sightings)
+                const observationCount = sighting.sightings.OBSERVATION_COUNT;
+                
+                // Sum the OBSERVATION_COUNT for each month-year
                 if (monthYearCounts[monthYear]) {
-                    monthYearCounts[monthYear] += 1;
+                    monthYearCounts[monthYear] += observationCount;
                 } else {
-                    monthYearCounts[monthYear] = 1;
+                    monthYearCounts[monthYear] = observationCount;
                 }
             });
         
             // Prepare the data for the chart
             const labels = Object.keys(monthYearCounts);  // Get the "Month YYYY" labels
-            const data = Object.values(monthYearCounts);  // Get the counts of sightings
+            const data = Object.values(monthYearCounts);  // Get the sum of observation counts for each month-year
         
             // Sort the dates chronologically by month-year
             labels.sort((a, b) => new Date(a) - new Date(b));
@@ -172,7 +184,7 @@ app.data = {
                     labels: labels,  // Dates (Month YYYY) on x-axis
                     datasets: [{
                         label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
-                        data: data,  // Number of sightings on y-axis
+                        data: data,  // Sum of observation counts on y-axis
                         backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bar color
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,

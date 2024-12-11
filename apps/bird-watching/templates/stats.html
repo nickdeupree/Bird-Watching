@@ -18,6 +18,22 @@
 .table td {
     vertical-align: middle; /* Center-align text vertically */
 }
+
+.no-data-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;  /* Ensure it fills the column vertically */
+    text-align: center;
+    padding: 20px;
+    background-color: #f7f7f7; /* Light gray background */
+    border: 2px solid #ddd; /* Dashed border to differentiate the message box */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 18px;
+    color: #555;  /* Darker text color */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for elevation */
+    margin-top: 20px;
+}
 </style>
 
 <div class="section" id="app" v-cloak>
@@ -39,21 +55,21 @@
               </h6>
             
              <!-- Default content when no species is selected -->
+             <!-- Default content when no species is selected -->
              <h6 v-else class="subtitle is-size-4 has-text-left">
-               Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
-             </h6>
-            </h6>
+               <span v-if="sighting_stats.length === 0">
+                   Create new checklists and add the birds that you observe to be able to see each your stats per species.
+               </span>
+               <span v-else>
+                   Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
+               </span>
+           </h6>
 
-            <div class="buttons">
-               <button class="button is-primary" @click="reset_to_total_sightings">
-                 View Total Sightings
-               </button>
-             </div>
           </div>
         </div>
        </div>
    
-       <div class="columns is-gapless">
+       <div class="columns">
          <!-- Left Column: Species List -->
          <div class="column is-one-quarter">
            <div class="field">
@@ -78,7 +94,7 @@
              <tbody>
                <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
                  <td class="item">
-                   <button class="button is-fullwidth" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
+                   <button class="button is-fullwidth" :class="{'is-primary': selected_species === species}" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
                  </td>
                </tr>
              </tbody>
@@ -86,10 +102,30 @@
          </div>
    
          <!-- Right Column (Chart Area) -->
-         <div class="column is-three-quarters">      
+         <!-- <div class="column is-three-quarters">       -->
            <!-- Chart -->
-           <canvas id="speciesChart" witch="400" height="300"></canvas>  
-         </div>
+           <!-- <canvas id="speciesChart" witch="400" height="300"></canvas>  
+         </div> -->
+         <!-- <div class="column is-three-quarters"> -->
+          <!-- Conditionally render the chart or a "No Data" message -->
+               <!-- <div v-if="sighting_stats.length > 0 || selected_species" class="chart-container">
+               <canvas id="speciesChart" width="400" height="300"></canvas>  
+               </div>
+               <div v-else class="no-data-message">
+               <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
+               </div>
+          </div> -->
+          <div class="column is-three-quarters">
+               <!-- Chart container with canvas always present -->
+               <div class="chart-container" style="position: relative;">
+                   <canvas id="speciesChart" width="400" height="300"></canvas>  
+           
+                   <!-- Conditionally render the no-data message, overlaying it on top of the canvas -->
+                   <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
+                       <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
+                   </div>
+               </div>
+           </div>
        </div>
      </div>
    </div>   

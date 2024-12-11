@@ -436,7 +436,7 @@ def load_sightings():
     existingChecklist = db((db.checklist.LATITUDE == lat)
         & (db.checklist.LONGITUDE == long)
         & (db.checklist.USER_EMAIL == user_email)).select().first()
-    event_id = None
+    event_id = user_email
     obs_date = ""
     obs_time = ""
     obs_dur = ""
@@ -445,11 +445,6 @@ def load_sightings():
         obs_date = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.OBSERVATION_DATE).first().OBSERVATION_DATE
         obs_time = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.TIME_OBSERVATIONS_STARTED).first().TIME_OBSERVATIONS_STARTED
         obs_dur = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.DURATION_MINUTES).first().DURATION_MINUTES
-    else:
-        id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
-            LONGITUDE=long, USER_EMAIL=user_email, OBSERVER_ID=user_email)
-        db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
-        event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
     for sighting in sightings:
         species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
@@ -503,6 +498,16 @@ def remove_species():
 @action.uses(db, auth.user)
 def save_checklist():
     event_id = request.json.get('event_id')
+    email = get_user_email()    
+    if event_id == email:
+        point = db(db.user_point).select(db.user_point.lat, db.user_point.lng).first()
+        lat = point.lat
+        long = point.lng
+        id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER=email, LATITUDE=lat, 
+            LONGITUDE=long, USER_EMAIL=email, OBSERVER_ID=email)
+        db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
+        event_id = str(id)
+    db(db.sightings.SAMPLING_EVENT_IDENTIFIER == email).update(SAMPLING_EVENT_IDENTIFIER=event_id)
     observation_date = request.json.get('observation_date')
     time_observations_started = request.json.get('observation_time')
     duration_minutes = request.json.get('duration')
@@ -547,6 +552,7 @@ def load_user_stats():
         db.species.COMMON_NAME,
         db.checklist.OBSERVATION_DATE,
         db.checklist.TIME_OBSERVATIONS_STARTED,
+        db.sightings.OBSERVATION_COUNT,
         orderby=db.checklist.OBSERVATION_DATE
     ).as_list()
 
