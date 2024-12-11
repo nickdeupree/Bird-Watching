@@ -73,6 +73,7 @@ def stats():
         load_user_stats_url = URL('load_user_stats')
     )
 
+# returns urls needed for the checklist page
 @action('checklist')
 @action.uses('checklist.html', db, auth.user)
 def checklist():
@@ -86,6 +87,7 @@ def checklist():
         save_checklist_url = URL('save_checklist')
     )
 
+# returns urls needed for the view_checklist page
 @action('view_checklist')
 @action.uses('view_checklist.html', db, auth.user)
 def view_checklist():
@@ -99,6 +101,7 @@ def view_checklist():
         save_checklist_url = URL('save_checklist')
     )
 
+# creates a grid for the user's checklists and returns a dictionary with the grid and the index url
 @action('my_checklists')
 @action('my_checklists/<path:path>', method=['POST', 'GET'])
 @action.uses('my_checklists.html', db, session, auth.user)
@@ -136,6 +139,7 @@ def my_checklists(path=None):
         index_url=URL('index')
     )
 
+# button for going to the map location of the selected checklist
 class GridUpdateCenterButton(object):
     """To update center with latitude and longitude."""
     def __init__(self):
@@ -147,6 +151,7 @@ class GridUpdateCenterButton(object):
         self.message = None
         self.onclick = None  
 
+# button for viewing the selected checklist (uneditable)
 class GridViewButton(object):
     """This is the edit button for the grid."""
     def __init__(self):
@@ -158,6 +163,7 @@ class GridViewButton(object):
         self.message = None
         self.onclick = None # Used for things like confirmation.
 
+# button for editing the selected checklist
 class GridEditButton(object):
     """This is the edit button for the grid."""
     def __init__(self):
@@ -169,6 +175,7 @@ class GridEditButton(object):
         self.message = None
         self.onclick = None # Used for things like confirmation.
 
+# button for deleting the selected checklist
 class GridDeleteButton(object):
     """This is the edit button for the grid."""
     def __init__(self):
@@ -179,6 +186,7 @@ class GridDeleteButton(object):
         self.text = 'Delete'
         self.message = None
         self.onclick = None # Used for things like confirmation.
+
 
 @action('update_center/<checklist_id:int>')
 @action.uses(db, auth.user)
@@ -200,6 +208,9 @@ def update_center(checklist_id):
     )
     return redirect(URL('index'))
 
+
+# function to edit the selected checklist
+# updates user_point table with lat and long of selected checklist, then redirects to the checklist page
 @action('edit_selected_checklist/<checklist_id:int>')
 @action.uses('edit_selected_checklist', db, auth.user)
 def edit_selected_checklist(checklist_id=None):
@@ -207,6 +218,8 @@ def edit_selected_checklist(checklist_id=None):
     db(db.user_point).update(lat=checklist.LATITUDE, lng=checklist.LONGITUDE)
     redirect(URL('checklist'))
 
+# function to view the selected checklist
+# updates user_point table with lat and long of selected checklist, then redirects to the view_checklist page
 @action('view_selected_checklist/<checklist_id:int>')
 @action.uses('view_selected_checklist', db, auth.user)
 def view_selected_checklist(checklist_id=None):
@@ -214,6 +227,8 @@ def view_selected_checklist(checklist_id=None):
     db(db.user_point).update(lat=checklist.LATITUDE, lng=checklist.LONGITUDE)
     redirect(URL('view_checklist'))
 
+# function to delete the selected checklist
+# deletes all sightings associated with the checklist, then deletes the checklist
 @action('delete_selected_checklist/<checklist_id:int>')
 @action.uses('delete_selected_checklist', db, auth.user)
 def delete_selected_checklist(checklist_id=None):
@@ -426,6 +441,11 @@ def save_user_point():
                 last_updated=get_time()
             )            
 
+# function to load all the sightings for a checklist at a specific location (lat, long)
+
+# returns the event_id, all sightings all sightings associated with it, and if available: 
+# observation date, observation time, observation duration
+# if the checklist does not exist, event_id is the user's email until the checklist is saved
 @action('load_sightings_url', method=["GET"])
 @action.uses(db, auth.user)
 def load_sightings():
@@ -454,11 +474,18 @@ def load_sightings():
     return dict(event_id=event_id, obs_date=obs_date, obs_time=obs_time, obs_dur=obs_dur, 
                 sightings=reversed(sightings), all_species=all_species)
 
+
+# function to add a species to the sightings table
+# if the species is already in the species table, get id, otherwise add to species table and get id
+# if the species is already in the sightings table for the event, update the quantity
+# if not, add to sightings table
+# return sighting and event ids
 @action('add_to_sightings', method=["POST"])
 @action.uses(db, auth.user)
 def add_to_sightings():
     event_id = request.json.get("event_id")
     species_name = request.json.get("species_name")
+    species_name = species_name.lower()
     quantity = request.json.get("quantity")
     species_id = db(db.species.COMMON_NAME == species_name).select(db.species.id).first()
     if species_id:
@@ -475,6 +502,7 @@ def add_to_sightings():
             id = db.sightings.insert(SAMPLING_EVENT_IDENTIFIER=event_id, species_id=species_id, OBSERVATION_COUNT=quantity)
     return dict(id=id, species_id=species_id)
 
+# function to update the quantity of a species in the sightings table, aka in the checklist
 @action('update_quantity', method=["POST"])
 @action.uses(db, auth.user)
 def update_quantity():
@@ -485,6 +513,7 @@ def update_quantity():
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).update(OBSERVATION_COUNT=quantity)
     return "ok"
 
+# function to remove a species from the sightings table, aka from the checklist
 @action('remove_species', method=["POST"])
 @action.uses(db, auth.user)
 def remove_species():
@@ -494,6 +523,9 @@ def remove_species():
        (db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id)).delete()
     return "ok"
 
+# function to save the checklist
+# if event_id is user email, create a new checklist and update SAMPLING_EVENT_IDENTIFIER for sightings table as well
+# this is also where observation date, time, and duration are updated/saved
 @action('save_checklist', method=["POST"])
 @action.uses(db, auth.user)
 def save_checklist():
