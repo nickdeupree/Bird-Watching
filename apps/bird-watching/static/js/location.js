@@ -1,9 +1,5 @@
-// File: static/js/location.js
-
 "use strict";
 
-// This will be the object that will contain the Vue attributes
-// and be used to initialize it.
 let app = {};
 
 function debounce(func, wait) {
@@ -17,7 +13,6 @@ function debounce(func, wait) {
 app.vue = Vue.createApp({
     data() {
         return {
-            species: [],
             speciesList: [],
             topContributors: [],
             totalLists: 0,
@@ -36,7 +31,7 @@ app.vue = Vue.createApp({
             }
         },
         loadSpeciesChart(speciesName) {
-            if (this.isLoading) return; // Prevent rapid clicks
+            if (this.isLoading) return;
             this.isLoading = true;
             this.selectedSpecies = speciesName;
 
@@ -52,7 +47,7 @@ app.vue = Vue.createApp({
                         return;
                     }
 
-                    this.resetChart(); // Ensure any previous chart is destroyed
+                    this.resetChart();
 
                     this.chart = new Chart(ctx, {
                         type: 'line',
@@ -87,7 +82,7 @@ app.vue = Vue.createApp({
                     console.error('Error fetching species sightings:', error);
                 })
                 .finally(() => {
-                    this.isLoading = false; // Reset loading state
+                    this.isLoading = false; 
                 });
         },
         loadTotalSightingsChart() {
@@ -95,24 +90,15 @@ app.vue = Vue.createApp({
             this.isLoading = true;
             this.selectedSpecies = "Total Species Sightings";
         
-            // Debug logs
-            console.log('Checklists:', this.checklists);
-            console.log('Sightings:', this.sightings);
-        
-            // Process the sightings data we already have
             const sightingsByDate = {};
-            console.log('reset data');
         
-            // Initialize dates from checklists
             this.checklists.forEach(checklist => {
                 const date = checklist.OBSERVATION_DATE;
                 sightingsByDate[date] = 0;
             });
         
-            // Count sightings for each date
             if (this.sightings && this.sightings.length > 0) {
                 this.sightings.forEach(sighting => {
-                    console.log('Sighting:', sighting.sightings);
                     const sightingId = String(sighting.sightings.SAMPLING_EVENT_IDENTIFIER).trim();
                     
                     const matchingChecklists = this.checklists.filter(
@@ -134,10 +120,9 @@ app.vue = Vue.createApp({
                 });
             }
         
-            console.log('Processed sightings by date:', sightingsByDate);
         
-            // Convert to arrays for chart
             const dates = Object.keys(sightingsByDate).sort();
+
             const counts = dates.map(date => sightingsByDate[date]);
         
             const ctx = document.getElementById('myChart').getContext('2d');
@@ -180,7 +165,20 @@ app.vue = Vue.createApp({
             if (!this.isLoading){
                 this.loadSpeciesChart(speciesName);
             }
-        }, 1000), // adjust debounce delay as needed
+        }, 1000),
+        debouncedLoadTotalChart: debounce(function() {
+            if (!this.isLoading){
+                this.loadTotalSightingsChart();
+            }
+        }, 1000),
+        handleSpeciesClick(speciesName) {
+            if (speciesName === this.selectedSpecies) {
+                this.debouncedLoadTotalChart();
+            }
+            else {
+                this.debouncedLoadSpeciesChart(speciesName);
+            }
+        },
         fetchTopContributors() {
             const lats = this.polygonCoords.map(coord => coord[0]);
             const lngs = this.polygonCoords.map(coord => coord[1]);
@@ -208,7 +206,6 @@ app.vue = Vue.createApp({
                 return;
             }
         
-            // get the bounding box from the polygon coordinates
             const lats = this.polygonCoords.map(coord => coord[0]);
             const lngs = this.polygonCoords.map(coord => coord[1]);
         
@@ -218,7 +215,6 @@ app.vue = Vue.createApp({
             const max_lng = Math.max(...lngs);
             console.log('Bounding box:', min_lat, max_lat, min_lng, max_lng);
         
-            // Fetch checklists within the bounding box
             axios.post(find_locations_in_range_url, {
                 params: {
                     min_lat: min_lat,
@@ -253,7 +249,7 @@ app.vue = Vue.createApp({
                 const speciesSet = new Set(sightings.map(s => s.COMMON_NAME));
                 this.speciesList = Array.from(speciesSet);
                 
-                this.loadTotalSightingsChart();
+                this.debouncedLoadTotalChart();
             })
             .catch(error => {
                 console.error('Error fetching sightings:', error);

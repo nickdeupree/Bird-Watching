@@ -128,7 +128,7 @@ def my_checklists(path=None):
         search_queries=None, 
         search_form=None, editable=False, deletable=False, details=False, create=False,
         orderby=~db.checklist.id, grid_class_style=GridClassStyleBulma(), formstyle=FormStyleBulma,
-        columns=columns, headings=headings, post_action_buttons=[GridViewButton(), GridEditButton(), GridDeleteButton()]
+        columns=columns, headings=headings, post_action_buttons=[GridViewButton(), GridUpdateCenterButton(), GridEditButton(), GridDeleteButton()]
     )
 
     return dict(
@@ -136,11 +136,22 @@ def my_checklists(path=None):
         index_url=URL('index')
     )
 
+class GridUpdateCenterButton(object):
+    """To update center with latitude and longitude."""
+    def __init__(self):
+        self.url = URL('update_center')  
+        self.append_id = True  
+        self.additional_classes = 'button is-small is-responsive is-warning m-1'
+        self.icon = 'fa-map'  
+        self.text = 'View on map'
+        self.message = None
+        self.onclick = None  
+
 class GridViewButton(object):
     """This is the edit button for the grid."""
     def __init__(self):
         self.url = URL('view_selected_checklist')
-        self.append_id = True # append the ID to the edit.
+        self.append_id = True 
         self.additional_classes = 'button is-small is-responsive is-primary m-1'
         self.icon = 'fa-list-ul'
         self.text = 'View'
@@ -168,6 +179,26 @@ class GridDeleteButton(object):
         self.text = 'Delete'
         self.message = None
         self.onclick = None # Used for things like confirmation.
+
+@action('update_center/<checklist_id:int>')
+@action.uses(db, auth.user)
+def update_center(checklist_id):
+    user_email = get_user_email()
+    if not user_email:
+        return "User not logged in"
+    
+    checklist = db(db.checklist.id == checklist_id).select().first()
+    if not checklist or checklist.USER_EMAIL != user_email:
+        return "Checklist not found or not authorized"
+    
+    db(db.center.user_email == user_email).delete()
+
+    db.center.insert(
+        user_email=user_email,
+        LATITUDE=checklist.LATITUDE,
+        LONGITUDE=checklist.LONGITUDE
+    )
+    return redirect(URL('index'))
 
 @action('edit_selected_checklist/<checklist_id:int>')
 @action.uses('edit_selected_checklist', db, auth.user)
@@ -197,6 +228,8 @@ def delete_selected_checklist(checklist_id=None):
 @action.uses(db, auth.user)
 def load_species():
     all_species = db(db.species).select().as_list()
+    user_email = get_user_email() 
+    center = db(db.center.user_email == user_email).select().first()
     sightings_data = db(db.sightings).select(
         db.checklist.LATITUDE,                
         db.checklist.LONGITUDE,               
@@ -215,7 +248,7 @@ def load_species():
             'observation_count': sighting.sightings.OBSERVATION_COUNT, 
         })
 
-    return dict(all_species=all_species, species=species_info)
+    return dict(all_species=all_species, species=species_info, center=center)
 
 @action('find_locations_in_range', method=["POST"])
 @action.uses(db, auth.user)
@@ -403,7 +436,7 @@ def load_sightings():
     existingChecklist = db((db.checklist.LATITUDE == lat)
         & (db.checklist.LONGITUDE == long)
         & (db.checklist.USER_EMAIL == user_email)).select().first()
-    event_id = None
+    event_id = user_email
     obs_date = ""
     obs_time = ""
     obs_dur = ""
@@ -412,11 +445,6 @@ def load_sightings():
         obs_date = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.OBSERVATION_DATE).first().OBSERVATION_DATE
         obs_time = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.TIME_OBSERVATIONS_STARTED).first().TIME_OBSERVATIONS_STARTED
         obs_dur = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.DURATION_MINUTES).first().DURATION_MINUTES
-    else:
-        id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER="placeholder", LATITUDE=lat, 
-            LONGITUDE=long, USER_EMAIL=user_email, OBSERVER_ID=user_email)
-        db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
-        event_id = str(id)
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
     for sighting in sightings:
         species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
@@ -470,6 +498,16 @@ def remove_species():
 @action.uses(db, auth.user)
 def save_checklist():
     event_id = request.json.get('event_id')
+    email = get_user_email()    
+    if event_id == email:
+        point = db(db.user_point).select(db.user_point.lat, db.user_point.lng).first()
+        lat = point.lat
+        long = point.lng
+        id = db.checklist.insert(SAMPLING_EVENT_IDENTIFIER=email, LATITUDE=lat, 
+            LONGITUDE=long, USER_EMAIL=email, OBSERVER_ID=email)
+        db((db.checklist.LATITUDE == lat) & (db.checklist.LONGITUDE == long)).update(SAMPLING_EVENT_IDENTIFIER=str(id))
+        event_id = str(id)
+    db(db.sightings.SAMPLING_EVENT_IDENTIFIER == email).update(SAMPLING_EVENT_IDENTIFIER=event_id)
     observation_date = request.json.get('observation_date')
     time_observations_started = request.json.get('observation_time')
     duration_minutes = request.json.get('duration')

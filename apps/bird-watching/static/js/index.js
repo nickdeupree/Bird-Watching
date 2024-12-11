@@ -19,10 +19,12 @@ let init = (app) => {
         selected_species: null,
         all_species: [],
         heatmapData: [],
+        allHeatmapData: [],
         heatLayer: null,
         marker: null,
         handleSelecting: false,
         handleDrawing: false,
+        center: { LATITUDE: 37.7749, LONGITUDE: -122.4194 },
     };
 
     app.enumerate = (a) => {
@@ -103,6 +105,16 @@ let init = (app) => {
                 this.is_selecting = false;
             }
         },
+
+        clearMap() {
+            this.clearDrawing();
+            this.is_drawing = false;
+            this.handleDrawing = false; 
+            this.marker = null;
+            this.is_selecting = false;
+            this.handleSelecting = false;
+        },
+
         selectLocation: function () {
             if (this.is_selecting) {
                 if (this.drawing_polygon) {
@@ -157,7 +169,10 @@ let init = (app) => {
 
             this.updateHeatmap();
         },
-
+        undo: function () {
+            this.selected_species = null;
+            this.updateHeatmap();
+        },
         updateHeatmap() {
             try {
                 // Removing the existing heatmap layer
@@ -165,23 +180,32 @@ let init = (app) => {
                     this.map.removeLayer(this.heatLayer);
                     this.heatLayer = null;
                 }
-                // Only adding the heatmap layer if there is filtered data
-                if (this.filteredHeatmapData.length > 0) {
-                    let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));
+                if (this.selected_species === null) {
+                    let heatmapLayerData = this.allHeatmapData.map(item => item.slice(0, 3));
                     this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(this.map);
                 } else {
-                    console.error("No valid heatmap data found.");
+                    // Only adding the heatmap layer if there is filtered data
+                    if (this.filteredHeatmapData.length > 0) {
+                        let heatmapLayerData = this.filteredHeatmapData.map(item => item.slice(0, 3));
+                        this.heatLayer = L.heatLayer(heatmapLayerData, { radius: 25 }).addTo(this.map);
+                    } else {
+                        console.error("No valid heatmap data found.");
+                    }
                 }
             } catch {
                 console.error("Error updating heatmap.");
             }
-
         },
 
         load_data: function () {
             let self = this;
             axios.get(load_species_url).then((r) => {
                 self.all_species = r.data.all_species;
+                if(r.data.center !== null){
+                    self.center = r.data.center;
+                }
+                console.log(self.center);
+                
                 self.heatmapData = r.data.species
                     .filter((sighting) => sighting.latitude !== null && sighting.longitude !== null)
                     .map((sighting) => {
@@ -192,9 +216,9 @@ let init = (app) => {
                             sighting.species_id
                         ];
                     });
-
+                self.allHeatmapData = self.heatmapData;
                 setTimeout(() => {
-                    self.map = L.map("map").setView([37.4, -122], 8.5);
+                    self.map = L.map("map").setView([this.center.LATITUDE, this.center.LONGITUDE], 8.5);
                     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',

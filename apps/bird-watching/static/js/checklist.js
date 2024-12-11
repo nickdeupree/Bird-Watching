@@ -18,7 +18,10 @@ app.data = {
             showDropdown: false, // flag for showing species dropdown
             observation_date: null,
             observation_time: null,
-            duration: null
+            duration: null,
+            center: null,
+            valid_time: true,
+            valid_date: true,
         };
     },
     methods: {
@@ -110,8 +113,21 @@ app.data = {
             this.$nextTick(() => {
                 this.$refs[id].focus();
             });
-        }, showModal: function () {
+        }, saveAndShowModal: function () {
             let self = this;
+            if (self.observation_date == null || self.observation_date == "") {
+                self.valid_date = false;
+            } else {
+                self.valid_date = true;
+            }
+            if (self.observation_time == null || self.observation_time == "") {
+                self.valid_time = false;
+            }  else {
+                self.valid_time = true;
+            }
+            if (self.valid_date == false || self.valid_time == false) {
+                return;
+            }
             console.log(self.observation_date, self.observation_time, self.duration);
             axios.post(save_checklist_url, {
                 event_id: self.event_id,
@@ -145,6 +161,10 @@ app.data = {
                 width = `${Math.max(maxQuantity.toString().length, 3)}ch`;
             }
             self.max_char_width = width;
+        }, prevent_negatives: function (e) {
+            if (e.key === '-' || e.key === '+' || e.key === 'e' || e.key === '.') {
+                e.preventDefault();
+            }
         }
     },
     computed: {
