@@ -34,6 +34,8 @@ let init = (app) => {
     };
 
     app.methods = {
+        //Handling whether the button should be allowing polygon drawing 
+        //or take the user to the location page
         handleDrawingClick() {
             if (this.is_drawing) {
                 this.is_drawing = false;
@@ -44,7 +46,6 @@ let init = (app) => {
                         console.log("Polygon saved successfully!");
                     });
                 }
-
                 this.map.off('click');
                 window.location.href = location_url;
             } else {
@@ -52,6 +53,9 @@ let init = (app) => {
                 this.toggleDrawing();
             }
         },
+
+        //Handling whether the button should be allowing location selection 
+        //or taking to the checklist page
         handleSelectingClick() {
             if (this.is_selecting) {
                 this.is_selecting = false;
@@ -61,6 +65,7 @@ let init = (app) => {
                 this.selectLocation();
             }
         },
+        //Function to toggle drawing of the polygon
         toggleDrawing: function () {
             this.handleDrawing = true;
             
@@ -89,6 +94,7 @@ let init = (app) => {
             } 
         },
 
+        //Function to clear the drawing of the polygon from the map
         clearDrawing() {
             if (this.drawing_polygon) {
                 this.drawing_polygon.remove();  
@@ -106,6 +112,8 @@ let init = (app) => {
             }
         },
 
+        //Function to clear the map of any drawing and also 
+        //undo the previous button click by resetting the variables
         clearMap() {
             this.clearDrawing();
             this.is_drawing = false;
@@ -115,6 +123,7 @@ let init = (app) => {
             this.handleSelecting = false;
         },
 
+        //Function to select the location on the map and place the marker
         selectLocation: function () {
             if (this.is_selecting) {
                 if (this.drawing_polygon) {
@@ -147,6 +156,7 @@ let init = (app) => {
 
         },
 
+        //Function to update the selected species based on the search
         updateSelectedSpecies: function () {
             if (this.searched.trim()) {
                 let foundSpecies = this.all_species.find(species =>
@@ -162,6 +172,8 @@ let init = (app) => {
             }
         },
 
+        //Function to update selected species based on the 
+        //species selected from the dropdown
         selectSpecies: function (species) {
             this.selected_species = species;
             this.searched = '';
@@ -169,10 +181,14 @@ let init = (app) => {
 
             this.updateHeatmap();
         },
+
+        //Function to undo the selected species
         undo: function () {
             this.selected_species = null;
             this.updateHeatmap();
         },
+
+        //Function to update the heatmap based on the selected species
         updateHeatmap() {
             try {
                 // Removing the existing heatmap layer
