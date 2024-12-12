@@ -61,7 +61,7 @@
              <h6 v-else class="subtitle is-size-4 has-text-left">
               <!-- Text that appears when there are no species on the list. -->
                <span v-if="sighting_stats.length === 0">
-                   Create new checklists and add the birds that you observe to be able to see each your stats per species.
+                   Create new checklists and add the birds that you observe to be able to see your stats per species.
                </span>
                <!-- Text that appears when there are species on the list. -->
                <span v-else>
@@ -78,9 +78,6 @@
          <div class="column is-one-quarter">
            <div class="field">
              <div class="control has-icons-left is-expanded">
-               <span class="icon is-small">
-                 <i class="fa fa-search has-text-success"></i>
-               </span>
                <input class="input is-medium" 
                       type="text" 
                       id="speciesSearch" 
@@ -88,7 +85,7 @@
                       v-model="search_query">
              </div>
            </div>
-           
+           <!-- Formatted table for list -->
            <table class="table is-fullwidth is-striped is-hoverable">
              <thead>
                <tr>
@@ -109,12 +106,11 @@
           <div class="column is-three-quarters">
                <!-- Canvas for chart -->
                <div class="chart-container" style="position: relative;">
-                   <canvas id="speciesChart" width="400" height="300"></canvas>  
-           
-                   <!-- No-data message for when there is no user data -->
+                <!-- No-data message for when there is no user data -->
                    <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
                        <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
                    </div>
+                   <canvas id="speciesChart" width="400" height="300"></canvas>  
                </div>
            </div>
        </div>
