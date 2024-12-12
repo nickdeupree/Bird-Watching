@@ -78,7 +78,7 @@
           <label class="label is-small" for="date">Observation Date</label>
           <div class="control">
             <input class="input is-small" id="date" type="date" v-model="observation_date"
-              @blur="validate_input('date')" :class="{'is-danger': !valid_date}" @keydown.enter="moveFocus('obs_time')"
+              :class="{'is-danger': !valid_date}" @keydown.enter="moveFocus('obs_time')"
               ref="obs_date">
           </div>
           <!-- error message -->
@@ -91,7 +91,7 @@
           <label class="label is-small" for="time">Time Observation Started</label>
           <div class="control">
             <input class="input is-small" id="time" type="time" v-model="observation_time"
-              @keydown.enter="moveFocus('obs_duration')" @blur="validate_input('time')"
+              @keydown.enter="moveFocus('obs_duration')"
               :class="{'is-danger': !valid_time}" ref="obs_time">
           </div>
           <!-- error message -->
