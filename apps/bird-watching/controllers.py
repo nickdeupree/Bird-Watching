@@ -239,6 +239,8 @@ def delete_selected_checklist(checklist_id=None):
        (db.checklist.id == checklist_id)).delete()
     redirect(URL('my_checklists'))
 
+# function to load all species and sightings for the user 
+# -- used for heatmap on index page
 @action('load_species_url')
 @action.uses(db, auth.user)
 def load_species():
@@ -291,6 +293,7 @@ def find_locations_in_range():
     except Exception as e:
         return dict(error=str(e))
 
+# function to save the user's drawn polygon
 @action('save_user_polygon', method=["POST"])
 @action.uses(db, auth.user)
 def save_user_polygon():
@@ -418,6 +421,7 @@ def get_top_contributors():
     except Exception as e:
         return dict(error=str(e))
 
+# function to save the user's current location selection on map on index page
 @action('save_user_point', method=["POST"])
 @action.uses(db, auth.user)
 def save_user_point():
