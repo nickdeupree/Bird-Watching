@@ -9,7 +9,7 @@ The project is organized around the following main pages:
 - Stats page.  Enables users to see stats and compilations about their own data. 
 - Location page.  Enables users to ask for details about a birding location. 
 
-There can of course be auxiliary management pages built.  The four pages above should be developed in vue.js.  You can, for instance, assign one group member to develop each page. 
+To run this site, run ./py4web.sh and go to http://127.0.0.1:8000/bird-watching
 
 ## Index page - Ananya
 
