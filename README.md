@@ -42,6 +42,9 @@ In order to see the stats page, the user can click on the "My Stats" button in t
 
 If there is no user data, no chart is loaded and a message prompting users to add checklists is displayed.
 
+### Location
+after users draw a polygon on the index page & clicks the stats per location button the user will be redirected to the location page. if they've selected a region with no data the areas of the page will be blank. Otherwise the user will be able to see a list of species seen in the area, which users entered the most sightings, and a graph of the total sightings seen over time. By selected a species, the chart will update to show a graph specific to the selected species. 
+
 ### Instructions
 This is the page users see when they log in. They should see a map, centered on their region, with a density indication of where birds have been seen. The page should contain links to submit a checklist (the checklist page) and “My birding” (the stats page). 
 On the map, users should be able to draw a rectangle, and click on a button that says “statistics on region”.  This leads them to the statistics page for the selected region. 
