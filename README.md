@@ -45,6 +45,11 @@ If there is no user data, no chart is loaded and a message prompting users to ad
 ## Location - Nick
 after users draw a polygon on the index page & clicks the stats per location button the user will be redirected to the location page. if they've selected a region with no data the areas of the page will be blank. Otherwise the user will be able to see a list of species seen in the area, which users entered the most sightings, and a graph of the total sightings seen over time. By selected a species, the chart will update to show a graph specific to the selected species. 
 
+## Stats and Location Graph Notes
+We added a wait time every time graphs are loaded on the stats and location pages for two reasons: 
+1) So that there are no errors in rendering the graph if the page hasn't loaded yet
+2) It's a fun feature that allows users to view the graphs as they dynamically change when buttons are toggled.
+
 ### Instructions
 This is the page users see when they log in. They should see a map, centered on their region, with a density indication of where birds have been seen. The page should contain links to submit a checklist (the checklist page) and “My birding” (the stats page). 
 On the map, users should be able to draw a rectangle, and click on a button that says “statistics on region”.  This leads them to the statistics page for the selected region. 
