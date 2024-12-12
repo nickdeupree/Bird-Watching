@@ -47,7 +47,7 @@ after users draw a polygon on the index page & clicks the stats per location but
 
 ## Stats and Location Graph Notes
 We added a wait time every time graphs are loaded on the stats and location pages for two reasons: 
-1) So that there are no errors in rendering the graph if the page hasn't loaded yet
+1) So that there are no errors in rendering the graph if the page hasn't loaded yet.
 2) It's a fun feature that allows users to view the graphs as they dynamically change when buttons are toggled.
 
 ### Instructions
