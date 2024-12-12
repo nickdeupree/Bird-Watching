@@ -555,17 +555,20 @@ def save_checklist():
 @action.uses(db, auth.user)
 def load_user_stats():
     user_email = get_user_email()
+
+    # Query all species that user has seen
     species_seen = db(
         (db.checklist.USER_EMAIL == user_email) & 
         (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
         (db.sightings.species_id == db.species.id)
     ).select(
         db.species.COMMON_NAME,
-        distinct=True,  # Ensure the results are unique by species
-        orderby=db.species.COMMON_NAME  # Ordering by species name (optional)
+        distinct=True,  
+        orderby=db.species.COMMON_NAME  
     ).as_list()
     distinct_species = len(species_seen)
 
+    # Query the total sightings per species that user has seen
     total_species = db(
         (db.checklist.USER_EMAIL == user_email) & 
         (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
@@ -574,13 +577,13 @@ def load_user_stats():
         db.species.COMMON_NAME,
         db.sightings.OBSERVATION_COUNT.sum(),
         groupby=db.species.COMMON_NAME,
-        # having=(db.checklist.USER_EMAIL == user_email)
     ).as_list()
 
     for species in total_species:
         species['total_observations'] = species['_extra'][f'SUM("sightings"."OBSERVATION_COUNT")']
-        del species['_extra']  # Remove the _extra field
+        del species['_extra'] 
 
+    # Query the user's stats: observation date, observation count, common name, etc.
     sighting_stats = db(
     (db.checklist.USER_EMAIL == user_email) & 
     (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER) & 
@@ -592,6 +595,7 @@ def load_user_stats():
         orderby=db.checklist.OBSERVATION_DATE
     ).as_list()
 
+    # Query the total # of birds the user has seen
     total_birds = db(
         (db.checklist.USER_EMAIL == get_user_email()) & 
         (db.checklist.SAMPLING_EVENT_IDENTIFIER == db.sightings.SAMPLING_EVENT_IDENTIFIER)
@@ -599,21 +603,17 @@ def load_user_stats():
     observation_count = total_birds['_extra']['SUM("sightings"."OBSERVATION_COUNT")']
     total_birds_count = observation_count if observation_count is not None else 0
 
+    # Query the distinct locations in which the user has seen birds
     distinct_locations = db(
         db.checklist.USER_EMAIL == get_user_email()
     ).select(
         db.checklist.LATITUDE, db.checklist.LONGITUDE, distinct=True
     )
     distinct_location_count = len(distinct_locations)
-
-        
-    # print(f"length of user stats is {len(user_stats)}")
-    # for row in user_stats:
-    #     print(f"Species: {row.species.common_name}, Date: {row.checklist.OBSERVATION_DATE}, Time: {row.checklist.TIME_OBSERVATIONS_STARTED}")
     return dict(
         user_email=user_email, 
         species_list=species_seen, 
-        total_species=total_species, # not used yet
+        total_species=total_species, 
         sighting_stats=sighting_stats,
         total_birds=total_birds_count,
         distinct_species=distinct_species,

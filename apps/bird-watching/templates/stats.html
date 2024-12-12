@@ -1,140 +1,128 @@
 [[extend 'layout.html']]
 
 <style>
-[v-cloak] {
-     display: none;
-}
+  [v-cloak] {
+    display: none;
+  }
 
-.table .item-row {
+  .table .item-row {
     cursor: pointer;
-    padding: 1rem; /* Adds padding for a button-like feel */
+    padding: 1rem;
     transition: background-color 0.2s ease;
-}
+  }
 
-.table .item-row:hover {
-    background-color: #f5f5f5; /* Light grey background on hover */
-}
+  .table .item-row:hover {
+    background-color: #f5f5f5;
+  }
 
-.table td {
-    vertical-align: middle; /* Center-align text vertically */
-}
+  .table td {
+    vertical-align: middle;
+  }
 
-.no-data-message {
+  .no-data-message {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;  /* Ensure it fills the column vertically */
+    height: 100%;
     text-align: center;
     padding: 20px;
-    background-color: #f7f7f7; /* Light gray background */
-    border: 2px solid #ddd; /* Dashed border to differentiate the message box */
-    border-radius: 8px; /* Rounded corners */
+    background-color: #f7f7f7;
+    border: 2px solid #ddd;
+    border-radius: 8px;
     font-size: 18px;
-    color: #555;  /* Darker text color */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for elevation */
+    color: #555;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
-}
+  }
 </style>
 
 <div class="section" id="app" v-cloak>
-     <div class="container">
-       <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
-         <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
 
-         <div class="card">
-          <div class="card-content">
-            <h6 class="subtitle is-size-4 has-text-left">
-              In total, you've seen 
-              <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds. This includes 
-              <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
-              <span class="has-text-weight-bold has-text-link-dark">{{ distinct_locations }}</span> locations.
-              <h6 v-if="selected_species" class="subtitle is-size-4 has-text-left">
-               You have witnessed
-               <span class="has-text-weight-bold has-text-danger-dark">{{ get_total_observations_by_species() }}</span> sightings of
-               <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span> 
-              </h6>
-            
-             <!-- Default content when no species is selected -->
-             <!-- Default content when no species is selected -->
-             <h6 v-else class="subtitle is-size-4 has-text-left">
-               <span v-if="sighting_stats.length === 0">
-                   Create new checklists and add the birds that you observe to be able to see each your stats per species.
-               </span>
-               <span v-else>
-                   Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
-               </span>
-           </h6>
+  <!--Top of Page: Text-->
+  <div class="container">
+    <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
+      <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
 
+      <div class="card">
+        <div class="card-content">
+          <!--In total stats messsage-->
+          <h6 class="subtitle is-size-4 has-text-left">
+            In total, you've seen
+            <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds. This includes
+            <span class="has-text-weight-bold has-text-success">{{ distinct_species }}</span> different species in
+            <span class="has-text-weight-bold has-text-link-dark">{{ distinct_locations }}</span> locations.
+            <h6 v-if="selected_species" class="subtitle is-size-4 has-text-left">
+              You have witnessed
+              <span class="has-text-weight-bold has-text-danger-dark">{{ get_total_observations_by_species() }}</span>
+              sightings of
+              <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span>
+            </h6>
+
+            <!-- Default text when no species is selected. -->
+            <h6 v-else class="subtitle is-size-4 has-text-left">
+              <!-- Text that appears when there are no species on the list. -->
+              <span v-if="sighting_stats.length === 0">
+                Create new checklists and add the birds that you observe to be able to see your stats per species.
+              </span>
+              <!-- Text that appears when there are species on the list. -->
+              <span v-else>
+                Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out
+                more.
+              </span>
+            </h6>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="columns">
+      <!-- Left Column: Species List -->
+      <div class="column is-one-quarter">
+        <div class="field">
+          <div class="control has-icons-left is-expanded">
+            <input class="input is-medium" type="text" id="speciesSearch" placeholder="Search for species..."
+              v-model="search_query">
           </div>
         </div>
-       </div>
-   
-       <div class="columns">
-         <!-- Left Column: Species List -->
-         <div class="column is-one-quarter">
-           <div class="field">
-             <div class="control has-icons-left is-expanded">
-               <span class="icon is-small">
-                 <i class="fa fa-search has-text-success"></i>
-               </span>
-               <input class="input is-medium" 
-                      type="text" 
-                      id="speciesSearch" 
-                      placeholder="Search for species..." 
-                      v-model="search_query">
-             </div>
-           </div>
-           
-           <table class="table is-fullwidth is-striped is-hoverable">
-             <thead>
-               <tr>
-                 <th class="is-narrow">Species</th>
-               </tr>
-             </thead>
-             <tbody>
-               <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
-                 <td class="item">
-                   <button class="button is-fullwidth" :class="{'is-primary': selected_species === species}" @click="select_species(species)">{{ species.COMMON_NAME }}</button>
-                 </td>
-               </tr>
-             </tbody>
-           </table>
-         </div>
-   
-         <!-- Right Column (Chart Area) -->
-         <!-- <div class="column is-three-quarters">       -->
-           <!-- Chart -->
-           <!-- <canvas id="speciesChart" witch="400" height="300"></canvas>  
-         </div> -->
-         <!-- <div class="column is-three-quarters"> -->
-          <!-- Conditionally render the chart or a "No Data" message -->
-               <!-- <div v-if="sighting_stats.length > 0 || selected_species" class="chart-container">
-               <canvas id="speciesChart" width="400" height="300"></canvas>  
-               </div>
-               <div v-else class="no-data-message">
-               <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
-               </div>
-          </div> -->
-          <div class="column is-three-quarters">
-               <!-- Chart container with canvas always present -->
-               <div class="chart-container" style="position: relative;">
-                   <canvas id="speciesChart" width="400" height="300"></canvas>  
-           
-                   <!-- Conditionally render the no-data message, overlaying it on top of the canvas -->
-                   <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
-                       <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
-                   </div>
-               </div>
-           </div>
-       </div>
-     </div>
-   </div>   
+        <!-- Formatted table for list -->
+        <table class="table is-fullwidth is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th class="is-narrow">Species</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for='(species, species_index) in filtered_species_list' class="item-row">
+              <td class="item">
+                <button class="button is-fullwidth" :class="{'is-primary': selected_species === species}"
+                  @click="select_species(species)">{{ species.COMMON_NAME }}</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Right Column: Chart -->
+      <div class="column is-three-quarters">
+        <!-- Canvas for chart -->
+        <div class="chart-container" style="position: relative;">
+          <!-- No-data message for when there is no user data -->
+          <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
+            <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird
+              watching stats!</p>
+          </div>
+          <canvas id="speciesChart" width="400" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
-     let load_user_stats_url = "[[=XML(load_user_stats_url)]]";
- </script>
+  let load_user_stats_url = "[[=XML(load_user_stats_url)]]";
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="js/stats.js"></script>
 [[end]]
