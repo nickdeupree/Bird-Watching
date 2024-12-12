@@ -36,6 +36,12 @@ The My Checklists page shows the user a list of all checklists they have created
 - Edit: open the checklist in edit mode ('checklist' page)
 - Delete: delete the entire checklist
 
+## Stats Page
+
+In order to see the stats page, the user can click on the "My Stats" button in the navigation bar. There, they are able to see a summary of total statistics, including the total number of birds, total number of distinct species, and distinct locations in which they have seen birds. They can also see a chart displaying the number of birds they have seen over time. Next to the chart, there is a list of individual species buttons. Users can click each species button to toggle between a chart of all sightings and a chart of sightings for that species.
+
+If there is no user data, no chart is loaded and a message prompting users to add checklists is displayed.
+
 ### Instructions
 This is the page users see when they log in. They should see a map, centered on their region, with a density indication of where birds have been seen. The page should contain links to submit a checklist (the checklist page) and “My birding” (the stats page). 
 On the map, users should be able to draw a rectangle, and click on a button that says “statistics on region”.  This leads them to the statistics page for the selected region. 
