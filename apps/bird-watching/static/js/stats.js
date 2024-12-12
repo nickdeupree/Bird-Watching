@@ -19,6 +19,14 @@ app.load_data = function () {
     });
 };
 
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 app.data = {
     data: function() {
         return {
@@ -72,7 +80,7 @@ app.data = {
                 console.log("new species is chosen", this.selected_species)
                 this.selected_species = species;
             }
-            this.update_species_chart(); 
+            this.debounced_update_species_chart(); 
         },
 
         // Method for finding the total number of observations for a species
@@ -85,6 +93,12 @@ app.data = {
             return total_observations;
 
         },
+
+        debounced_update_species_chart: debounce(function(speciesName) {
+            if (!this.isLoading){
+                this.update_species_chart();
+            }
+        }, 1000),
 
         // Method used to update chart 
         update_species_chart: function() {
