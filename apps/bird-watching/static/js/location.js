@@ -24,7 +24,7 @@ app.vue = Vue.createApp({
             chart: null,
         };
     },
-    methods: 
+    methods: {
         resetChart() {
             if (this.chart) {
                 this.chart.destroy();
