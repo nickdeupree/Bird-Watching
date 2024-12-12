@@ -16,6 +16,26 @@ There can of course be auxiliary management pages built.  The four pages above s
 ### Implementation/usage decisions
 The first time a user logs in, they should see a map centered around the bay area, populated with the sightings from the prepopulated database information. From there, they can search for a species, select a species from the dropdown that appears, and see the sightings for just that species. Once a species is selected, an 'undo' button pops up that lets the user undo the species selection, going back to show all species sightings on the map. They can also click 'Start Drawing', and once 4 points have been selected (to create a polygon), the button changes to display 'Go to Location' and takes the user to the location page. They can also click 'Select Location' to select a single location on the map. Once one is selected, the button changes to 'Create Checklist' to take the user to the checklist creation page. Only one action is valid at a time (you can either draw a polygon or select a location). If one wants to clear the map or undo a button click (such as clicking 'Start Drawing' but changing their mind and not wanting to draw anything), click 'Clear'.
 
+## Checklist Pages
+
+### Implementation
+In order to input a new checklist, the user must select a single location on the home page map, and then select 'Create checklist'. This leads them to the checklist page. 
+
+The user can input the observation date, time the observation started, and duration of the observation at the top of the page. Date and time are required, however duration is not. If the user navigates away from the page without saving, but sightings are inputted, the checklist is still saved without the date and time info, so it can be edited later. Otherwise, if save is not clicked, a checklist is not created. 
+
+There is also a search bar at the top of the page, which allows the user to search through their checklist if they wish to, for example for editing the count of a specific species. 
+
+The user can use the add species field to add to their list, and when the user starts typing a dropdown comes up, from which they can select if it exists in the database, but they can also manually enter the details (in case it has never been seen). The default amount for count is 1 if not specified. The user can either use the 'add' button or hit enter from either field (add or quantity, but only when focused) to add to the list. The checklist itself has options for incrementing/decrementing the count and deleting the sighting. 
+
+When 'Save Checklist' is clicked, a modal pops up, which informs the user that their list has been saved, and gives them the option to go to 'My Checklists' or simply click 'ok', which takes them back to the home page. 
+
+The My Checklists page shows the user a list of all checklists they have created, with the latitute,longitude, and the observation details (not including species or count). They also have 4 options for each checklist.
+
+- View: open the checklist in view only mode ('view checklist' page)
+- View on map: go to the map location on the index page
+- Edit: open the checklist in edit mode ('checklist' page)
+- Delete: delete the entire checklist
+
 ### Instructions
 This is the page users see when they log in. They should see a map, centered on their region, with a density indication of where birds have been seen. The page should contain links to submit a checklist (the checklist page) and “My birding” (the stats page). 
 On the map, users should be able to draw a rectangle, and click on a button that says “statistics on region”.  This leads them to the statistics page for the selected region. 
