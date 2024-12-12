@@ -2,6 +2,7 @@
 
 let app = {};
 
+// add delay to function calls. 
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -23,13 +24,14 @@ app.vue = Vue.createApp({
             chart: null,
         };
     },
-    methods: {
+    methods: 
         resetChart() {
             if (this.chart) {
                 this.chart.destroy();
                 this.chart = null;
             }
         },
+        // create and display a chart for a specific species
         loadSpeciesChart(speciesName) {
             if (this.isLoading) return;
             this.isLoading = true;
@@ -85,6 +87,7 @@ app.vue = Vue.createApp({
                     this.isLoading = false; 
                 });
         },
+        // create and display a chart for all species in the selected location
         loadTotalSightingsChart() {
             if (this.isLoading) return;
             this.isLoading = true;
@@ -233,6 +236,7 @@ app.vue = Vue.createApp({
                 console.error('Error fetching checklists:', error);
             });
         },
+        // Get relevant sighting and species data from the checklist
         processChecklists() {
             this.totalLists = this.checklists.length;
         
@@ -257,6 +261,7 @@ app.vue = Vue.createApp({
         }
     },
     mounted() {
+        // Get the coordinates of the polygon
         axios.get(load_user_polygon_url)
             .then(response => {
                 this.polygonCoords = response.data.polygon_coords;
