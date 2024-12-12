@@ -16,7 +16,7 @@ There can of course be auxiliary management pages built.  The four pages above s
 ### Implementation/usage decisions
 The first time a user logs in, they should see a map centered around the bay area, populated with the sightings from the prepopulated database information. From there, they can search for a species, select a species from the dropdown that appears, and see the sightings for just that species. Once a species is selected, an 'undo' button pops up that lets the user undo the species selection, going back to show all species sightings on the map. They can also click 'Start Drawing', and once 4 points have been selected (to create a polygon), the button changes to display 'Go to Location' and takes the user to the location page. They can also click 'Select Location' to select a single location on the map. Once one is selected, the button changes to 'Create Checklist' to take the user to the checklist creation page. Only one action is valid at a time (you can either draw a polygon or select a location). If one wants to clear the map or undo a button click (such as clicking 'Start Drawing' but changing their mind and not wanting to draw anything), click 'Clear'.
 
-## Checklist Pages - Nikki
+## Checklist Pages - Nikita
 
 ### Implementation
 In order to input a new checklist, the user must select a single location on the home page map, and then select 'Create checklist'. This leads them to the checklist page. 
