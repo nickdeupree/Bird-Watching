@@ -7,42 +7,45 @@
 
 .table .item-row {
     cursor: pointer;
-    padding: 1rem; /* Adds padding for a button-like feel */
+    padding: 1rem; 
     transition: background-color 0.2s ease;
 }
 
 .table .item-row:hover {
-    background-color: #f5f5f5; /* Light grey background on hover */
+    background-color: #f5f5f5; 
 }
 
 .table td {
-    vertical-align: middle; /* Center-align text vertically */
+    vertical-align: middle; 
 }
 
 .no-data-message {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;  /* Ensure it fills the column vertically */
+    height: 100%; 
     text-align: center;
     padding: 20px;
-    background-color: #f7f7f7; /* Light gray background */
-    border: 2px solid #ddd; /* Dashed border to differentiate the message box */
-    border-radius: 8px; /* Rounded corners */
+    background-color: #f7f7f7; 
+    border: 2px solid #ddd; 
+    border-radius: 8px; 
     font-size: 18px;
-    color: #555;  /* Darker text color */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for elevation */
+    color: #555;  
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
     margin-top: 20px;
 }
 </style>
 
 <div class="section" id="app" v-cloak>
+
+     <!--Top of Page: Text-->
      <div class="container">
        <div class="content is-flex is-flex-direction-column is-align-items-left is-justify-content-left">
          <h1 class="title is-pulled-left">My Bird Watching At a Glance</h1>
 
          <div class="card">
           <div class="card-content">
+            <!--In total stats messsage-->
             <h6 class="subtitle is-size-4 has-text-left">
               In total, you've seen 
               <span class="has-text-weight-bold has-text-info">{{ total_birds }}</span> birds. This includes 
@@ -54,12 +57,13 @@
                <span class="has-text-weight-bold">{{ selected_species.COMMON_NAME }}</span> 
               </h6>
             
-             <!-- Default content when no species is selected -->
-             <!-- Default content when no species is selected -->
+             <!-- Default text when no species is selected. -->
              <h6 v-else class="subtitle is-size-4 has-text-left">
+              <!-- Text that appears when there are no species on the list. -->
                <span v-if="sighting_stats.length === 0">
                    Create new checklists and add the birds that you observe to be able to see each your stats per species.
                </span>
+               <!-- Text that appears when there are species on the list. -->
                <span v-else>
                    Curious about the different kinds of birds you've seen? Click on a bird in the list below to find out more.
                </span>
@@ -101,26 +105,13 @@
            </table>
          </div>
    
-         <!-- Right Column (Chart Area) -->
-         <!-- <div class="column is-three-quarters">       -->
-           <!-- Chart -->
-           <!-- <canvas id="speciesChart" witch="400" height="300"></canvas>  
-         </div> -->
-         <!-- <div class="column is-three-quarters"> -->
-          <!-- Conditionally render the chart or a "No Data" message -->
-               <!-- <div v-if="sighting_stats.length > 0 || selected_species" class="chart-container">
-               <canvas id="speciesChart" width="400" height="300"></canvas>  
-               </div>
-               <div v-else class="no-data-message">
-               <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
-               </div>
-          </div> -->
+         <!-- Right Column: Chart -->
           <div class="column is-three-quarters">
-               <!-- Chart container with canvas always present -->
+               <!-- Canvas for chart -->
                <div class="chart-container" style="position: relative;">
                    <canvas id="speciesChart" width="400" height="300"></canvas>  
            
-                   <!-- Conditionally render the no-data message, overlaying it on top of the canvas -->
+                   <!-- No-data message for when there is no user data -->
                    <div v-if="sighting_stats.length === 0 && !selected_species" class="no-data-message">
                        <p class="has-text-centered has-text-grey">No data available to display. Add to a checklist to see your bird watching stats!</p>
                    </div>

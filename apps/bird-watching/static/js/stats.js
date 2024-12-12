@@ -1,7 +1,5 @@
 "use strict";
 
-// This will be the object that will contain the Vue attributes
-// and be used to initialize it.
 let app = {};
 
 app.load_data = function () {
@@ -13,15 +11,11 @@ app.load_data = function () {
         app.vue.total_birds = r.data.total_birds;
         app.vue.distinct_species = r.data.distinct_species;
         app.vue.distinct_locations = r.data.distinct_locations;
-        console.log('total birds should be', r.data.total_birds);
-        console.log('total birds is', app.vue.total_birds);
-        console.log('total birds is', app.vue.distinct_species);
-        console.log('total birds is', app.vue.distinct_locations);
         app.vue.is_loading = false; // Set is_loading to false
         app.vue.update_species_chart(); // Update the chart with the loaded data
     }).catch(function (error) {
         console.error("Error loading data:", error);
-        app.vue.is_loading = false;  // Ensure the loading state is set to false even if there's an error
+        app.vue.is_loading = false; // Set loading state to false even with error
     });
 };
 
@@ -29,26 +23,28 @@ app.data = {
     data: function() {
         return {
             user_email: null,
-            species_list: [],
-            total_species: [],
-            sighting_stats: [],
-            total_birds: 0,
-            distinct_species: 0,
-            distinct_locations: 0,
-            search_query: '',
-            selected_species: null,  // Store selected species
-            chart_instance: null,     // Store Chart.js instance
+            species_list: [], // list for all of the species 
+            total_species: [], // list of species and their total counts
+            sighting_stats: [], // list of user sighting stats, including date, species, and # of sightings
+            total_birds: 0, // total overall number of birds
+            distinct_species: 0, // total number of distinct species 
+            distinct_locations: 0, // total number of locations
+            search_query: '', // for the search bar for species list
+            selected_species: null,  // flag for current selected species from list
+            chart_instance: null, // for the chart that is displayed
             is_loading: true,
 
         };
     },
     computed: {
+        // Filter the species list to show what's displayed 
         filtered_species_list: function() {
             let query = this.search_query.toLowerCase();
             return this.species_list.filter(species => {
                 return species.COMMON_NAME.toLowerCase().includes(query);
             });
         },
+        // Filter sighting stats to show stats for the selected species  
         selected_species_sightings: function() {
             if (this.selected_species) {
                 console.log("Selected species:", this.selected_species);
@@ -58,7 +54,6 @@ app.data = {
                     return sighting.species.COMMON_NAME === this.selected_species.COMMON_NAME;
                 });
                 
-                console.log("Filtered list of sightings:", filtered_sightings);
                 return filtered_sightings;
             }
             return [];
@@ -67,13 +62,8 @@ app.data = {
     mounted() {
         app.load_data();
     },
-    watch: {
-        // selected_species(newSpecies, oldSpecies) {
-        //     console.log("Selected species changed:", newSpecies);
-        //     this.update_species_chart();  // Update chart when a species is selected
-        // }
-    },
     methods: {
+        // Method used to toggle species buttons
         select_species: function(species) {
             if (this.selected_species === species) {
                 console.log("same species is clicked", this.selected_species)
@@ -83,35 +73,23 @@ app.data = {
                 this.selected_species = species;
             }
             this.update_species_chart(); 
-            // console.log("species is", species);
-            // this.selected_species = species;
-            // this.update_species_chart();  // Update chart when a species is selected
         },
 
+        // Method for finding the total number of observations for a species
         get_total_observations_by_species: function() {
             // Find the species in total_species that matches selected_species COMMON_NAME
-            console.log("Selected Species:", this.selected_species);
-            console.log("Total Species Array:", this.total_species);
-
             const species = this.total_species.find(s => s.species.COMMON_NAME === this.selected_species.COMMON_NAME);
-            console.log("species is", species);
-            console.log("this.selected species is", this.selected_species);
-
             // Return the total_observations of the matching species, or 0 if not found
             const total_observations = species ? species.total_observations : 0;
             console.log("Total Observations:", total_observations);
-
             return total_observations;
 
         },
 
-        // reset_to_total_sightings: function() {
-        //     console.log("Resetting to total sightings view.");
-        //     this.selected_species = null;  // Reset selected species
-        //     this.update_species_chart();   // Update the chart to show total sightings
-        // },
-
+        // Method used to update chart 
         update_species_chart: function() {
+
+            // Check to see if chart is still loading
             if (this.is_loading) {
                 console.log("Data is still loading...");
                 return; // Prevent chart update until data is loaded
@@ -124,7 +102,7 @@ app.data = {
                 sightings = this.selected_species_sightings;  // Filtered sightings for the selected species
                 console.log("Filtered sightings for species:", sightings);
             } else {
-                sightings = this.sighting_stats;  // Use all sightings if no species is selected
+                sightings = this.sighting_stats;  // Display data for all sightings if no data is selected
                 console.log("All sightings:", sightings);
             }
         
@@ -150,19 +128,17 @@ app.data = {
                 this.chart_instance.destroy();
             }
         
-            // Aggregate sightings by Month Year (e.g., "January 2021") and sum OBSERVATION_COUNT
             const monthYearCounts = {};
         
+            // Extract data from list of sightings data for graph
             sightings.forEach(sighting => {
                 const date = new Date(sighting.checklist.OBSERVATION_DATE);
                 
-                // Format the date to "Month YYYY" (e.g., "January 2021")
-                const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // "January 2021"
+                const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' }); // Format to Month YYYY
                 
-                // Add the observation count for the sighting (instead of just counting sightings)
-                const observationCount = sighting.sightings.OBSERVATION_COUNT;
+                const observationCount = sighting.sightings.OBSERVATION_COUNT; // Get observation count of sighting
                 
-                // Sum the OBSERVATION_COUNT for each month-year
+                // Add to observation count for each month YYYY
                 if (monthYearCounts[monthYear]) {
                     monthYearCounts[monthYear] += observationCount;
                 } else {
@@ -170,22 +146,20 @@ app.data = {
                 }
             });
         
-            // Prepare the data for the chart
-            const labels = Object.keys(monthYearCounts);  // Get the "Month YYYY" labels
-            const data = Object.values(monthYearCounts);  // Get the sum of observation counts for each month-year
+            const labels = Object.keys(monthYearCounts);  // x-axis data
+            const data = Object.values(monthYearCounts);  // y-axis data
         
-            // Sort the dates chronologically by month-year
-            labels.sort((a, b) => new Date(a) - new Date(b));
+            labels.sort((a, b) => new Date(a) - new Date(b)); // Sort dates chronologically
         
-            // Create the Chart.js instance
+            // Create the Chart instance
             this.chart_instance = new Chart(ctx, {
-                type: 'bar',  // Change chart type to 'bar'
+                type: 'bar', 
                 data: {
-                    labels: labels,  // Dates (Month YYYY) on x-axis
+                    labels: labels, 
                     datasets: [{
                         label: this.selected_species ? `Sightings of ${this.selected_species.COMMON_NAME}` : 'Total Sightings',
-                        data: data,  // Sum of observation counts on y-axis
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bar color
+                        data: data,  
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1,
                     }]
@@ -198,11 +172,11 @@ app.data = {
                                 display: true,
                                 text: 'Month Year',
                             },
-                            type: 'category',  // Treat the dates as categories
-                            labels: labels,  // Month Year labels on the x-axis
+                            type: 'category',  
+                            labels: labels,  
                             ticks: {
-                                autoSkip: true,  // Skip labels if needed
-                                maxRotation: 90, // Rotate labels for better readability
+                                autoSkip: true,  
+                                maxRotation: 90, 
                             }
                         },
                         y: {
