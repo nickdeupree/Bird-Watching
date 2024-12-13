@@ -470,6 +470,10 @@ def load_sightings():
         obs_time = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.TIME_OBSERVATIONS_STARTED).first().TIME_OBSERVATIONS_STARTED
         obs_dur = db(db.checklist.SAMPLING_EVENT_IDENTIFIER == event_id).select(db.checklist.DURATION_MINUTES).first().DURATION_MINUTES
     sightings = db(db.sightings.SAMPLING_EVENT_IDENTIFIER == event_id).select().as_list()
+    # getting rid of any sightings that didn't get saved to a checklist
+    if (sightings and event_id == user_email): 
+        db(db.sightings.SAMPLING_EVENT_IDENTIFIER == user_email).delete()
+        sightings = []
     for sighting in sightings:
         species_record = db(db.species.id == sighting['species_id']).select(db.species.COMMON_NAME).first()
         if species_record:
