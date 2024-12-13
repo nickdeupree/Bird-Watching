@@ -11,6 +11,10 @@ The project is organized around the following main pages:
 
 To run this site, run ./py4web.sh and go to http://127.0.0.1:8000/bird-watching
 
+## General Decisions - Everyone
+
+We decided to make the index page with the map available to everyone. Therefore, all users, logged in or not, can see the heatmap of all birds and be able to search different species to see the heatmap for individual species. In our implementation, we decided to require that users be logged in for all the other pages - location, checklists, and user stats - because this is how they can interact with each other and keep track of their own bird watching.
+
 ## Index page - Ananya
 
 ### Implementation/usage decisions
@@ -21,7 +25,7 @@ The first time a user logs in, they should see a map centered around the bay are
 ### Implementation
 In order to input a new checklist, the user must select a single location on the home page map, and then select 'Create checklist'. This leads them to the checklist page. 
 
-The user can input the observation date, time the observation started, and duration of the observation at the top of the page. Date and time are required, however duration is not. If the user navigates away from the page without saving, but sightings are inputted, the checklist is still saved without the date and time info, so it can be edited later. Otherwise, if save is not clicked, a checklist is not created. 
+The user can input the observation date, time the observation started, and duration of the observation at the top of the page. Date and time are required, however duration is not. If the user navigates away from the page without saving, but sightings are inputted, these sightings are not saved. The save button needs to be clicked, in order for a checklist to be created.
 
 There is also a search bar at the top of the page, which allows the user to search through their checklist if they wish to, for example for editing the count of a specific species. 
 
