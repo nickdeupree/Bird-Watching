@@ -40,7 +40,7 @@ from py4web.utils.grid import Grid, GridClassStyleBulma
 url_signer = URLSigner(session)
 
 @action('index')
-@action.uses('index.html', db, auth.user, url_signer)
+@action.uses('index.html', db, auth, url_signer)
 def index():
     return dict(
         # COMPLETE: return here any signed URLs you need.
@@ -242,7 +242,7 @@ def delete_selected_checklist(checklist_id=None):
 # function to load all species and sightings for the user 
 # -- used for heatmap on index page
 @action('load_species_url')
-@action.uses(db, auth.user)
+@action.uses(db, auth)
 def load_species():
     all_species = db(db.species).select().as_list()
     user_email = get_user_email() 
