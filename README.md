@@ -13,7 +13,7 @@ To run this site, run ./py4web.sh and go to http://127.0.0.1:8000/bird-watching
 
 ## General Decisions - Everyone
 
-We decided to make the index page with the map available to everyone. Therefore, all users, logged in or not, can see the heatmap of all birds and be able to search different species to see the heatmap for individual species. In our implementation, we decided to require that users be logged in for all the other pages - location, checklists, and user stats - because this is how they can interact with each other and keep track of their own bird watching.
+We decided to make the index page with the map available to everyone. Therefore, all users, logged in or not, can see the heatmap of all birds and be able to search different species to see the heatmap for individual species. In our implementation, we decided to require that users be logged in for all the other pages - location, checklists, and user stats - because this is how they can interact with each other and keep track of their own bird watching. If the user tries to go to these pages, they are directed to either log in or sign up. If the want to navigate back to the map without logging in, they can click on the Let's go bird watching! button in the navigation bar, which redirects them to the index page.
 
 ## Index page - Ananya
 
