@@ -55,8 +55,6 @@ We added a wait time every time graphs are loaded on the stats and location page
 2) It's a fun feature that allows users to view the graphs as they dynamically change when buttons are toggled.
 
 ### Map Implementation 
-
-#### Leaflet
 [Leaflet](https://leafletjs.com/).  
 Heatmap: [this plugin](https://github.com/Leaflet/Leaflet.heat). 
 
